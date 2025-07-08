@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import logo from '../../../../images/LogoLightMode.png'
+// import logo from '../../../../images/LogoLightMode.png'
 import { NavLink } from 'react-router-dom'
 // import { useSelector } from 'react-redux';
 import ManualModal from './ManualModal';
@@ -47,7 +47,7 @@ function HeaderMenu({ isOpen, onClose }) {
             <div className={`HeaderMenu ${isOpen ? 'HeaderMenuActive' : ''}`}>
                 <NavLink onClick={onClose} to='/'>
                     <div className='w-full mb-[30px]'>
-                        <img className='w-[150px]' src={logo} alt="Examify Logo" />
+                        {/* <img className='w-[150px]' src={logo} alt="Examify Logo" /> */}
                     </div>
                 </NavLink>
                 <nav className='flex items-start flex-col gap-[20px]'>
