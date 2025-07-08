@@ -12,7 +12,7 @@ import ExamDetail from "../Components/AdminPanel-Component/ExamDetail/ExamDetail
 import ExamKeyGenerate from "../Components/AdminPanel-Component/ExamKeyGenerate/ExamKeyGenerate";
 import Finance from "../Components/AdminPanel-Component/Finance/Finance";
 import KeyPrice from "../Components/AdminPanel-Component/KeyPrice/KeyPrice";
-import LoginStudyCenter from "../Components/AdminPanel-Component/Login-Study-Center/loginStudyCenter";
+import LoginStudyCenter from "../Components/AdminPanel-Component/LoginStudyCenter/LoginStudyCenter";
 import Price from "../Components/AdminPanel-Component/Price/Price";
 import Reyting from "../Components/AdminPanel-Component/Reyting/Reyting";
 import StudyCenterDashboard from "../Components/AdminPanel-Component/Study-Center-Dashboard/StudyCenterDashboard";
