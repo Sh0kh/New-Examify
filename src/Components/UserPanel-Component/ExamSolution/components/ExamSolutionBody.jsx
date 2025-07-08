@@ -355,6 +355,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
             setActivePart(parts[0].id);
         }
     }, [parts, activePart]);
+
     useEffect(() => {
         const formattedParts = parts.map(part => ({
             id: part.id,
@@ -384,26 +385,26 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     }
                 }
                 else if (questionType === 2) {
-                    // Для вопросов с множественным выбором (тип 2) - используем answer_id с массивом
+                    // Для вопросов с множественным выбором (тип 2) - используем selected_answers
                     if (Array.isArray(userAnswer)) {
                         if (userAnswer.length > 0) {
-                            answerObj.answer_id = userAnswer
+                            answerObj.selected_answers = userAnswer
                                 .filter(id => id !== undefined && id !== null && id !== '')
                                 .map(id => Number(id))
                                 .filter(id => !isNaN(id));
                         } else {
-                            answerObj.answer_id = [];
+                            answerObj.selected_answers = [];
                         }
                     } else if (userAnswer !== undefined && userAnswer !== null) {
                         // Если это не массив, но есть значение - конвертируем в массив
                         const numericAnswer = Number(userAnswer);
                         if (!isNaN(numericAnswer)) {
-                            answerObj.answer_id = [numericAnswer];
+                            answerObj.selected_answers = [numericAnswer];
                         } else {
-                            answerObj.answer_id = [];
+                            answerObj.selected_answers = [];
                         }
                     } else {
-                        answerObj.answer_id = [];
+                        answerObj.selected_answers = [];
                     }
                 }
                 else if ([3, 4, 6].includes(questionType)) {
