@@ -237,14 +237,31 @@ const EssayQuestion = ({ question, onAnswer, userAnswer, theme }) => {
     );
 };
 
-const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, exam_result_id }) => {
+const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, examResultId }) => {
     const [recording, setRecording] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [recordTime, setRecordTime] = useState(0);
     const mediaRecorderRef = useRef(null);
     const audioChunksRef = useRef([]);
+    const timerRef = useRef(null);
+
+    // Таймер записи
+    useEffect(() => {
+        if (recording) {
+            timerRef.current = setInterval(() => {
+                setRecordTime(prev => prev + 1);
+            }, 1000);
+        } else {
+            clearInterval(timerRef.current);
+        }
+
+        return () => clearInterval(timerRef.current);
+    }, [recording]);
 
     const handleRecord = async () => {
         if (!recording) {
             try {
+                setRecordTime(0);
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 mediaRecorderRef.current = new MediaRecorder(stream);
                 audioChunksRef.current = [];
@@ -253,15 +270,17 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, exam_result_i
                     audioChunksRef.current.push(e.data);
                 };
 
-                mediaRecorderRef.current.onstop = () => {
+                mediaRecorderRef.current.onstop = async () => {
                     const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
-                    uploadAudio(audioBlob); // ✅ Send to backend
+                    await uploadAudio(audioBlob);
+                    stream.getTracks().forEach(track => track.stop());
                 };
 
                 mediaRecorderRef.current.start();
                 setRecording(true);
             } catch (error) {
                 console.error("Mikrofon ruxsati rad etildi:", error);
+                alert("Microphone access denied. Please allow microphone access to record your answer.");
             }
         } else {
             mediaRecorderRef.current.stop();
@@ -270,9 +289,10 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, exam_result_i
     };
 
     const uploadAudio = async (audioBlob) => {
+        setUploading(true);
         const formData = new FormData();
         formData.append("audio", audioBlob, "answer.webm");
-        formData.append("exam_result_id", exam_result_id);
+        formData.append("exam_result_id", examResultId);
         formData.append("question_id", question.id);
 
         try {
@@ -281,16 +301,31 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, exam_result_i
                     "Content-Type": "multipart/form-data",
                 },
             });
-            console.log("Audio upload success:", response.data);
-            onAnswer?.("uploaded"); // update UI if needed
+
+            onAnswer({
+                answer_id: response.data.id,
+                file_path: response.data.file_path || null,
+                answer_text: null
+            });
+
         } catch (error) {
             console.error("Audio upload error:", error);
+            alert("Failed to upload audio. Please try again.");
+        } finally {
+            setUploading(false);
         }
     };
 
+    const formatTime = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    };
+
     return (
-        <div className="space-y-4">
-            <div className="flex flex-col space-y-3">
+        <div className="space-y-6">
+            {/* Question Section */}
+            <div className="flex flex-col space-y-4">
                 <p
                     className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}
                     dangerouslySetInnerHTML={{ __html: question.question_text }}
@@ -299,34 +334,82 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, exam_result_i
                     <img
                         src={CONFIG.API_URL + question.image_url}
                         alt="Question visual"
-                        className="max-w-[400px] h-auto rounded-lg border"
+                        className="max-w-full md:max-w-[400px] h-auto rounded-lg border"
                     />
                 )}
             </div>
-            <div className="mt-4">
-                <button
-                    onClick={handleRecord}
-                    className={`flex items-center px-4 py-2 rounded-md ${recording
-                        ? 'bg-red-500 text-white'
-                        : theme === 'dark'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-blue-500 text-white'
-                        }`}
-                >
-                    {recording ? (
-                        <>
-                            <span className="mr-2">To'xtatish</span>
-                            <div className="h-3 w-3 bg-white rounded-full animate-pulse"></div>
-                        </>
-                    ) : (
-                        <span>Javob yozishni boshlash</span>
+
+            {/* Recording Section */}
+            <div className="space-y-4">
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleRecord}
+                        disabled={uploading}
+                        className={`flex items-center justify-center px-6 py-3 rounded-lg font-medium transition-all
+                            ${recording
+                                ? 'bg-red-500 hover:bg-red-600 text-white'
+                                : theme === 'dark'
+                                    ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                    : 'bg-blue-500 hover:bg-blue-600 text-white'
+                            }
+                            ${uploading ? 'opacity-50 cursor-not-allowed' : ''}
+                        `}
+                    >
+                        {recording ? (
+                            <>
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
+                                </svg>
+                                To'xtatish
+                            </>
+                        ) : (
+                            <>
+                                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                </svg>
+                                Javob yozishni boshlash
+                            </>
+                        )}
+                    </button>
+
+                    {recording && (
+                        <div className="flex items-center">
+                            <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse mr-2"></div>
+                            <span className="font-medium">
+                                {formatTime(recordTime)}
+                            </span>
+                        </div>
                     )}
-                </button>
-                {userAnswer && (
-                    <div className={`mt-4 p-3 rounded-md ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-100'
-                        }`}>
-                        <p className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-                            }`}>Audio javob yozilgan</p>
+                </div>
+
+                {/* Status Messages */}
+                {uploading && (
+                    <div className={`flex items-center p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-800' : 'bg-blue-50'}`}>
+                        <svg className="animate-spin h-5 w-5 mr-3 text-blue-500" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        <span className={theme === 'dark' ? 'text-gray-300' : 'text-blue-700'}>
+                            Audio yuklanmoqda...
+                        </span>
+                    </div>
+                )}
+
+                {userAnswer && !uploading && (
+                    <div className={`flex items-center p-3 rounded-lg ${theme === 'dark' ? 'bg-green-900/30 border border-green-800' : 'bg-green-100 border border-green-200'}`}>
+                        <svg className="h-5 w-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className={theme === 'dark' ? 'text-green-300' : 'text-green-700'}>
+                            Audio javob muvaffaqiyatli yuklandi
+                        </span>
+                        <button
+                            onClick={handleRecord}
+                            className="ml-auto text-sm px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                        >
+                            Qayta yozish
+                        </button>
                     </div>
                 )}
             </div>
@@ -335,7 +418,7 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, exam_result_i
 };
 
 // Question type renderer
-const QuestionRenderer = ({ question, onAnswer, userAnswer, theme }) => {
+const QuestionRenderer = ({ question, onAnswer, userAnswer, theme, examResultId }) => {
     const questionTypeComponents = {
         1: MultipleChoiceQuestion, // Bitta javobli test (Quiz)
         2: MultipleSelectQuestion, // Bir nechta javobli test
@@ -354,6 +437,7 @@ const QuestionRenderer = ({ question, onAnswer, userAnswer, theme }) => {
             onAnswer={onAnswer}
             userAnswer={userAnswer}
             theme={theme}
+            examResultId={examResultId}
         />
     );
 };
@@ -364,6 +448,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [theme, setTheme] = useState('light');
     const SectionType = examData?.next_section?.type;
+
 
     const parts = examData?.section?.parts || examData?.next_section?.parts || [];
     const currentPart = parts.find(part => part.id === activePart) || parts[0];
@@ -482,13 +567,18 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         }
                     }
                     else if (questionType === 7) {
-                        if (userAnswer && (userAnswer.file_path || userAnswer.answer_text)) {
-                            answerObj.file_path = userAnswer.file_path || null;
-                            answerObj.answer_text = userAnswer.answer_text || null;
-                            hasAnswer = true;
+                        if (userAnswer && (userAnswer.file_path || userAnswer.answer_id)) {
+                            const answerObj = {
+                                question_id: q.id,
+                                question_type_id: q.question_type_id,
+                                answer_id: userAnswer.answer_id || null, // Используем answer_id из ответа
+                                answers: null,
+                                file_path: userAnswer.file_path || null,
+                                answer_text: null
+                            };
+                            acc.push(answerObj);
                         }
                     }
-
                     if (hasAnswer) {
                         acc.push(answerObj);
                     }
@@ -684,6 +774,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                                 )}
                                             </div>
                                             <QuestionRenderer
+                                                examResultId={examData?.exam_result?.id}
                                                 question={question}
                                                 onAnswer={(answer) => {
                                                     setUserAnswers(prev => ({

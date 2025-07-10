@@ -30,6 +30,7 @@ import ExamSolution from "../Components/UserPanel-Component/ExamSolution/ExamSol
 import Login from "../Components/UserPanel-Component/Login/Login";
 import Payment from "../Components/UserPanel-Component/Payment/Payment";
 import UserProfile from "../Components/UserPanel-Component/Profile/UserProfile";
+import MyResult from "../Components/UserPanel-Component/MyResult/MyResult";
 
 
 export const UserRoutes = [
@@ -42,6 +43,11 @@ export const UserRoutes = [
         name: 'User profile',
         path: '/profil',
         component: <UserProfile />
+    },
+    {
+        name: 'My Result',
+        path: '/my-result',
+        component: <MyResult />
     },
     {
         name: "Study center",
