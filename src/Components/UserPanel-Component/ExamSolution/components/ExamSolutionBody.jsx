@@ -310,8 +310,9 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     const [userAnswers, setUserAnswers] = useState({});
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [theme, setTheme] = useState('light');
+    const SectionType = examData?.next_section?.type
 
-    const parts = examData?.section?.parts || [];
+    const parts = examData?.section?.parts || examData?.next_section?.parts || [];
     const currentPart = parts.find(part => part.id === activePart);
 
     const currentQuestions = currentPart?.questions || [];
@@ -425,7 +426,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
             })
         }));
 
-        console.log('Отправляемые ответы:', formattedParts);
+
         setAnswers(formattedParts);
     }, [userAnswers, parts, setAnswers]);
     useEffect(() => {

@@ -38,7 +38,7 @@ const menuItems = [
     { text: `To'lovlar`, icon: <Money />, path: `/o'quv_markaz/tolovlar` },
     { text: `Moliya`, icon: <DashboardIcon />, path: `/o'quv_markaz/moliya` },
     { text: `Narxlar`, icon: <Money />, path: `/o'quv_markaz/narx` },
-    { text: 'Kalit narxi', icon: <DashboardIcon />, path: `/o'quv_markaz/kalit-narxi` },
+    // { text: 'Kalit narxi', icon: <DashboardIcon />, path: `/o'quv_markaz/kalit-narxi` },
 
 ];
 

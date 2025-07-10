@@ -28,6 +28,8 @@ export default function StudyCenter() {
         }
     };
 
+
+
     useEffect(() => {
         getAllExam();
     }, []);
@@ -38,10 +40,15 @@ export default function StudyCenter() {
             <main className="min-h-screen px-4 py-10 mt-[80px]">
                 <div className="container mx-auto">
                     <h1 className="text-3xl font-bold ">Study Center</h1>
-
                     {loading ? (
                         <div className="flex justify-center mt-10">
                             <Loading />
+                        </div>
+                    ) : exams.length === 0 ? (
+                        <div className="flex items-center justify-center h-[400px] mt-10">
+                            <Typography variant="h5" color="blue-gray" className="text-center">
+                                Not Data
+                            </Typography>
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-10">
@@ -64,8 +71,18 @@ export default function StudyCenter() {
                                                 {exam.name}
                                             </Typography>
 
-                                            <Typography color="gray" className="text-sm">
-                                                {exam?.description || "Описание отсутствует"}
+                                            <Typography color="gray" className="text-sm mb-2">
+                                                {exam?.description || "Tavsif mavjud emas"}
+                                            </Typography>
+
+                                            <Typography color="blue-gray" className="text-xs font-medium">
+                                                {exam?.date
+                                                    ? new Date(exam.date).toLocaleDateString("uz-UZ", {
+                                                        year: "numeric",
+                                                        month: "long",
+                                                        day: "numeric",
+                                                    })
+                                                    : "Sana mavjud emas"}
                                             </Typography>
                                         </CardBody>
                                     </Card>
@@ -73,6 +90,7 @@ export default function StudyCenter() {
                             ))}
                         </div>
                     )}
+
                 </div>
             </main>
             <Footer />

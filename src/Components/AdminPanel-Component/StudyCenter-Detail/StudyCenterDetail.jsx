@@ -94,15 +94,6 @@ export default function StudyCenterDetail() {
                 >
                     Foydalanuvchilar To’lovlari
                 </button>
-                <button
-                    onClick={() => handleTabChange("key")}
-                    className={`px-4 py-2 rounded-lg font-medium transition ${activeTab === "key"
-                        ? "bg-blue-500 text-white"
-                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                        }`}
-                >
-                    Kalitlar
-                </button>
             </div>
             <div
                 className={`transition-opacity duration-500 ${fade ? "opacity-100" : "opacity-0"

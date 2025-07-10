@@ -74,15 +74,15 @@ export default function ExamKey() {
 
                                     <p className="text-sm text-gray-600 mt-1">
                                         <strong>Kalit narxi:</strong>{" "}
-                                        {center.key_price !== null && center.key_price !== undefined
-                                            ? `${Number(center.key_price).toLocaleString("uz-UZ")} so'm`
+                                        {center.price !== null && center.price !== undefined
+                                            ? `${Number(center.price).toLocaleString("uz-UZ")} so'm`
                                             : "Mavjud emas"}
                                     </p>
 
                                     <p className="text-sm text-gray-600 mt-1">
                                         <strong>Kalit soni:</strong>{" "}
-                                        {center.keys_count !== null && center.keys_count !== undefined
-                                            ? `${Number(center.keys_count).toLocaleString("uz-UZ")}`
+                                        {center.all_keys_count !== null && center.all_keys_count !== undefined
+                                            ? `${Number(center.all_keys_count).toLocaleString("uz-UZ")}`
                                             : "Mavjud emas"}
                                     </p>
 

@@ -34,7 +34,7 @@ export default function Hero() {
             </p>
 
             {/* Call to Action Button */}
-            <Link to="/test" className="mt-6">
+            <Link to="/study-center" className="mt-6">
                 <button className="px-6 py-3 bg-primary normal-case bg-[#2563EB] text-white rounded-lg text-lg font-medium transition hover:bg-blue-700">
                     Try now
                 </button>

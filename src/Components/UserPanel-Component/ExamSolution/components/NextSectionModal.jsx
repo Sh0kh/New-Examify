@@ -7,10 +7,15 @@ import {
     IconButton
 } from "@material-tailwind/react";
 import { $api } from "../../../../utils";
+import { Alert } from "../../../../utils/Alert";
+import { useState } from "react";
 
-export default function NextSectionModal({ isOpen, onClose, answers, examData }) {
+export default function NextSectionModal({ isOpen, onClose, answers, examData, setDataFromChild }) {
+
+    const [loading, setLoading] = useState(false)
 
     const handleNextSection = async () => {
+        setLoading(true)
         try {
             const data = {
                 section_id: examData?.section?.id,
@@ -19,8 +24,14 @@ export default function NextSectionModal({ isOpen, onClose, answers, examData })
                 parts: answers
             }
             const response = await $api.post(`/user/check-section`, data)
+            setDataFromChild(response?.data)
+            onClose()
+            Alert("Muvaffaqiyatli qo'shildi", "success");
         } catch (error) {
             console.log(error)
+            Alert(`Xatolik: ${error}`, "error");
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -47,8 +58,10 @@ export default function NextSectionModal({ isOpen, onClose, answers, examData })
                     <Button color="blue" variant="outlined" onClick={onClose} fullWidth>
                         No
                     </Button>
-                    <Button onClick={handleNextSection} color="blue" fullWidth>
-                        Yes
+                    <Button
+                        disabled={loading}
+                        onClick={handleNextSection} color="blue" fullWidth>
+                        {loading ? 'Loading..' : 'Yes'}
                     </Button>
                 </div>
             </DialogFooter>
