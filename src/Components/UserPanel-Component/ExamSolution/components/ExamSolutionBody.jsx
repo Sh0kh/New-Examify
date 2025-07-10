@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Clock, FileText, CheckCircle, XCircle, AlertCircle, Moon, Sun } from 'lucide-react';
 import CONFIG from '../../../../utils/Config';
 import parse, { domToReact } from 'html-react-parser';
+import { $api } from '../../../../utils';
 
 // Question type components with dark mode support
 const MultipleChoiceQuestion = ({ question, onAnswer, userAnswer, theme }) => (
@@ -236,12 +237,55 @@ const EssayQuestion = ({ question, onAnswer, userAnswer, theme }) => {
     );
 };
 
-const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme }) => {
+const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, exam_result_id }) => {
     const [recording, setRecording] = useState(false);
+    const mediaRecorderRef = useRef(null);
+    const audioChunksRef = useRef([]);
 
-    const handleRecord = () => {
-        setRecording(!recording);
-        // Implement actual recording logic here
+    const handleRecord = async () => {
+        if (!recording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorderRef.current = new MediaRecorder(stream);
+                audioChunksRef.current = [];
+
+                mediaRecorderRef.current.ondataavailable = (e) => {
+                    audioChunksRef.current.push(e.data);
+                };
+
+                mediaRecorderRef.current.onstop = () => {
+                    const audioBlob = new Blob(audioChunksRef.current, { type: "audio/webm" });
+                    uploadAudio(audioBlob); // ✅ Send to backend
+                };
+
+                mediaRecorderRef.current.start();
+                setRecording(true);
+            } catch (error) {
+                console.error("Mikrofon ruxsati rad etildi:", error);
+            }
+        } else {
+            mediaRecorderRef.current.stop();
+            setRecording(false);
+        }
+    };
+
+    const uploadAudio = async (audioBlob) => {
+        const formData = new FormData();
+        formData.append("audio", audioBlob, "answer.webm");
+        formData.append("exam_result_id", exam_result_id);
+        formData.append("question_id", question.id);
+
+        try {
+            const response = await $api.post("/user/upload-audio", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            });
+            console.log("Audio upload success:", response.data);
+            onAnswer?.("uploaded"); // update UI if needed
+        } catch (error) {
+            console.error("Audio upload error:", error);
+        }
     };
 
     return (
@@ -500,7 +544,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         const totalQuestions = part.questions.length;
                         // Исправляем логику определения активной части
                         const isActive = activePart === part.id;
-                        
+
                         return (
                             <button
                                 key={part.id}
@@ -537,7 +581,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                                 Reading Passage
                             </h3>
-                            <div 
+                            <div
                                 className={`prose max-w-none ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
                                 dangerouslySetInnerHTML={{ __html: currentPart?.rules }}
                             />
