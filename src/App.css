@@ -52,7 +52,7 @@
   transform: translateX(0);
   transition: all .6s cubic-bezier(.22, .61, .24, 1) 0s;
 }
-
+/* 
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -65,7 +65,7 @@
 ::-webkit-scrollbar-thumb {
   background: #1B2A3D;
   border-radius: 20px;
-}
+} */
 
 .Service__wrapper {
   display: grid;

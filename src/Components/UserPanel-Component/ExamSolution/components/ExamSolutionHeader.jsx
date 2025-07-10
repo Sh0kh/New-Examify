@@ -16,7 +16,7 @@ export default function ExamSolutionHeader({
                 {/* Заголовок и переключатель */}
                 <div className="flex items-center gap-4">
                     <h2 className="text-black dark:text-white text-2xl font-bold">
-                        {examData?.section?.name || examData?.next_section?.name} 
+                        {examData?.section?.name || examData?.next_section?.name}
                     </h2>
                     <div className="w-[2px] h-[40px] bg-black dark:bg-white"></div>
 
@@ -55,7 +55,7 @@ export default function ExamSolutionHeader({
                                 : "hover:bg-transparent hover:text-blue-600"
                             }`}
                     >
-                        {loading ? "Loading..." : "Next Section"}
+                        {examData?.remaining_sections === 0 ? "Finish exam" : 'Next exam'}
                     </button>
                 </div>
             </div>
