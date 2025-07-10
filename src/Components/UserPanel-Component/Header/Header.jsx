@@ -52,7 +52,7 @@ function Header() {
                                 Study Center
                             </NavLink>
                             {token && (
-                                <NavLink onClick={handleScrollUp} to={`/myResult`} className="hover:text-black font-[600]">
+                                <NavLink onClick={handleScrollUp} to={`/my-result`} className="hover:text-black font-[600]">
                                     My Result
                                 </NavLink>
                             )}
