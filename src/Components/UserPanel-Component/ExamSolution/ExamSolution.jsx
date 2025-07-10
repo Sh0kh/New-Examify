@@ -71,7 +71,6 @@ export default function ExamSolution() {
         setTheme(value);
     };
 
-
     return (
         <>
             <ExamSolutionHeader
