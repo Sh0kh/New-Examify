@@ -20,9 +20,21 @@ export default function ExamSolution() {
         setExamData(data);
     }, []);
 
-    // const audio = CONFIG?.API_URL + examData?.section?.audio
+    useEffect(() => {
+        if (examData?.section?.audio) {
+            const audioSrc = CONFIG.API_URL + 'audio/' + examData.section.audio;
+            const audioElement = new Audio(audioSrc);
+            audioElement.play().catch(err => {
+                console.warn("Audio playback failed:", err);
+            });
 
-    // console.log(audio)
+            return () => {
+                audioElement.pause();
+                audioElement.currentTime = 0;
+            };
+        }
+    }, [examData]);
+
 
     useEffect(() => {
         const durationInMinutes = examData?.section?.duration || examData?.next_section?.duration || 0;
@@ -46,7 +58,7 @@ export default function ExamSolution() {
     };
 
 
-    console.log(examData)
+    // console.log(examData)
 
 
     useEffect(() => {

@@ -102,33 +102,42 @@ const MultipleSelectQuestion = ({ question, onAnswer, userAnswer, theme }) => {
 };
 
 const FillInBlankQuestion = ({ question, onAnswer, userAnswer, theme }) => {
-    const handleInputChange = (e) => {
-        onAnswer(e.target.value);
+    const questionText = question.question_text || "";
+
+    // Подсчитываем количество {textinput} в тексте
+    const inputCount = (questionText.match(/{textinput}/g) || []).length;
+
+    // Создаем массив ответов для каждого input'а
+    const answers = Array.isArray(userAnswer) ? userAnswer : new Array(inputCount).fill("");
+
+    const handleInputChange = (inputIndex, value) => {
+        const newAnswers = [...answers];
+        newAnswers[inputIndex] = value;
+        onAnswer(newAnswers);
     };
 
-    const parsedContent = parse(question.question_text || "", {
+    // Предварительно заменяем {textinput} на уникальные маркеры с индексами
+    let inputIndex = 0;
+    const processedText = questionText.replace(/{textinput}/g, () => {
+        return `<span data-input-index="${inputIndex++}"></span>`;
+    });
+
+    const parsedContent = parse(processedText, {
         replace: (domNode) => {
-            if (domNode.type === "text" && domNode.data.includes("{textinput}")) {
-                const parts = domNode.data.split("{textinput}");
+            // Обрабатываем наши маркеры input'ов
+            if (domNode.type === "tag" && domNode.name === "span" && domNode.attribs && domNode.attribs['data-input-index']) {
+                const index = parseInt(domNode.attribs['data-input-index']);
                 return (
-                    <>
-                        {parts.map((part, index) => (
-                            <span key={index} className={theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}>
-                                {part}
-                                {index < parts.length - 1 && (
-                                    <input
-                                        type="text"
-                                        value={userAnswer || ""}
-                                        onChange={handleInputChange}
-                                        className={`inline-block border rounded px-2 py-1 mx-2 ${theme === 'dark'
-                                            ? 'bg-gray-700 border-gray-600 text-white'
-                                            : 'bg-white border-gray-300'
-                                            }`}
-                                    />
-                                )}
-                            </span>
-                        ))}
-                    </>
+                    <input
+                        key={`input-${index}`}
+                        type="text"
+                        value={answers[index] || ""}
+                        onChange={(e) => handleInputChange(index, e.target.value)}
+                        className={`inline-block border rounded px-2 py-1 mx-2 min-w-[100px] ${theme === 'dark'
+                            ? 'bg-gray-700 border-gray-600 text-white'
+                            : 'bg-white border-gray-300'
+                            }`}
+                    />
                 );
             }
         },
@@ -136,9 +145,9 @@ const FillInBlankQuestion = ({ question, onAnswer, userAnswer, theme }) => {
 
     return (
         <div className="space-y-4">
-            <h3 className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
+            <div className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                 {parsedContent}
-            </h3>
+            </div>
             {question.image_url && (
                 <img
                     src={CONFIG.API_URL + question.image_url}
@@ -310,12 +319,18 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     const [userAnswers, setUserAnswers] = useState({});
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [theme, setTheme] = useState('light');
-    const SectionType = examData?.next_section?.type
+    const SectionType = examData?.next_section?.type;
 
     const parts = examData?.section?.parts || examData?.next_section?.parts || [];
-    const currentPart = parts.find(part => part.id === activePart);
-
+    const currentPart = parts.find(part => part.id === activePart) || parts[0];
     const currentQuestions = currentPart?.questions || [];
+
+    // Инициализация активной части после загрузки данных
+    useEffect(() => {
+        if (parts.length > 0 && !activePart) {
+            setActivePart(parts[0].id);
+        }
+    }, [parts, activePart]); // Добавляем activePart в зависимости
 
     const checkAndApplyTheme = () => {
         const currentTheme = localStorage.getItem('theme') || 'light';
@@ -325,110 +340,124 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         }
     };
 
-    // Инициализация темы и подписка на изменения
     useEffect(() => {
-        // Применяем тему при загрузке
         checkAndApplyTheme();
-
-        // Функция для обработки изменений в localStorage
         const handleStorageChange = () => {
             checkAndApplyTheme();
         };
-
-        // Подписываемся на событие storage
         window.addEventListener('storage', handleStorageChange);
-
-        // Также проверяем тему каждые 500мс на случай, если изменения были в этой же вкладке
         const intervalId = setInterval(checkAndApplyTheme, 500);
-
-        // Очистка при размонтировании
         return () => {
             window.removeEventListener('storage', handleStorageChange);
             clearInterval(intervalId);
         };
-    }, [theme]); // Добавляем theme в зависимости, чтобы избежать замыкания
-
-
-
-    // Initialize active part
-    useEffect(() => {
-        if (parts.length > 0 && !activePart) {
-            setActivePart(parts[0].id);
-        }
-    }, [parts, activePart]);
+    }, [theme]);
 
     useEffect(() => {
         const formattedParts = parts.map(part => ({
             id: part.id,
             part_type: part.part_type,
-            answers: part.questions.map(q => {
+            answers: part.questions.reduce((acc, q) => {
                 const userAnswer = userAnswers[q.id];
                 const questionType = parseInt(q.question_type_id);
 
-                // Базовый объект ответа
-                const answerObj = {
-                    question_id: q.id,
-                    question_type_id: q.question_type_id,
-                    answer_id: null,
-                    answers: null,
-                    file_path: null,
-                    answer_text: null
-                };
+                if (userAnswer === undefined || userAnswer === null) {
+                    return acc;
+                }
 
-                // Обработка разных типов вопросов
-                if ([1, 5].includes(questionType)) {
-                    // Для вопросов с одним ответом (типы 1 и 5)
-                    if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
-                        const numericAnswer = Number(userAnswer);
-                        if (!isNaN(numericAnswer)) {
-                            answerObj.answer_id = numericAnswer;
+                if (questionType === 4) {
+                    if (Array.isArray(userAnswer)) {
+                        userAnswer.forEach((answer, index) => {
+                            if (answer !== undefined && answer !== null && answer.trim() !== '') {
+                                acc.push({
+                                    question_id: q.id,
+                                    question_type_id: q.question_type_id,
+                                    answer_id: null,
+                                    answers: null,
+                                    file_path: null,
+                                    answer_text: answer.trim(),
+                                    field_index: index
+                                });
+                            }
+                        });
+                    } else if (userAnswer !== undefined && userAnswer !== null && userAnswer.trim() !== '') {
+                        acc.push({
+                            question_id: q.id,
+                            question_type_id: q.question_type_id,
+                            answer_id: null,
+                            answers: null,
+                            file_path: null,
+                            answer_text: String(userAnswer).trim(),
+                            field_index: 0
+                        });
+                    }
+                } else {
+                    const answerObj = {
+                        question_id: q.id,
+                        question_type_id: q.question_type_id,
+                        answer_id: null,
+                        answers: null,
+                        file_path: null,
+                        answer_text: null
+                    };
+
+                    let hasAnswer = false;
+
+                    if ([1, 5].includes(questionType)) {
+                        if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
+                            const numericAnswer = Number(userAnswer);
+                            if (!isNaN(numericAnswer)) {
+                                answerObj.answer_id = numericAnswer;
+                                hasAnswer = true;
+                            }
                         }
                     }
-                }
-                else if (questionType === 2) {
-                    // Для вопросов с множественным выбором (тип 2) - используем selected_answers
-                    if (Array.isArray(userAnswer)) {
-                        if (userAnswer.length > 0) {
-                            answerObj.selected_answers = userAnswer
+                    else if (questionType === 2) {
+                        if (Array.isArray(userAnswer)) {
+                            const validAnswers = userAnswer
                                 .filter(id => id !== undefined && id !== null && id !== '')
                                 .map(id => Number(id))
                                 .filter(id => !isNaN(id));
-                        } else {
-                            answerObj.selected_answers = [];
+
+                            if (validAnswers.length > 0) {
+                                answerObj.selected_answers = validAnswers;
+                                hasAnswer = true;
+                            }
+                        } else if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
+                            const numericAnswer = Number(userAnswer);
+                            if (!isNaN(numericAnswer)) {
+                                answerObj.selected_answers = [numericAnswer];
+                                hasAnswer = true;
+                            }
                         }
-                    } else if (userAnswer !== undefined && userAnswer !== null) {
-                        // Если это не массив, но есть значение - конвертируем в массив
-                        const numericAnswer = Number(userAnswer);
-                        if (!isNaN(numericAnswer)) {
-                            answerObj.selected_answers = [numericAnswer];
-                        } else {
-                            answerObj.selected_answers = [];
+                    }
+                    else if ([3, 6].includes(questionType)) {
+                        if (userAnswer !== undefined && userAnswer !== null && userAnswer.trim() !== '') {
+                            answerObj.answer_text = String(userAnswer).trim();
+                            hasAnswer = true;
                         }
-                    } else {
-                        answerObj.selected_answers = [];
                     }
-                }
-                else if ([3, 4, 6].includes(questionType)) {
-                    // Для текстовых ответов
-                    if (userAnswer !== undefined && userAnswer !== null) {
-                        answerObj.answer_text = String(userAnswer).trim();
+                    else if (questionType === 7) {
+                        if (userAnswer && (userAnswer.file_path || userAnswer.answer_text)) {
+                            answerObj.file_path = userAnswer.file_path || null;
+                            answerObj.answer_text = userAnswer.answer_text || null;
+                            hasAnswer = true;
+                        }
                     }
-                }
-                else if (questionType === 7) {
-                    // Для аудиоответов
-                    if (userAnswer) {
-                        answerObj.file_path = userAnswer.file_path || null;
-                        answerObj.answer_text = userAnswer.answer_text || null;
+
+                    if (hasAnswer) {
+                        acc.push(answerObj);
                     }
                 }
 
-                return answerObj;
-            })
+                return acc;
+            }, [])
         }));
 
-
-        setAnswers(formattedParts);
+        const filteredParts = formattedParts.filter(part => part.answers.length > 0);
+        setAnswers(filteredParts);
     }, [userAnswers, parts, setAnswers]);
+
     useEffect(() => {
         if (timeRemaining > 0) {
             const timer = setInterval(() => {
@@ -448,7 +477,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         return part.questions.filter(q => userAnswers[q.id] !== undefined).length;
     };
 
-
     if (!examData) {
         return (
             <div className={`flex items-center justify-center h-64 ${theme === 'dark' ? 'bg-gray-900' : 'bg-[#FAFAFA]'}`}>
@@ -464,19 +492,21 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
     return (
         <div className={`min-h-screen p-4 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
-
             {/* Part navigation */}
             <div className="mb-6">
                 <div className="flex flex-wrap gap-2">
                     {parts.map((part, index) => {
                         const answeredCount = getAnsweredQuestionsCount(part.id);
                         const totalQuestions = part.questions.length;
+                        // Исправляем логику определения активной части
+                        const isActive = activePart === part.id;
+                        
                         return (
                             <button
                                 key={part.id}
                                 onClick={() => handlePartChange(part.id)}
                                 className={`relative px-4 py-3 rounded-lg border transition-all duration-200 font-medium
-                                        ${activePart === part.id
+                                        ${isActive
                                         ? theme === 'dark'
                                             ? 'bg-blue-700 text-white border-blue-600 shadow-md'
                                             : 'bg-blue-600 text-white border-blue-600 shadow-md'
@@ -499,68 +529,139 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
             </div>
 
             {/* Main content */}
-            <div className={`rounded-lg shadow-sm border mb-6 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'
-                }`}>
-                {currentPart?.rules && (
-                    <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'
-                        }`}>
-                        <h3
-                            className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'
-                                }`}
-                            dangerouslySetInnerHTML={{ __html: currentPart.rules }}
-                        />
+            {SectionType === 'Reading' ? (
+                <div className="flex flex-col md:flex-row gap-6">
+                    {/* Left side - Reading text */}
+                    <div className={`md:w-1/2 rounded-lg shadow-sm border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                        <div className="p-6">
+                            <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
+                                Reading Passage
+                            </h3>
+                            <div 
+                                className={`prose max-w-none ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+                                dangerouslySetInnerHTML={{ __html: currentPart?.rules }}
+                            />
+                        </div>
                     </div>
-                )}
 
-                {currentQuestions.length > 0 ? (
-                    <div className="p-6 space-y-8">
-                        {currentQuestions.map((question, index) => (
-                            <div
-                                key={question.id}
-                                className={`border-b pb-6 last:border-b-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'
-                                    }`}
-                            >
-                                <div className="flex items-start space-x-4">
-                                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
-                                            ${userAnswers[question.id]
-                                            ? theme === 'dark'
-                                                ? 'bg-green-900 text-green-200'
-                                                : 'bg-green-100 text-green-700'
-                                            : theme === 'dark'
-                                                ? 'bg-gray-700 text-gray-300'
-                                                : 'bg-gray-100 text-gray-600'
-                                        }`}>
-                                        {index + 1}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                        <div className="flex items-center justify-between mb-2">
-                                            {userAnswers[question.id] && (
-                                                <CheckCircle className="h-5 w-5 text-green-500" />
-                                            )}
+                    {/* Right side - Questions */}
+                    <div className={`md:w-1/2 rounded-lg shadow-sm border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                        {currentPart?.description && (
+                            <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                                <h3
+                                    className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}
+                                    dangerouslySetInnerHTML={{ __html: currentPart.description }}
+                                />
+                            </div>
+                        )}
+
+                        {currentQuestions.length > 0 ? (
+                            <div className="p-6 space-y-8">
+                                {currentQuestions.map((question, index) => (
+                                    <div
+                                        key={question.id}
+                                        className={`border-b pb-6 last:border-b-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'}`}
+                                    >
+                                        <div className="flex items-start space-x-4">
+                                            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
+                                                    ${userAnswers[question.id]
+                                                    ? theme === 'dark'
+                                                        ? 'bg-green-900 text-green-200'
+                                                        : 'bg-green-100 text-green-700'
+                                                    : theme === 'dark'
+                                                        ? 'bg-gray-700 text-gray-300'
+                                                        : 'bg-gray-100 text-gray-600'
+                                                }`}>
+                                                {index + 1}
+                                            </div>
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    {userAnswers[question.id] && (
+                                                        <CheckCircle className="h-5 w-5 text-green-500" />
+                                                    )}
+                                                </div>
+                                                <QuestionRenderer
+                                                    question={question}
+                                                    onAnswer={(answer) => {
+                                                        setUserAnswers(prev => ({
+                                                            ...prev,
+                                                            [question.id]: answer
+                                                        }));
+                                                    }}
+                                                    userAnswer={userAnswers[question.id]}
+                                                    theme={theme}
+                                                />
+                                            </div>
                                         </div>
-                                        <QuestionRenderer
-                                            question={question}
-                                            onAnswer={(answer) => {
-                                                setUserAnswers(prev => ({
-                                                    ...prev,
-                                                    [question.id]: answer
-                                                }));
-                                            }}
-                                            userAnswer={userAnswers[question.id]}
-                                            theme={theme}
-                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className={`p-6 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                                Bu bo'limda savollar mavjud emas
+                            </div>
+                        )}
+                    </div>
+                </div>
+            ) : (
+                <div className={`rounded-lg shadow-sm border mb-6 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    {currentPart?.rules && (
+                        <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                            <h3
+                                className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}
+                                dangerouslySetInnerHTML={{ __html: currentPart.rules }}
+                            />
+                        </div>
+                    )}
+
+                    {currentQuestions.length > 0 ? (
+                        <div className="p-6 space-y-8">
+                            {currentQuestions.map((question, index) => (
+                                <div
+                                    key={question.id}
+                                    className={`border-b pb-6 last:border-b-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'}`}
+                                >
+                                    <div className="flex items-start space-x-4">
+                                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
+                                                ${userAnswers[question.id]
+                                                ? theme === 'dark'
+                                                    ? 'bg-green-900 text-green-200'
+                                                    : 'bg-green-100 text-green-700'
+                                                : theme === 'dark'
+                                                    ? 'bg-gray-700 text-gray-300'
+                                                    : 'bg-gray-100 text-gray-600'
+                                            }`}>
+                                            {index + 1}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center justify-between mb-2">
+                                                {userAnswers[question.id] && (
+                                                    <CheckCircle className="h-5 w-5 text-green-500" />
+                                                )}
+                                            </div>
+                                            <QuestionRenderer
+                                                question={question}
+                                                onAnswer={(answer) => {
+                                                    setUserAnswers(prev => ({
+                                                        ...prev,
+                                                        [question.id]: answer
+                                                    }));
+                                                }}
+                                                userAnswer={userAnswers[question.id]}
+                                                theme={theme}
+                                            />
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <div className={`p-6 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                        }`}>
-                        Bu bo'limda savollar mavjud emas
-                    </div>
-                )}
-            </div>
+                            ))}
+                        </div>
+                    ) : (
+                        <div className={`p-6 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
+                            Bu bo'limda savollar mavjud emas
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }
