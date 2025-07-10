@@ -65,7 +65,7 @@ export default function Exam() {
                             <NavLink to={`/o'quv_markaz/imtihon/${center?.id}`}>
                                 <div
                                     key={center.id}
-                                    className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200"
+                                    className="bg-white h-[100%] rounded-lg shadow-md overflow-hidden transition-transform duration-300 hover:scale-105 border border-gray-200"
                                 >
                                     {center.logo ? (
                                         <img
@@ -87,12 +87,11 @@ export default function Exam() {
                                         <p className="text-sm text-gray-600 mt-1">
                                             <strong>Status:</strong> {center.status || 'Mavjud emas'}
                                         </p>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            <strong>Narxi:</strong> {center.price || 'Mavjud emas'}
-                                        </p>
-                                        <p className="text-sm text-gray-600 mt-1">
-                                            <strong>Statusi:</strong> {center?.status}
-                                        </p>
+                                        {center?.type_id == 2 && (
+                                            <p className="text-sm text-gray-600 mt-1">
+                                                <strong>Narxi:</strong> {center.price || 'Mavjud emas'}
+                                            </p>
+                                        )}
                                         <p className="text-sm text-gray-600 mt-1">
                                             <strong>imtihon turi:</strong> {center?.type_id == 1 ? "Tekin" : center?.type_id == 2 ? "Pullik" : center?.type_id == 3 ? "Yopiq (kalitli)" : "?????"}
                                         </p>

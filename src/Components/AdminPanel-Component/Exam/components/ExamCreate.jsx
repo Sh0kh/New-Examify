@@ -20,7 +20,7 @@ export default function ExamCreate({ refresh }) {
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState("");
     const [language, setlanguage] = React.useState("");
-    const [price, setprice] = React.useState("");
+    const [price, setprice] = React.useState("10 000");
     const [selectedType, setSelectedType] = React.useState("");
     const [info, setInfo] = React.useState("");
     const [file, setFile] = React.useState(null);
@@ -41,7 +41,7 @@ export default function ExamCreate({ refresh }) {
 
     const createStudyCenter = async () => {
         // Валидация обязательных полей
-        if (!name || !language || !price || !selectedType) {
+        if (!name || !language || !selectedType) {
             Alert("Barcha majburiy maydonlarni to'ldiring", "error");
             return;
         }
@@ -56,7 +56,7 @@ export default function ExamCreate({ refresh }) {
             const formData = new FormData();
             formData.append("name", name);
             formData.append("language", language);
-            formData.append("price", price);
+            formData.append("price", price.replace(/\s/g, ""));
             formData.append("type_id", selectedType);
             formData.append("center_id", localStorage.getItem('StId'));
 
@@ -99,24 +99,34 @@ export default function ExamCreate({ refresh }) {
     const handleOpen = () => setOpen(!open);
 
     const handlePriceChange = (e) => {
-        const val = e.target.value;
-        setprice(val);
+        const rawValue = e.target.value.replace(/\s/g, "");
+        if (!rawValue) {
+            setprice("");
+            setPriceError("Narx majburiy maydon");
+            return;
+        }
 
+        if (isNaN(rawValue)) {
+            setPriceError("Faqat raqam kiriting");
+            return;
+        }
+
+        const numberValue = Number(rawValue);
         const min = Number(ExamPrice?.min_price);
         const max = Number(ExamPrice?.max_price);
 
-        if (val === "") {
-            setPriceError("Narx majburiy maydon");
-        } else if (isNaN(val)) {
-            setPriceError("Faqat raqam kiriting");
-        } else if (Number(val) < min) {
+        if (numberValue < min) {
             setPriceError(`Narx ${min.toLocaleString("uz-UZ")} so'mdan kam bo'lmasligi kerak`);
-        } else if (Number(val) > max) {
+        } else if (numberValue > max) {
             setPriceError(`Narx ${max.toLocaleString("uz-UZ")} so'mdan oshmasligi kerak`);
         } else {
             setPriceError("");
         }
+
+        // Устанавливаем отформатированное значение с пробелами
+        setprice(numberValue.toLocaleString("ru-RU").replace(/,/g, " "));
     };
+
 
 
     const handleFileChange = (e) => {
@@ -148,6 +158,8 @@ export default function ExamCreate({ refresh }) {
         }
     };
 
+
+
     useEffect(() => {
         getExamType();
         getExamPrice()
@@ -161,7 +173,6 @@ export default function ExamCreate({ refresh }) {
             >
                 Yaratish
             </Button>
-
             <Dialog
                 open={open}
                 handler={handleOpen}
@@ -215,16 +226,17 @@ export default function ExamCreate({ refresh }) {
                                 ))}
                             </Select>
                         </div>
-
-                        <Input
-                            label="Narx"
-                            type="number"
-                            value={price}
-                            onChange={handlePriceChange}
-                            error={!!priceError}
-                            crossOrigin={undefined}
-                            required
-                        />
+                        {selectedType == 2 && (
+                            <Input
+                                label="Narx"
+                                type="text"
+                                value={price}
+                                onChange={handlePriceChange}
+                                error={!!priceError}
+                                crossOrigin={undefined}
+                                required
+                            />
+                        )}
                         {priceError && (
                             <Typography variant="small" color="red">
                                 {priceError}

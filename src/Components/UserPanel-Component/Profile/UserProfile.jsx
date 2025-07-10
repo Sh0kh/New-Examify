@@ -83,7 +83,7 @@ export default function UserProfile() {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-3 w-full">
-                                <Button
+                                {/* <Button
                                     fullWidth
                                     color="blue"
                                     className="flex items-center justify-center gap-2"
@@ -91,7 +91,7 @@ export default function UserProfile() {
                                 >
                                     <PencilSquareIcon className="h-5 w-5" />
                                     Изменить
-                                </Button>
+                                </Button> */}
 
                                 <Button
                                     fullWidth
@@ -110,7 +110,7 @@ export default function UserProfile() {
                                     onClick={handleLogout}
                                 >
                                     <ArrowRightOnRectangleIcon className="h-5 w-5" />
-                                    Выйти
+                                    Log out
                                 </Button>
                             </div>
                         </div>

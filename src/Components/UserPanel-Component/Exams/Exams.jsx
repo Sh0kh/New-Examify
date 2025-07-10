@@ -54,12 +54,20 @@ export default function Exams() {
             <Header />
             <main className="min-h-screen px-4 py-10 mt-[80px]">
                 <div className="container">
-                    <h1 className="text-3xl font-bold">IELTS Exams</h1>
+                    <h1 className="text-3xl font-bold">Exams</h1>
                     <p className="text-gray-600 mt-2">
                         Dear user. The Examify team wishes you good luck and we want you to pass the tests successfully.
                     </p>
                     {loading ? (
                         <Loading />
+                    ) : activeExams.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center mt-40 text-center">
+                            <div className="text-6xl mb-4">📄</div>
+                            <h2 className="text-xl font-semibold text-gray-700">Imtihonlar mavjud emas</h2>
+                            <p className="text-gray-500 mt-2 max-w-md">
+                                Ushbu markazda hozircha faollashtirilgan imtihonlar mavjud emas. Iltimos, keyinroq yana urinib ko‘ring.
+                            </p>
+                        </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                             {activeExams.map((exam, index) => {
@@ -75,8 +83,8 @@ export default function Exams() {
                                             setBuyExamModal(true);
                                         }}
                                         className={`p-6 rounded-2xl h-[314px] flex flex-col justify-between text-white shadow-lg 
-                                        ${colorClass}
-                                        cursor-pointer transition-transform hover:scale-105`}
+                    ${colorClass}
+                    cursor-pointer transition-transform hover:scale-105`}
                                     >
                                         <h2 className="text-xl font-semibold flex items-center space-x-2">
                                             <img src={Logo} alt="IELTS logo" className="w-[25px] h-[34px]" />
@@ -104,6 +112,7 @@ export default function Exams() {
                             })}
                         </div>
                     )}
+
                 </div>
             </main>
             <Footer />

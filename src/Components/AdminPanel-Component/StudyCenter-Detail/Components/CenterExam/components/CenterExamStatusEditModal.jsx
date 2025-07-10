@@ -15,7 +15,7 @@ import { Alert } from "../../../../../../utils/Alert";
 export default function CenterExamStatusEditModal({ type, examId, refresh, ExamData }) {
     const [status, setStatus] = useState(ExamData?.status || "active");
     const [allowed_keys_count, setallowed_keys_count] = useState('')
-    const [keyPrice, setKeyPrice] = useState(ExamData?.key_price || '');
+    const [keyPrice, setKeyPrice] = useState(ExamData?.price || '');
     const [isOpen, setOpen] = useState(false);
 
     const handleSave = async () => {
@@ -42,7 +42,7 @@ export default function CenterExamStatusEditModal({ type, examId, refresh, ExamD
                 onClick={() => setOpen(true)}
                 variant="gradient"
                 color="blue"
-                className="mt-[10px]"
+                className="w-full"
             >
                 Statusni o'zgartirish
             </Button>

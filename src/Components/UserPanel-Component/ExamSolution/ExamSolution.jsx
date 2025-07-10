@@ -25,7 +25,7 @@ export default function ExamSolution() {
     // console.log(audio)
 
     useEffect(() => {
-        const durationInMinutes = examData?.section?.duration || 0;
+        const durationInMinutes = examData?.section?.duration || examData?.next_section?.duration || 0;
         setTimeLeft(durationInMinutes * 60);
     }, [examData]);
 
@@ -45,6 +45,8 @@ export default function ExamSolution() {
         return `${m}:${s}`;
     };
 
+
+    console.log(examData)
 
 
     useEffect(() => {
@@ -67,7 +69,7 @@ export default function ExamSolution() {
             <ExamSolutionBody theme={theme} setAnswers={setAnswers} examData={examData} />
             <ExamStart isOpen={examStartModal} onClose={() => setExamStartModal(false)} setDataFromChild={handleDataFromChild} />
             <LeavExamModal isOpen={outModal} onClose={() => setOutModal(false)} />
-            <NextSectionModal examData={examData} answers={answers} isOpen={nextSectionModal} onClose={() => setNextSectionModal(false)} />
+            <NextSectionModal setDataFromChild={handleDataFromChild} examData={examData} answers={answers} isOpen={nextSectionModal} onClose={() => setNextSectionModal(false)} />
         </>
     )
 }

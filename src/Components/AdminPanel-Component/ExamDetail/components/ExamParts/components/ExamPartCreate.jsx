@@ -158,12 +158,12 @@ export default function ExamPartCreate({ refresh }) {
                             />
                         </div>
 
-                        <Input
+                        {/* <Input
                             label="Duration (e.g. 20:00)"
                             name="duration"
                             value={formData.duration}
                             onChange={handleChange}
-                        />
+                        /> */}
                         <Input
                             label="Total Questions"
                             name="total_questions"
