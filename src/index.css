@@ -3,9 +3,7 @@
 @tailwind components;
 @tailwind utilities;
 
-* {
-  
-}
+* {}
 
 .Container {
   width: 1430px;
@@ -14,7 +12,7 @@
   padding: 0 15px;
 }
 
-.content-section a{ 
+.content-section a {
   text-decoration: none;
 }
 
@@ -62,4 +60,13 @@ input[type="number"]::-webkit-inner-spin-button {
   position: relative;
   z-index: 4;
   gap: 30px;
+}
+
+.Exam__test td {
+  border: 1px solid black;
+  padding: 10px;
+}
+
+.Exam__test th {
+  border: 1px solid black;
 }
