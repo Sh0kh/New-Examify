@@ -497,28 +497,34 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 if (questionType === 4) {
                     if (Array.isArray(userAnswer)) {
                         userAnswer.forEach((answer, index) => {
-                            if (answer !== undefined && answer !== null && answer.trim() !== '') {
-                                acc.push({
-                                    question_id: q.id,
-                                    question_type_id: q.question_type_id,
-                                    answer_id: null,
-                                    answers: null,
-                                    file_path: null,
-                                    answer_text: answer.trim(),
-                                    field_index: index
-                                });
+                            if (answer !== undefined && answer !== null) {
+                                const answerText = String(answer).trim();
+                                if (answerText !== '') {
+                                    acc.push({
+                                        question_id: q.id,
+                                        question_type_id: q.question_type_id,
+                                        answer_id: null,
+                                        answers: null,
+                                        file_path: null,
+                                        answer_text: answerText,
+                                        field_index: index
+                                    });
+                                }
                             }
                         });
-                    } else if (userAnswer !== undefined && userAnswer !== null && userAnswer.trim() !== '') {
-                        acc.push({
-                            question_id: q.id,
-                            question_type_id: q.question_type_id,
-                            answer_id: null,
-                            answers: null,
-                            file_path: null,
-                            answer_text: String(userAnswer).trim(),
-                            field_index: 0
-                        });
+                    } else if (userAnswer !== undefined && userAnswer !== null) {
+                        const answerText = String(userAnswer).trim();
+                        if (answerText !== '') {
+                            acc.push({
+                                question_id: q.id,
+                                question_type_id: q.question_type_id,
+                                answer_id: null,
+                                answers: null,
+                                file_path: null,
+                                answer_text: answerText,
+                                field_index: 0
+                            });
+                        }
                     }
                 } else {
                     const answerObj = {
@@ -561,9 +567,38 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         }
                     }
                     else if ([3, 6].includes(questionType)) {
-                        if (userAnswer !== undefined && userAnswer !== null && userAnswer.trim() !== '') {
-                            answerObj.answer_text = String(userAnswer).trim();
-                            hasAnswer = true;
+                        if (Array.isArray(userAnswer)) {
+                            // Обработка массива ответов (несколько input'ов)
+                            userAnswer.forEach((answer, index) => {
+                                if (answer !== undefined && answer !== null) {
+                                    const answerText = String(answer).trim();
+                                    if (answerText !== '') {
+                                        acc.push({
+                                            question_id: q.id,
+                                            question_type_id: q.question_type_id,
+                                            answer_id: null,
+                                            answers: null,
+                                            file_path: null,
+                                            answer_text: answerText,
+                                            field_index: index
+                                        });
+                                    }
+                                }
+                            });
+                        } else if (userAnswer !== undefined && userAnswer !== null) {
+                            // Обработка одиночного ответа
+                            const answerText = String(userAnswer).trim();
+                            if (answerText !== '') {
+                                acc.push({
+                                    question_id: q.id,
+                                    question_type_id: q.question_type_id,
+                                    answer_id: null,
+                                    answers: null,
+                                    file_path: null,
+                                    answer_text: answerText,
+                                    field_index: 0
+                                });
+                            }
                         }
                     }
                     else if (questionType === 7) {
@@ -749,14 +784,17 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     )}
 
                     {currentQuestions.length > 0 ? (
-                        <div className="p-6 space-y-8">
+                        <div className="p-6 space-y-8 Exam__test">
+                            <h1>
+                                {examData?.section?.description?.parts}
+                            </h1>
                             {currentQuestions.map((question, index) => (
                                 <div
                                     key={question.id}
                                     className={`border-b pb-6 last:border-b-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'}`}
                                 >
                                     <div className="flex items-start space-x-4">
-                                        <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
+                                        {/* <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
                                                 ${userAnswers[question.id]
                                                 ? theme === 'dark'
                                                     ? 'bg-green-900 text-green-200'
@@ -766,7 +804,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                                     : 'bg-gray-100 text-gray-600'
                                             }`}>
                                             {index + 1}
-                                        </div>
+                                        </div> */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-2">
                                                 {userAnswers[question.id] && (

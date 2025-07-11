@@ -1,16 +1,25 @@
 import { Card, Typography, IconButton } from "@material-tailwind/react";
-import { EyeIcon } from "@heroicons/react/24/outline"; // Если используешь Heroicons
+import { EyeIcon } from "@heroicons/react/24/outline";
 import { NavLink } from "react-router-dom";
+import { $api } from "../../../utils";
+import { useEffect, useState } from "react";
 
 export default function Reyting() {
-    const payments = [
-        { id: 1, name: "Ali Valiyev", date: "2025-05-20", exam: "Matematika" },
-        { id: 2, name: "Nodira Abdullayeva", date: "2025-05-18", exam: "Ingliz tili" },
-        { id: 3, name: "Jasurbek Karimov", date: "2025-05-15", exam: "Fizika" },
-        { id: 4, name: "Madina Qodirova", date: "2025-05-10", exam: "Tarix" },
-    ];
+    const TABLE_HEAD = ["Name", "Exam", "Type", "Date", "Action"];
+    const [data, setData] = useState([]);
 
-    const TABLE_HEAD = ["Name", "Exam", "Date", "Action"];
+    const getUncheckedExam = async () => {
+        try {
+            const response = await $api.get(`/study-center/get-unchecked-exams/${localStorage.getItem("StId")}`);
+            setData(response?.data || []);
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    useEffect(() => {
+        getUncheckedExam();
+    }, []);
 
     return (
         <div className="p-[20px]">
@@ -39,29 +48,34 @@ export default function Reyting() {
                             </tr>
                         </thead>
                         <tbody>
-                            {payments.map(({ id, name, date, exam }, index) => {
-                                const isLast = index === payments.length - 1;
+                            {data.map((item, index) => {
+                                const isLast = index === data.length - 1;
                                 const classes = isLast ? "p-4" : "p-4 border-b border-blue-gray-50";
 
                                 return (
-                                    <tr key={id}>
+                                    <tr key={item.id}>
                                         <td className={classes}>
                                             <Typography variant="small" color="blue-gray" className="font-normal">
-                                                {index + 1}. {name}
+                                                {index + 1}. {item.user_id}
                                             </Typography>
                                         </td>
                                         <td className={classes}>
                                             <Typography variant="small" color="blue-gray" className="font-normal">
-                                                {exam}
+                                                {item.exam?.name || "—"}
                                             </Typography>
                                         </td>
                                         <td className={classes}>
                                             <Typography variant="small" color="blue-gray" className="font-normal">
-                                                {date}
+                                                {item.exam?.language || "—"}
                                             </Typography>
                                         </td>
                                         <td className={classes}>
-                                            <NavLink to={`/o'quv_markaz/imtihon/tekshirilmagan_imtihonlar/${id}`}>
+                                            <Typography variant="small" color="blue-gray" className="font-normal">
+                                                {new Date(item.start_time).toLocaleDateString()}
+                                            </Typography>
+                                        </td>
+                                        <td className={classes}>
+                                            <NavLink to={`/o'quv_markaz/imtihon/tekshirilmagan_imtihonlar/${item.id}`}>
                                                 <IconButton variant="text" color="blue">
                                                     <EyeIcon className="h-5 w-5" />
                                                 </IconButton>
