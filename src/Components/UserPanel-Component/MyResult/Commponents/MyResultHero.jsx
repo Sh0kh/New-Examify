@@ -8,6 +8,7 @@ import {
 } from "@material-tailwind/react";
 import { $api } from "../../../../utils";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
+import { NavLink } from "react-router-dom";
 
 export default function MyResultHero() {
     const [data, setData] = useState([]);
@@ -102,13 +103,15 @@ export default function MyResultHero() {
 
                                     <div className="flex justify-end mt-6">
                                         {isFinished ? (
-                                            <Button
-                                                color="green"
-                                                size="md"
-                                                className="rounded-md shadow-md"
-                                            >
-                                                View Result
-                                            </Button>
+                                            <NavLink to={`/my-result/${item?.id}`}>
+                                                <Button
+                                                    color="green"
+                                                    size="md"
+                                                    className="rounded-md shadow-md"
+                                                >
+                                                    View Result
+                                                </Button>
+                                            </NavLink>
                                         ) : (
                                             <Button
                                                 color="amber"
