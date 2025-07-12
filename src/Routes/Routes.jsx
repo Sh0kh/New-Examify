@@ -31,6 +31,8 @@ import Login from "../Components/UserPanel-Component/Login/Login";
 import Payment from "../Components/UserPanel-Component/Payment/Payment";
 import UserProfile from "../Components/UserPanel-Component/Profile/UserProfile";
 import MyResult from "../Components/UserPanel-Component/MyResult/MyResult";
+import MyResultDetail from "../Components/UserPanel-Component/MyResultDetail/MyResultDetail";
+import SectionDetail from "../Components/UserPanel-Component/MyResultDetail/SectionDetail";
 
 
 export const UserRoutes = [
@@ -48,6 +50,16 @@ export const UserRoutes = [
         name: 'My Result',
         path: '/my-result',
         component: <MyResult />
+    },
+    {
+        name: 'My Result Detail',
+        path: '/my-result/:resultId',
+        component: <MyResultDetail />
+    },
+    {
+        name: 'Section Detail',
+        path: '/my-result/:resultId/:sectionId',
+        component: <SectionDetail />
     },
     {
         name: "Study center",
