@@ -2,54 +2,180 @@ import {
     Card,
     CardBody,
     Typography,
+    Button,
+    Input,
 } from "@material-tailwind/react";
+import { $api } from "../../../utils";
+import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import Loading from "../../UI/Loadings/Loading";
+import { Alert } from "../../../utils/Alert";
 
 export default function TkExamDetailsWriting() {
-    const parts = [
-        {
-            title: "Part 1",
-            question: `Some people believe that technology will replace teachers in the future. To what extent do you agree or disagree with this statement? Give examples and explain your point of view.`,
-            answer: `I believe that technology cannot fully replace teachers because personal interaction plays an important role in education. While online courses can be helpful, teachers provide motivation, support, and a personalized approach.`,
-        },
-        {
-            title: "Part 2",
-            question: `In many countries, the crime rate is increasing. What do you think are the reasons for this? What measures can be taken to tackle the problem?`,
-            answer: `The rise in crime may be linked to poverty, unemployment, and social inequality. To combat this, we need to invest in education, create job opportunities, and strengthen the justice system.`,
-        },
-    ];
+    const { tkExamId } = useParams();
+    const { sectionID } = useParams();
+    const [loading, setLoading] = useState(true);
+    const [submitting, setSubmitting] = useState(false);
+    const [sectionData, setSectionData] = useState(null);
+    const [scores, setScores] = useState({});
+    const navigate = useNavigate()
+
+    const getUserAnswer = async () => {
+        setLoading(true);
+        try {
+            const data = {
+                exam_id: tkExamId,
+                section_score_id: sectionID
+            };
+            const response = await $api.post(`/study-center/user-answers`, data);
+            setSectionData(response.data);
+
+            // Initialize scores from existing data
+            const initialScores = {};
+            response.data.part_scores?.forEach(partScore => {
+                partScore.user_answers?.forEach(answer => {
+                    initialScores[answer.id] = answer.score || 0;
+                });
+            });
+            setScores(initialScores);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleScoreChange = (answerId, score) => {
+        const numScore = parseInt(score) || 0;
+        setScores(prev => ({
+            ...prev,
+            [answerId]: numScore
+        }));
+    };
+
+    const submitScores = async () => {
+        setSubmitting(true);
+        try {
+            const parts_scores = sectionData.part_scores.map(partScore => ({
+                part_score_id: partScore.id,
+                answers: partScore.user_answers.map(answer => ({
+                    user_answer_id: answer.id,
+                    score: scores[answer.id] || 0
+                }))
+            }));
+
+            const submitData = {
+                exam_id: parseInt(tkExamId),
+                section_score_id: parseInt(sectionID),
+                parts_scores
+            };
+
+            await $api.post(`/study-center/check`, submitData);
+            Alert("Muvaffaqiyatli qo'shildi", "success");
+            navigate(-1)
+        } catch (error) {
+            console.log(error);
+            Alert(`Xatolik: ${error}`, "error");
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    useEffect(() => {
+        getUserAnswer();
+    }, []);
+
+    if (loading) {
+        return <Loading />;
+    }
+
+    if (!sectionData) {
+        return (
+            <div className="min-h-screen p-6">
+                <Typography variant="h6" color="red">
+                    Ma'lumotlar topilmadi
+                </Typography>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen p-6 ">
+        <div className="min-h-screen p-6">
             <Typography variant="h4" color="blue-gray" className="mb-6">
-                 Writing Review
+                Writing Tekshirish
             </Typography>
 
-            {parts.map((part, index) => (
-                <Card
-                    key={index}
-                    className="mb-6 mx-auto shadow-md border border-blue-200 bg-white"
-                >
+            {sectionData.part_scores?.map((partScore, partIndex) => (
+                <Card key={partScore.id} className="mb-6 shadow-md">
                     <CardBody>
                         <Typography variant="h5" color="blue" className="mb-4">
-                            {part.title}
+                            Part {partIndex + 1}
                         </Typography>
 
-                        <Typography color="gray" className="text-sm mb-3 font-medium">
-                            Question:
-                        </Typography>
-                        <Typography color="gray" className="mb-4 leading-relaxed">
-                            {part.question}
-                        </Typography>
+                        <div className="space-y-4">
+                            {partScore.user_answers?.map((answer, answerIndex) => (
+                                <div key={answer.id} className="border rounded-lg p-4">
+                                    <Typography color="gray" className="text-sm mb-2">
+                                        Savol {answerIndex + 1}
+                                    </Typography>
 
-                        <Typography color="gray" className="text-sm mb-2 font-medium">
-                            Student's Answer:
-                        </Typography>
-                        <Typography color="blue-gray" className="leading-relaxed">
-                            {part.answer}
-                        </Typography>
+                                    {answer.question?.question_text && (
+                                        <div className="mb-4">
+                                            <Typography color="gray" className="text-sm mb-2 font-medium">
+                                                Savol:
+                                            </Typography>
+                                            <div className="mb-3 bg-blue-50 p-3 rounded-lg">
+                                                <div
+                                                    dangerouslySetInnerHTML={{
+                                                        __html: answer.question.question_text
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {answer.answer_text && (
+                                        <div className="mb-4">
+                                            <Typography color="gray" className="text-sm mb-2 font-medium">
+                                                Talabaning javobi:
+                                            </Typography>
+                                            <div className="bg-gray-50 p-3 rounded-lg">
+                                                <Typography color="blue-gray" className="leading-relaxed">
+                                                    {answer.answer_text}
+                                                </Typography>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <div className="flex items-center gap-2">
+                                        <Typography variant="small" color="blue-gray">
+                                            Baho:
+                                        </Typography>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            value={scores[answer.id] || ''}
+                                            onChange={(e) => handleScoreChange(answer.id, e.target.value)}
+                                            className="w-20"
+                                            containerProps={{ className: "min-w-0" }}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     </CardBody>
                 </Card>
             ))}
+
+            <div className="mt-6 text-center">
+                <Button
+                    color="blue"
+                    onClick={submitScores}
+                    loading={submitting}
+                >
+                    {submitting ? 'Saqlanmoqda...' : 'Baholarni saqlash'}
+                </Button>
+            </div>
         </div>
     );
 }

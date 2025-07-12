@@ -198,12 +198,12 @@ export const AdminRoutes = [
     },
     {
         name: "Tekshirilmagan Imtihonlar Batafsil Speaking",
-        path: "/o'quv_markaz/imtihon/tekshirilmagan_imtihonlar/:tkExamId/speaking",
+        path: "/o'quv_markaz/imtihon/tekshirilmagan_imtihonlar/:tkExamId/speaking/:sectionID",
         component: <TkExamDetailsSpeaking />,
     },
     {
         name: "Tekshirilmagan Imtihonlar Batafsil Writing",
-        path: "/o'quv_markaz/imtihon/tekshirilmagan_imtihonlar/:tkExamId/writing",
+        path: "/o'quv_markaz/imtihon/tekshirilmagan_imtihonlar/:tkExamId/writing/:sectionID",
         component: <TkExamDetailWriting />,
     },
 

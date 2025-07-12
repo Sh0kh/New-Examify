@@ -7,6 +7,8 @@ import {
     DialogFooter,
     Input,
     Switch,
+    Select,
+    Option,
 } from "@material-tailwind/react";
 import { $api } from "../../../../../../utils";
 import { Alert } from "../../../../../../utils/Alert";
@@ -178,12 +180,16 @@ export default function ExamPartCreate({ refresh }) {
                             value={formData.order}
                             onChange={handleChange}
                         />
-                        <Input
-                            label="Type (e.g. reading)"
-                            name="type"
+                        <Select
+                            label="Type"
                             value={formData.type}
-                            onChange={handleChange}
-                        />
+                            onChange={(val) => handleChange({ target: { name: "type", value: val } })}
+                        >
+                            <Option value="Listening">Listening</Option>
+                            <Option value="Reading">Reading</Option>
+                            <Option value="Writing">Writing</Option>
+                            <Option value="Speaking">Speaking</Option>
+                        </Select>
                         <Input
                             label="Video Frame (YouTube embed URL)"
                             name="video_frame"
