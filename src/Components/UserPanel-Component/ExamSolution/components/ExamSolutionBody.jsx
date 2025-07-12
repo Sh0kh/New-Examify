@@ -245,7 +245,7 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, examResultId 
     const audioChunksRef = useRef([]);
     const timerRef = useRef(null);
 
-    // Таймер записи
+    // Recording timer
     useEffect(() => {
         if (recording) {
             timerRef.current = setInterval(() => {
@@ -279,7 +279,7 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, examResultId 
                 mediaRecorderRef.current.start();
                 setRecording(true);
             } catch (error) {
-                console.error("Mikrofon ruxsati rad etildi:", error);
+                console.error("Microphone permission denied:", error);
                 alert("Microphone access denied. Please allow microphone access to record your answer.");
             }
         } else {
@@ -361,14 +361,14 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, examResultId 
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" />
                                 </svg>
-                                To'xtatish
+                                Stop Recording
                             </>
                         ) : (
                             <>
                                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                 </svg>
-                                Javob yozishni boshlash
+                                Start Recording Answer
                             </>
                         )}
                     </button>
@@ -391,7 +391,7 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, examResultId 
                             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                         </svg>
                         <span className={theme === 'dark' ? 'text-gray-300' : 'text-blue-700'}>
-                            Audio yuklanmoqda...
+                            Uploading audio...
                         </span>
                     </div>
                 )}
@@ -402,13 +402,13 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, examResultId 
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                         <span className={theme === 'dark' ? 'text-green-300' : 'text-green-700'}>
-                            Audio javob muvaffaqiyatli yuklandi
+                            Audio answer uploaded successfully
                         </span>
                         <button
                             onClick={handleRecord}
                             className="ml-auto text-sm px-3 py-1 rounded-md bg-blue-500 text-white hover:bg-blue-600"
                         >
-                            Qayta yozish
+                            Re-record
                         </button>
                     </div>
                 )}
@@ -416,6 +416,7 @@ const SpeakingQuestion = ({ question, onAnswer, userAnswer, theme, examResultId 
         </div>
     );
 };
+
 
 // Question type renderer
 const QuestionRenderer = ({ question, onAnswer, userAnswer, theme, examResultId }) => {
@@ -701,7 +702,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
             {SectionType === 'Reading' ? (
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Left side - Reading text */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[800px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                                 Reading Passage
@@ -714,7 +715,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     </div>
 
                     {/* Right side - Questions */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[800px]     border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         {currentPart?.description && (
                             <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                                 <h3
@@ -732,7 +733,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                         className={`border-b pb-6 last:border-b-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'}`}
                                     >
                                         <div className="flex items-start space-x-4">
-                                            <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
+                                            {/* <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
                                                     ${userAnswers[question.id]
                                                     ? theme === 'dark'
                                                         ? 'bg-green-900 text-green-200'
@@ -742,7 +743,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                                         : 'bg-gray-100 text-gray-600'
                                                 }`}>
                                                 {index + 1}
-                                            </div>
+                                            </div> */}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-2">
                                                     {userAnswers[question.id] && (
@@ -774,11 +775,11 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 </div>
             ) : (
                 <div className={`rounded-lg shadow-sm border mb-6 ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
-                    {currentPart?.rules && (
+                    {currentPart?.description && (
                         <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                             <h3
                                 className={`text-lg font-semibold ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}
-                                dangerouslySetInnerHTML={{ __html: currentPart.rules }}
+                                dangerouslySetInnerHTML={{ __html: currentPart.description }}
                             />
                         </div>
                     )}
