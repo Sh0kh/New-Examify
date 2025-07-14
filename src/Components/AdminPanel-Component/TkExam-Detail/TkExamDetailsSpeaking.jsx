@@ -134,7 +134,7 @@ export default function TkExamDetailsSpeaking() {
                                         <div className="mb-3">
                                             <audio controls className="w-full">
                                                 <source
-                                                    src={`${CONFIG.API_URL}/${answer.file_path}`}
+                                                    src={`${CONFIG.API_URL}${answer.file_path}`}
                                                     type="audio/webm"
                                                 />
                                                 Brauzeringiz audio qo'llab-quvvatlamaydi.
