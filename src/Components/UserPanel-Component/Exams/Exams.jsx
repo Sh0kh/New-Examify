@@ -4,7 +4,7 @@ import Header from "../Header/Header";
 import { useEffect, useMemo, useState } from "react";
 import Loading from "../../UI/Loadings/Loading";
 import { FaArrowRight } from "react-icons/fa";
-import Logo from "../../../Images/logo.png";
+import Logo from "@/Images/logo.png";
 import ExamBuyModal from "./components/ExamBuyModal";
 import BalanceErrorModal from "./components/BalanceErrorModal";
 import { useParams } from "react-router-dom";

@@ -1,6 +1,6 @@
 import React from "react";
-import Logo from '../../../../../Images/logo-dark.svg'
-import Ovner from '../../../../../Images/Avatar.svg'
+import Logo from '@/Images/logo-dark.svg'
+import Ovner from '@/Images/Avatar.svg'
 export default function ItliveInfo() {
   return (
     <section className=" mx-auto text-center py-16 px-6">

@@ -18,16 +18,21 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { $api } from "../../../utils";
 import { Phone } from "lucide-react";
+import Loading from "../../UI/Loadings/Loading";
 
 export default function UserProfile() {
     const navigate = useNavigate();
     const [data, setData] = useState([])
+    const [loading, setLoading] = useState(true)
     const getProfile = async () => {
+        setLoading(true)
         try {
             const response = await $api.get("/user/profile");
             setData(response?.data?.user || [])
         } catch (error) {
             console.log(error)
+        } finally {
+            setLoading(false)
         }
     }
 
@@ -47,13 +52,16 @@ export default function UserProfile() {
         navigate("/login");
     };
 
-    const handleEdit = () => {
-        navigate("/edit-profile");
+    const handleResults = () => {
+        navigate("/my-result");
     };
 
-    const handleResults = () => {
-        navigate("/my-results");
-    };
+
+    if (loading) {
+        return (
+            <Loading />
+        )
+    }
 
     return (
         <>

@@ -9,25 +9,41 @@ import {
 import { $api } from "../../../../utils";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 import { NavLink } from "react-router-dom";
+import Loading from "../../../UI/Loadings/Loading";
 
 export default function MyResultHero() {
     const [data, setData] = useState([]);
+    const [links, setLinks] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(true);
 
-    const getMyResult = async () => {
+    const getMyResult = async (page = 1) => {
         try {
+            setLoading(true);
             const userData = {
                 user_id: localStorage.getItem("user_id"),
             };
-            const response = await $api.post(`/user/my-exams`, userData);
-            setData(response?.data || []);
+            const response = await $api.post(`/user/my-exams?page=${page}`, userData);
+            setData(response?.data?.data || []);
+            setLinks(response?.data?.links || []);
+            setLoading(false);
         } catch (error) {
             console.log(error);
+            setLoading(false);
         }
     };
 
     useEffect(() => {
-        getMyResult();
-    }, []);
+        getMyResult(currentPage);
+    }, [currentPage]);
+
+    const handlePageChange = (label, url) => {
+        if (!url) return;
+        const pageNum = Number(new URL(url).searchParams.get("page"));
+        if (!isNaN(pageNum)) {
+            setCurrentPage(pageNum);
+        }
+    };
 
     return (
         <section className="min-h-screen bg-gray-50 py-16 px-4">
@@ -40,7 +56,9 @@ export default function MyResultHero() {
                     My Exam Results
                 </Typography>
 
-                {data.length === 0 ? (
+                {loading ? (
+                    <Loading />
+                ) : data.length === 0 ? (
                     <Typography color="gray" className="text-center">
                         No exam results available.
                     </Typography>
@@ -51,10 +69,7 @@ export default function MyResultHero() {
                         const StatusIcon = isFinished ? CheckCircleIcon : ClockIcon;
 
                         return (
-                            <Card
-                                key={item.id}
-                                className="w-full shadow-md border border-gray-200"
-                            >
+                            <Card key={item.id} className="w-full shadow-md border border-gray-200">
                                 <CardBody className="space-y-4 p-6">
                                     <div className="flex justify-between items-center flex-wrap gap-3">
                                         <div>
@@ -65,7 +80,6 @@ export default function MyResultHero() {
                                                 Language: {item.exam?.language}
                                             </Typography>
                                         </div>
-
                                         <Chip
                                             icon={<StatusIcon className="h-4 w-4" />}
                                             value={isFinished ? "Completed" : "In Progress"}
@@ -104,20 +118,12 @@ export default function MyResultHero() {
                                     <div className="flex justify-end mt-6">
                                         {isFinished ? (
                                             <NavLink to={`/my-result/${item?.id}`}>
-                                                <Button
-                                                    color="green"
-                                                    size="md"
-                                                    className="rounded-md shadow-md"
-                                                >
+                                                <Button color="green" size="md" className="rounded-md shadow-md">
                                                     View Result
                                                 </Button>
                                             </NavLink>
                                         ) : (
-                                            <Button
-                                                color="amber"
-                                                size="md"
-                                                className="rounded-md shadow-md"
-                                            >
+                                            <Button color="amber" size="md" className="rounded-md shadow-md">
                                                 Continue Exam
                                             </Button>
                                         )}
@@ -127,6 +133,22 @@ export default function MyResultHero() {
                         );
                     })
                 )}
+
+                {/* PAGINATION */}
+                <div className="flex flex-wrap justify-center gap-2 pt-8">
+                    {links.map((link, idx) => (
+                        <button
+                            key={idx}
+                            dangerouslySetInnerHTML={{ __html: link.label }}
+                            disabled={!link.url}
+                            onClick={() => handlePageChange(link.label, link.url)}
+                            className={`px-4 py-2 border rounded-md text-sm ${link.active
+                                ? "bg-blue-600 text-white"
+                                : "bg-white text-gray-700 hover:bg-gray-100"
+                                }`}
+                        />
+                    ))}
+                </div>
             </div>
         </section>
     );

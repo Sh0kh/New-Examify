@@ -443,46 +443,98 @@ const QuestionRenderer = ({ question, onAnswer, userAnswer, theme, examResultId 
     );
 };
 
+// import { CheckCircle, AlertCircle } from "lucide-react";
+// import QuestionRenderer from "./QuestionRenderer";
+
+
 export default function ExamSolutionBody({ examData, setAnswers }) {
+    // Состояния компонента
     const [activePart, setActivePart] = useState(null);
     const [userAnswers, setUserAnswers] = useState({});
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [theme, setTheme] = useState('light');
+    const [writingTexts, setWritingTexts] = useState({}); // Объект для хранения текстов всех частей
+    const [wordCounts, setWordCounts] = useState({}); // Объект для хранения счетчиков слов
+
+    // Данные экзамена
     const SectionType = examData?.next_section?.type;
-
-
     const parts = examData?.section?.parts || examData?.next_section?.parts || [];
     const currentPart = parts.find(part => part.id === activePart) || parts[0];
     const currentQuestions = currentPart?.questions || [];
 
-    // Инициализация активной части после загрузки данных
+    // Инициализация активной части
     useEffect(() => {
         if (parts.length > 0 && !activePart) {
             setActivePart(parts[0].id);
+            // Инициализация текстов для всех Writing частей
+            if (SectionType === 'Writing') {
+                const initialTexts = {};
+                const initialCounts = {};
+                
+                parts.forEach(part => {
+                    const question = part.questions?.[0];
+                    if (question) {
+                        const answer = userAnswers[question.id] || "";
+                        initialTexts[part.id] = answer;
+                        initialCounts[part.id] = answer.trim() ? answer.trim().split(/\s+/).length : 0;
+                    }
+                });
+                
+                setWritingTexts(initialTexts);
+                setWordCounts(initialCounts);
+            }
         }
-    }, [parts, activePart]); // Добавляем activePart в зависимости
+    }, [parts, activePart, SectionType, userAnswers]);
 
-    const checkAndApplyTheme = () => {
-        const currentTheme = localStorage.getItem('theme') || 'light';
-        if (currentTheme !== theme) {
-            setTheme(currentTheme);
-            document.documentElement.classList.toggle('dark', currentTheme === 'dark');
+    // Обработчик изменения текста для Writing секции
+    const handleWritingChange = (e, partId) => {
+        const text = e.target.value;
+        
+        // Обновляем текст для текущей части
+        setWritingTexts(prev => ({
+            ...prev,
+            [partId]: text
+        }));
+        
+        // Обновляем счетчик слов для текущей части
+        const words = text.trim() ? text.trim().split(/\s+/) : [];
+        setWordCounts(prev => ({
+            ...prev,
+            [partId]: words.length
+        }));
+
+        // Сохраняем ответ в userAnswers для вопроса текущей части
+        const question = parts.find(p => p.id === partId)?.questions?.[0];
+        if (question) {
+            setUserAnswers(prev => ({
+                ...prev,
+                [question.id]: text
+            }));
         }
     };
 
+    // Управление темой
     useEffect(() => {
-        checkAndApplyTheme();
-        const handleStorageChange = () => {
-            checkAndApplyTheme();
+        const checkAndApplyTheme = () => {
+            const currentTheme = localStorage.getItem('theme') || 'light';
+            if (currentTheme !== theme) {
+                setTheme(currentTheme);
+                document.documentElement.classList.toggle('dark', currentTheme === 'dark');
+            }
         };
+
+        checkAndApplyTheme();
+        const handleStorageChange = () => checkAndApplyTheme();
         window.addEventListener('storage', handleStorageChange);
         const intervalId = setInterval(checkAndApplyTheme, 500);
+
         return () => {
             window.removeEventListener('storage', handleStorageChange);
             clearInterval(intervalId);
         };
     }, [theme]);
 
+    // Формирование ответов для отправки
     useEffect(() => {
         const formattedParts = parts.map(part => ({
             id: part.id,
@@ -495,60 +547,29 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     return acc;
                 }
 
-                if (questionType === 4) {
-                    if (Array.isArray(userAnswer)) {
-                        userAnswer.forEach((answer, index) => {
-                            if (answer !== undefined && answer !== null) {
-                                const answerText = String(answer).trim();
-                                if (answerText !== '') {
-                                    acc.push({
-                                        question_id: q.id,
-                                        question_type_id: q.question_type_id,
-                                        answer_id: null,
-                                        answers: null,
-                                        file_path: null,
-                                        answer_text: answerText,
-                                        field_index: index
-                                    });
-                                }
-                            }
-                        });
-                    } else if (userAnswer !== undefined && userAnswer !== null) {
-                        const answerText = String(userAnswer).trim();
-                        if (answerText !== '') {
-                            acc.push({
-                                question_id: q.id,
-                                question_type_id: q.question_type_id,
-                                answer_id: null,
-                                answers: null,
-                                file_path: null,
-                                answer_text: answerText,
-                                field_index: 0
-                            });
-                        }
-                    }
-                } else {
-                    const answerObj = {
-                        question_id: q.id,
-                        question_type_id: q.question_type_id,
-                        answer_id: null,
-                        answers: null,
-                        file_path: null,
-                        answer_text: null
-                    };
+                // Обработка разных типов вопросов
+                const answerObj = {
+                    question_id: q.id,
+                    question_type_id: q.question_type_id,
+                    answer_id: null,
+                    answers: null,
+                    file_path: null,
+                    answer_text: null
+                };
 
-                    let hasAnswer = false;
-
-                    if ([1, 5].includes(questionType)) {
+                switch (questionType) {
+                    case 1: // Один правильный ответ
+                    case 5:
                         if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
                             const numericAnswer = Number(userAnswer);
                             if (!isNaN(numericAnswer)) {
                                 answerObj.answer_id = numericAnswer;
-                                hasAnswer = true;
+                                acc.push(answerObj);
                             }
                         }
-                    }
-                    else if (questionType === 2) {
+                        break;
+
+                    case 2: // Множественный выбор
                         if (Array.isArray(userAnswer)) {
                             const validAnswers = userAnswer
                                 .filter(id => id !== undefined && id !== null && id !== '')
@@ -557,67 +578,28 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
                             if (validAnswers.length > 0) {
                                 answerObj.selected_answers = validAnswers;
-                                hasAnswer = true;
-                            }
-                        } else if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
-                            const numericAnswer = Number(userAnswer);
-                            if (!isNaN(numericAnswer)) {
-                                answerObj.selected_answers = [numericAnswer];
-                                hasAnswer = true;
+                                acc.push(answerObj);
                             }
                         }
-                    }
-                    else if ([3, 6].includes(questionType)) {
-                        if (Array.isArray(userAnswer)) {
-                            // Обработка массива ответов (несколько input'ов)
-                            userAnswer.forEach((answer, index) => {
-                                if (answer !== undefined && answer !== null) {
-                                    const answerText = String(answer).trim();
-                                    if (answerText !== '') {
-                                        acc.push({
-                                            question_id: q.id,
-                                            question_type_id: q.question_type_id,
-                                            answer_id: null,
-                                            answers: null,
-                                            file_path: null,
-                                            answer_text: answerText,
-                                            field_index: index
-                                        });
-                                    }
-                                }
-                            });
-                        } else if (userAnswer !== undefined && userAnswer !== null) {
-                            // Обработка одиночного ответа
-                            const answerText = String(userAnswer).trim();
-                            if (answerText !== '') {
-                                acc.push({
-                                    question_id: q.id,
-                                    question_type_id: q.question_type_id,
-                                    answer_id: null,
-                                    answers: null,
-                                    file_path: null,
-                                    answer_text: answerText,
-                                    field_index: 0
-                                });
-                            }
-                        }
-                    }
-                    else if (questionType === 7) {
-                        if (userAnswer && (userAnswer.file_path || userAnswer.answer_id)) {
-                            const answerObj = {
-                                question_id: q.id,
-                                question_type_id: q.question_type_id,
-                                answer_id: userAnswer.answer_id || null, // Используем answer_id из ответа
-                                answers: null,
-                                file_path: userAnswer.file_path || null,
-                                answer_text: null
-                            };
+                        break;
+
+                    case 3: // Заполнение пропусков
+                    case 4: // Writing
+                    case 6: // Короткий ответ
+                        const answerText = String(userAnswer).trim();
+                        if (answerText !== '') {
+                            answerObj.answer_text = answerText;
                             acc.push(answerObj);
                         }
-                    }
-                    if (hasAnswer) {
-                        acc.push(answerObj);
-                    }
+                        break;
+
+                    case 7: // Аудио/видео ответ
+                        if (userAnswer && (userAnswer.file_path || userAnswer.answer_id)) {
+                            answerObj.answer_id = userAnswer.answer_id || null;
+                            answerObj.file_path = userAnswer.file_path || null;
+                            acc.push(answerObj);
+                        }
+                        break;
                 }
 
                 return acc;
@@ -628,47 +610,49 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         setAnswers(filteredParts);
     }, [userAnswers, parts, setAnswers]);
 
+    // Таймер
     useEffect(() => {
         if (timeRemaining > 0) {
-            const timer = setInterval(() => {
-                setTimeRemaining(prev => prev - 1);
-            }, 1000);
+            const timer = setInterval(() => setTimeRemaining(prev => prev - 1), 1000);
             return () => clearInterval(timer);
         }
     }, [timeRemaining]);
 
+    // Навигация между частями
     const handlePartChange = (partId) => {
         setActivePart(partId);
     };
 
+    // Подсчет отвеченных вопросов
     const getAnsweredQuestionsCount = (partId) => {
         const part = parts.find(p => p.id === partId);
         if (!part) return 0;
         return part.questions.filter(q => userAnswers[q.id] !== undefined).length;
     };
 
+    // Загрузка данных
     if (!examData) {
         return (
             <div className={`flex items-center justify-center h-64 ${theme === 'dark' ? 'bg-gray-900' : 'bg-[#FAFAFA]'}`}>
                 <div className="text-center">
                     <AlertCircle className="mx-auto h-12 w-12 text-gray-400" />
                     <p className={`mt-2 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-500'}`}>
-                        Ma'lumotlar yuklanmoqda...
+                        Loading data...
                     </p>
                 </div>
             </div>
         );
     }
 
+    // Рендер компонента
     return (
-        <div className={`min-h-screen p-4 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
-            {/* Part navigation */}
+        <div className={`min-h-screen Exam__test pt-[90px] p-2 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
+            {/* Навигация по частям */}
             <div className="mb-6">
                 <div className="flex flex-wrap gap-2">
                     {parts.map((part, index) => {
                         const answeredCount = getAnsweredQuestionsCount(part.id);
                         const totalQuestions = part.questions.length;
-                        // Исправляем логику определения активной части
                         const isActive = activePart === part.id;
 
                         return (
@@ -676,7 +660,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                 key={part.id}
                                 onClick={() => handlePartChange(part.id)}
                                 className={`relative px-4 py-3 rounded-lg border transition-all duration-200 font-medium
-                                        ${isActive
+                                    ${isActive
                                         ? theme === 'dark'
                                             ? 'bg-blue-700 text-white border-blue-600 shadow-md'
                                             : 'bg-blue-600 text-white border-blue-600 shadow-md'
@@ -688,7 +672,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                 <div className="flex flex-col items-center">
                                     <span className="text-sm">Part {index + 1}</span>
                                 </div>
-
                                 {answeredCount === totalQuestions && totalQuestions > 0 && (
                                     <CheckCircle className="absolute -top-1 -right-1 h-4 w-4 text-green-500 bg-white rounded-full" />
                                 )}
@@ -698,11 +681,11 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 </div>
             </div>
 
-            {/* Main content */}
+            {/* Основное содержимое в зависимости от типа секции */}
             {SectionType === 'Reading' ? (
                 <div className="flex flex-col md:flex-row gap-6">
-                    {/* Left side - Reading text */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[800px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    {/* Левая часть - Текст для чтения */}
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                                 Reading Passage
@@ -714,8 +697,8 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         </div>
                     </div>
 
-                    {/* Right side - Questions */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[800px]     border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    {/* Правая часть - Вопросы */}
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         {currentPart?.description && (
                             <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                                 <h3
@@ -727,23 +710,12 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
                         {currentQuestions.length > 0 ? (
                             <div className="p-6 space-y-8">
-                                {currentQuestions.map((question, index) => (
+                                {currentQuestions.map((question) => (
                                     <div
                                         key={question.id}
                                         className={`border-b pb-6 last:border-b-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'}`}
                                     >
                                         <div className="flex items-start space-x-4">
-                                            {/* <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
-                                                    ${userAnswers[question.id]
-                                                    ? theme === 'dark'
-                                                        ? 'bg-green-900 text-green-200'
-                                                        : 'bg-green-100 text-green-700'
-                                                    : theme === 'dark'
-                                                        ? 'bg-gray-700 text-gray-300'
-                                                        : 'bg-gray-100 text-gray-600'
-                                                }`}>
-                                                {index + 1}
-                                            </div> */}
                                             <div className="flex-1 min-w-0">
                                                 <div className="flex items-center justify-between mb-2">
                                                     {userAnswers[question.id] && (
@@ -768,9 +740,94 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                             </div>
                         ) : (
                             <div className={`p-6 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                                Bu bo'limda savollar mavjud emas
+                                No questions in this section
                             </div>
                         )}
+                    </div>
+                </div>
+            ) : SectionType === 'Writing' ? (
+                <div className="flex flex-col md:flex-row gap-6">
+                    {/* Левая часть - Задание и вопрос */}
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                        <div className="p-6">
+                            <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
+                                Writing Task {parts.findIndex(p => p.id === currentPart.id) + 1}
+                            </h3>
+                            
+                            {/* Отображение вопроса и изображения */}
+                            {currentQuestions.length > 0 && (
+                                <div className="mb-6">
+                                    <div className={`prose max-w-none ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+                                        dangerouslySetInnerHTML={{ __html: currentQuestions[0]?.question_text }}
+                                    />
+                                    {currentQuestions[0]?.image_url && (
+                                        <img
+                                            src={CONFIG.API_URL + currentQuestions[0].image_url}
+                                            alt="Question visual"
+                                            className="max-w-[400px] h-auto mt-4 rounded-lg border"
+                                        />
+                                    )}
+                                </div>
+                            )}
+
+                            <div className={`prose max-w-none mb-6 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+                                dangerouslySetInnerHTML={{ __html: currentPart?.rules }}
+                            />
+
+                            {currentPart?.description && (
+                                <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                    <h4 className={`font-medium mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
+                                        Task Requirements:
+                                    </h4>
+                                    <div className={`prose max-w-none ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
+                                        dangerouslySetInnerHTML={{ __html: currentPart.description }}
+                                    />
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Правая часть - Поле для ввода */}
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                        <div className="p-6">
+                            <div className="relative mb-4">
+                                <textarea
+                                    value={writingTexts[currentPart.id] || ""}
+                                    onChange={(e) => handleWritingChange(e, currentPart.id)}
+                                    className={`w-full min-h-[400px] p-4 rounded-lg border ${theme === 'dark'
+                                        ? 'bg-gray-700 text-gray-100 border-gray-600 focus:border-blue-500'
+                                        : 'bg-white text-gray-800 border-gray-300 focus:border-blue-500'
+                                        } focus:ring-2 focus:ring-blue-200 focus:outline-none transition-colors`}
+                                    placeholder="Write your essay here..."
+                                />
+                                <label className={`absolute -top-3 left-3 px-1 text-xs ${theme === 'dark'
+                                    ? 'bg-gray-800 text-gray-300'
+                                    : 'bg-white text-gray-600'
+                                    }`}>
+                                    Your essay for Part {parts.findIndex(p => p.id === currentPart.id) + 1}
+                                </label>
+                            </div>
+
+                            <div className={`mt-4 p-3 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                <div className="flex justify-between items-center">
+                                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                                        Word count: <strong>{wordCounts[currentPart.id] || 0}</strong>
+                                    </span>
+                                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
+                                        Minimum recommended: <strong>150 words</strong>
+                                    </span>
+                                </div>
+
+                                {(wordCounts[currentPart.id] || 0) > 0 && (
+                                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
+                                        <div
+                                            className={`h-2.5 rounded-full ${(wordCounts[currentPart.id] || 0) >= 250 ? 'bg-green-600' : 'bg-blue-600'}`}
+                                            style={{ width: `${Math.min(((wordCounts[currentPart.id] || 0) / 250) * 100, 100)}%` }}
+                                        ></div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
                 </div>
             ) : (
@@ -785,27 +842,13 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     )}
 
                     {currentQuestions.length > 0 ? (
-                        <div className="p-6 space-y-8 Exam__test">
-                            <h1>
-                                {examData?.section?.description?.parts}
-                            </h1>
-                            {currentQuestions.map((question, index) => (
+                        <div className="p-6 space-y-8">
+                            {currentQuestions.map((question) => (
                                 <div
                                     key={question.id}
                                     className={`border-b pb-6 last:border-b-0 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-100'}`}
                                 >
                                     <div className="flex items-start space-x-4">
-                                        {/* <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold
-                                                ${userAnswers[question.id]
-                                                ? theme === 'dark'
-                                                    ? 'bg-green-900 text-green-200'
-                                                    : 'bg-green-100 text-green-700'
-                                                : theme === 'dark'
-                                                    ? 'bg-gray-700 text-gray-300'
-                                                    : 'bg-gray-100 text-gray-600'
-                                            }`}>
-                                            {index + 1}
-                                        </div> */}
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between mb-2">
                                                 {userAnswers[question.id] && (
@@ -831,7 +874,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         </div>
                     ) : (
                         <div className={`p-6 text-center ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'}`}>
-                            Bu bo'limda savollar mavjud emas
+                            No questions in this section
                         </div>
                     )}
                 </div>

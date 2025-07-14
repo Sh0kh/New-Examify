@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from 'sweetalert2';
-import Check from '../../../../Images/BuyCheck.png';
+import Check from '@/Images/BuyCheck.png';
 import { $api } from "../../../../utils";
 
 export default function ExamBuyModal({ isOpen, onClose, id, Error, examType }) {

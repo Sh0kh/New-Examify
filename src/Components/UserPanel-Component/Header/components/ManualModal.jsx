@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import video from '../../../../Images/qollanma.mp4';
+import video from '@/Images/qollanma.mp4';
 
 const MonualModal = ({ isOpen, onClose }) => {
   const videoRef = useRef(null); // Реф для видео

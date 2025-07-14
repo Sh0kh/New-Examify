@@ -11,7 +11,7 @@ export default function ExamSolutionHeader({
     const loading = false;
 
     return (
-        <div className="Book__header p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+        <div className="Book__header fixed w-full z-50 p-4 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between flex-wrap gap-4">
                 {/* Заголовок и переключатель */}
                 <div className="flex items-center gap-4">
