@@ -9,7 +9,7 @@ export default function ExamStart({ isOpen, onClose, setDataFromChild }) {
 
 
     const StartExam = async () => {
-        setLoading(true)
+        setLoading(true);
         try {
             const formData = new FormData();
             formData.append("exam_result_id", ID);
@@ -22,6 +22,19 @@ export default function ExamStart({ isOpen, onClose, setDataFromChild }) {
             });
 
             setDataFromChild(response?.data || []);
+
+            // === ВХОД В ПОЛНОЭКРАННЫЙ РЕЖИМ ===
+            const docEl = document.documentElement;
+            if (docEl.requestFullscreen) {
+                await docEl.requestFullscreen();
+            } else if (docEl.webkitRequestFullscreen) { // Safari
+                await docEl.webkitRequestFullscreen();
+            } else if (docEl.mozRequestFullScreen) { // Firefox
+                await docEl.mozRequestFullScreen();
+            } else if (docEl.msRequestFullscreen) { // IE/Edge
+                await docEl.msRequestFullscreen();
+            }
+
             Swal.fire({
                 title: "Successful!",
                 icon: "success",
@@ -47,9 +60,10 @@ export default function ExamStart({ isOpen, onClose, setDataFromChild }) {
                 showConfirmButton: false,
             });
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
+
     return (
         <div
             className={`fixed inset-0 bg-[#0000006b] z-50 flex items-center justify-center transition-opacity duration-500 ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"

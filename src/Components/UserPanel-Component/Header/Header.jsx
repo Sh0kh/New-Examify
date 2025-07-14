@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import logo from '../../../Images/examifyNew.png';
+import logo from '@/Images/examifyNew.png';
 import { NavLink } from 'react-router-dom';
 import HeaderMenu from './components/HeaderMenu';
 import { Spin as Hamburger } from 'hamburger-react';
 // import { useDispatch, useSelector } from 'react-redux';
 // import { fetchData } from '../../Redux/MyInformation';
 import ManualModal from './components/ManualModal';
-import PersonFoto from '../../../Images/FotoPerson.jpg'
+import PersonFoto from '@/Images/FotoPerson.jpg'
 
 function Header() {
     const [active, setActive] = useState(false);

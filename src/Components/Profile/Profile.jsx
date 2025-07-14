@@ -5,7 +5,7 @@ import {
     Typography,
     Avatar,
 } from "@material-tailwind/react";
-import AvatarLogo from '../../Images/FotoPerson.jpg';
+import AvatarLogo from '@/Images/FotoPerson.jpg';
 import { Button } from "@mui/material";
 import { $api } from "../../utils";
 import { useEffect, useState } from "react";

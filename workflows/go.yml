@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: Deploy to Server
+        run: |
+          sshpass -p "Eequalit9chaatho" ssh -o StrictHostKeyChecking=no abdulaziz@158.220.111.34 "
+          cd Examify-FRONT &&
+          git pull origin main &&
+          docker build --rm -t examifyfront . &&
+          # Stop and remove any existing container named 'examify_frontend'
+          if [ \$(docker ps -aq -f name=examify_frontend) ]; then
+            docker stop examify_frontend && docker rm examify_frontend
+          fi
+          # Free up port 3020 if it's already in use
+          if lsof -i:3020 -t >/dev/null; then
+            kill -9 \$(lsof -i:3020 -t)
+          fi
+          # Run the new container with a custom name 'examify_frontend'
+          docker run -d -p 3020:3000 --name examify_frontend examifyfront
+          "

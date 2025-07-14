@@ -13,7 +13,7 @@ import Box from '@mui/material/Box';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SchoolIcon from '@mui/icons-material/School';
 
-import logo from '../../../Images/examifyNew.png';
+import logo from '@/Images/examifyNew.png';
 import { FindInPage, Key, Money, MoneySharp, Person } from '@mui/icons-material';
 
 const LogoContainer = ({ children }) => (
@@ -35,7 +35,6 @@ const LogoContainer = ({ children }) => (
 const menuItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, path: '/dashboard' },
     { text: `O'quv markaz`, icon: <SchoolIcon />, path: `/o'quv_markazlar` },
-    { text: `To'lovlar`, icon: <Money />, path: `/o'quv_markaz/tolovlar` },
     { text: `Moliya`, icon: <DashboardIcon />, path: `/o'quv_markaz/moliya` },
     { text: `Narxlar`, icon: <Money />, path: `/o'quv_markaz/narx` },
     // { text: 'Kalit narxi', icon: <DashboardIcon />, path: `/o'quv_markaz/kalit-narxi` },
