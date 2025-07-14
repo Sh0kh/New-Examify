@@ -470,7 +470,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
             if (SectionType === 'Writing') {
                 const initialTexts = {};
                 const initialCounts = {};
-                
+
                 parts.forEach(part => {
                     const question = part.questions?.[0];
                     if (question) {
@@ -479,7 +479,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         initialCounts[part.id] = answer.trim() ? answer.trim().split(/\s+/).length : 0;
                     }
                 });
-                
+
                 setWritingTexts(initialTexts);
                 setWordCounts(initialCounts);
             }
@@ -489,13 +489,13 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     // Обработчик изменения текста для Writing секции
     const handleWritingChange = (e, partId) => {
         const text = e.target.value;
-        
+
         // Обновляем текст для текущей части
         setWritingTexts(prev => ({
             ...prev,
             [partId]: text
         }));
-        
+
         // Обновляем счетчик слов для текущей части
         const words = text.trim() ? text.trim().split(/\s+/) : [];
         setWordCounts(prev => ({
@@ -547,29 +547,26 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     return acc;
                 }
 
-                // Обработка разных типов вопросов
-                const answerObj = {
-                    question_id: q.id,
-                    question_type_id: q.question_type_id,
-                    answer_id: null,
-                    answers: null,
-                    file_path: null,
-                    answer_text: null
-                };
-
+                // Handle different question types
                 switch (questionType) {
-                    case 1: // Один правильный ответ
+                    case 1: // Single correct answer
                     case 5:
                         if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '') {
                             const numericAnswer = Number(userAnswer);
                             if (!isNaN(numericAnswer)) {
-                                answerObj.answer_id = numericAnswer;
-                                acc.push(answerObj);
+                                acc.push({
+                                    question_id: q.id,
+                                    question_type_id: q.question_type_id,
+                                    answer_id: numericAnswer,
+                                    answer_text: null,
+                                    selected_answers: null,
+                                    file_path: null
+                                });
                             }
                         }
                         break;
 
-                    case 2: // Множественный выбор
+                    case 2: // Multiple choice
                         if (Array.isArray(userAnswer)) {
                             const validAnswers = userAnswer
                                 .filter(id => id !== undefined && id !== null && id !== '')
@@ -577,27 +574,62 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                 .filter(id => !isNaN(id));
 
                             if (validAnswers.length > 0) {
-                                answerObj.selected_answers = validAnswers;
-                                acc.push(answerObj);
+                                acc.push({
+                                    question_id: q.id,
+                                    question_type_id: q.question_type_id,
+                                    answer_id: null,
+                                    answer_text: null,
+                                    selected_answers: validAnswers,
+                                    file_path: null
+                                });
                             }
                         }
                         break;
 
-                    case 3: // Заполнение пропусков
-                    case 4: // Writing
-                    case 6: // Короткий ответ
-                        const answerText = String(userAnswer).trim();
-                        if (answerText !== '') {
-                            answerObj.answer_text = answerText;
-                            acc.push(answerObj);
+                    case 3: // Fill in blanks (separate)
+                    case 4: // Fill in blanks (story)
+                        if (Array.isArray(userAnswer)) {
+                            // Create separate answer object for each blank answer
+                            userAnswer.forEach(answer => {
+                                const answerText = String(answer).trim();
+                                if (answerText !== '') {
+                                    acc.push({
+                                        question_id: q.id,
+                                        question_type_id: q.question_type_id,
+                                        answer_id: null,
+                                        answer_text: answerText,
+                                        selected_answers: null,
+                                        file_path: null
+                                    });
+                                }
+                            });
                         }
                         break;
 
-                    case 7: // Аудио/видео ответ
+                    case 6: // Short answer
+                        const answerText = String(userAnswer).trim();
+                        if (answerText !== '') {
+                            acc.push({
+                                question_id: q.id,
+                                question_type_id: q.question_type_id,
+                                answer_id: null,
+                                answer_text: answerText,
+                                selected_answers: null,
+                                file_path: null
+                            });
+                        }
+                        break;
+
+                    case 7: // Audio/video answer
                         if (userAnswer && (userAnswer.file_path || userAnswer.answer_id)) {
-                            answerObj.answer_id = userAnswer.answer_id || null;
-                            answerObj.file_path = userAnswer.file_path || null;
-                            acc.push(answerObj);
+                            acc.push({
+                                question_id: q.id,
+                                question_type_id: q.question_type_id,
+                                answer_id: userAnswer.answer_id || null,
+                                answer_text: null,
+                                selected_answers: null,
+                                file_path: userAnswer.file_path || null
+                            });
                         }
                         break;
                 }
@@ -753,7 +785,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                                 Writing Task {parts.findIndex(p => p.id === currentPart.id) + 1}
                             </h3>
-                            
+
                             {/* Отображение вопроса и изображения */}
                             {currentQuestions.length > 0 && (
                                 <div className="mb-6">
@@ -813,19 +845,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                     <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
                                         Word count: <strong>{wordCounts[currentPart.id] || 0}</strong>
                                     </span>
-                                    <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>
-                                        Minimum recommended: <strong>150 words</strong>
-                                    </span>
                                 </div>
-
-                                {(wordCounts[currentPart.id] || 0) > 0 && (
-                                    <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                                        <div
-                                            className={`h-2.5 rounded-full ${(wordCounts[currentPart.id] || 0) >= 250 ? 'bg-green-600' : 'bg-blue-600'}`}
-                                            style={{ width: `${Math.min(((wordCounts[currentPart.id] || 0) / 250) * 100, 100)}%` }}
-                                        ></div>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>
