@@ -681,7 +681,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         <div className={`min-h-screen Exam__test pt-[90px] p-2 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
             {/* Навигация по частям */}
             <div className="mb-6">
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap ">
                     {parts.map((part, index) => {
                         const answeredCount = getAnsweredQuestionsCount(part.id);
                         const totalQuestions = part.questions.length;
@@ -691,7 +691,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                             <button
                                 key={part.id}
                                 onClick={() => handlePartChange(part.id)}
-                                className={`relative px-4 py-3 rounded-lg border transition-all duration-200 font-medium
+                                className={`relative px-7 py-3  border transition-all duration-200 font-medium
                                     ${isActive
                                         ? theme === 'dark'
                                             ? 'bg-blue-700 text-white border-blue-600 shadow-md'
