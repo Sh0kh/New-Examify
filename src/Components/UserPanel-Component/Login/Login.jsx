@@ -132,7 +132,7 @@ function Login() {
                 <h1 className="font-bold text-3xl text-gray-800 mb-4">Login</h1>
                 <p className="text-lg text-gray-600 mb-6 max-w-[470px]">
                     You'll need to go to the {''}
-                    <a className="text-blue-500  border-blue-500" href="https://t.me/codevanbot" target="_blank" rel="noopener noreferrer">
+                    <a className="text-blue-500  border-blue-500" href="https://t.me/ExamifyCode_bot" target="_blank" rel="noopener noreferrer">
                         ExamifyCode
                     </a> {''}
                     Telegram bot to get a verification code
