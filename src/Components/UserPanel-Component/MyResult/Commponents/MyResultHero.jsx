@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import {
-    Card,
-    CardBody,
     Typography,
     Chip,
     Button
@@ -46,12 +44,12 @@ export default function MyResultHero() {
     };
 
     return (
-        <section className="min-h-screen bg-gray-50 py-16 px-4">
-            <div className="max-w-6xl mx-auto space-y-6">
+        <section className="min-h-screen bg-gray-50 py-12 px-4">
+            <div className="max-w-4xl mx-auto space-y-6">
                 <Typography
                     variant="h4"
                     color="blue-gray"
-                    className="mb-6 text-center font-semibold"
+                    className="text-center font-bold"
                 >
                     My Exam Results
                 </Typography>
@@ -59,92 +57,84 @@ export default function MyResultHero() {
                 {loading ? (
                     <Loading />
                 ) : data.length === 0 ? (
-                    <Typography color="gray" className="text-center">
+                    <Typography color="gray" className="text-center text-lg">
                         No exam results available.
                     </Typography>
                 ) : (
-                    data.map((item) => {
-                        const isFinished = item.status === "finished";
-                        const statusColor = isFinished ? "green" : "amber";
-                        const StatusIcon = isFinished ? CheckCircleIcon : ClockIcon;
+                    <div className="space-y-4">
+                        {data.map((item) => {
+                            const isFinished = item.status === "finished";
+                            const statusColor = isFinished ? "green" : "amber";
+                            const StatusIcon = isFinished ? CheckCircleIcon : ClockIcon;
 
-                        return (
-                            <Card key={item.id} className="w-full shadow-md border border-gray-200">
-                                <CardBody className="space-y-4 p-6">
-                                    <div className="flex justify-between items-center flex-wrap gap-3">
-                                        <div>
-                                            <Typography variant="h5" className="font-medium">
+                            return (
+                                <div
+                                    key={item.id}
+                                    className="bg-white border border-gray-200 rounded-xl px-6 py-4 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between hover:shadow-md transition-shadow"
+                                >
+                                    <div className="flex-1 flex flex-col gap-2">
+                                        <div className="flex items-center gap-3 text-gray-800">
+                                            <StatusIcon className={`h-5 w-5 text-${statusColor}-500`} />
+                                            <Typography variant="h6" className="font-semibold">
                                                 {item.exam?.name || "Unnamed Exam"}
                                             </Typography>
-                                            <Typography className="text-sm text-gray-500">
-                                                Language: {item.exam?.language}
-                                            </Typography>
                                         </div>
+
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:gap-4 text-sm text-gray-700">
+                                            <p>
+                                                <span className="text-gray-500 font-medium">Language:</span>{" "}
+                                                {item.exam?.language}
+                                            </p>
+                                            <p>
+                                                <span className="text-gray-500 font-medium">Score:</span>{" "}
+                                                {item.score ?? "Not yet available"}
+                                            </p>
+                                            <p>
+                                                <span className="text-gray-500 font-medium">Price:</span>{" "}
+                                                {item.exam?.price} UZS
+                                            </p>
+                                            <p className="text-gray-500 sm:hidden">
+                                                <span className="font-medium">Started:</span>{" "}
+                                                {new Date(item.start_time).toLocaleString()}
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-col items-end mt-4 sm:mt-0 sm:ml-4 gap-2">
                                         <Chip
-                                            icon={<StatusIcon className="h-4 w-4" />}
                                             value={isFinished ? "Completed" : "In Progress"}
                                             color={statusColor}
-                                            className="px-3 py-1.5 text-sm font-medium"
+                                            className="rounded-full text-xs px-2 py-1"
                                         />
-                                    </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-700">
-                                        <div>
-                                            <Typography className="font-medium text-gray-600">
-                                                Start Time
-                                            </Typography>
-                                            <Typography>
-                                                {new Date(item.start_time).toLocaleString()}
-                                            </Typography>
-                                        </div>
-                                        <div>
-                                            <Typography className="font-medium text-gray-600">
-                                                Score
-                                            </Typography>
-                                            <Typography>
-                                                {item.score ?? "Not yet available"}
-                                            </Typography>
-                                        </div>
-                                        <div>
-                                            <Typography className="font-medium text-gray-600">
-                                                Price
-                                            </Typography>
-                                            <Typography>
-                                                {item.exam?.price} UZS
-                                            </Typography>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex justify-end mt-6">
                                         {isFinished ? (
                                             <NavLink to={`/my-result/${item?.id}`}>
-                                                <Button color="green" size="md" className="rounded-md shadow-md">
-                                                    View Result
+                                                <Button size="sm" color="green" className="rounded-md shadow-sm">
+                                                    View
                                                 </Button>
                                             </NavLink>
                                         ) : (
-                                            <Button color="amber" size="md" className="rounded-md shadow-md">
-                                                Continue Exam
+                                            <Button size="sm" color="amber" className="rounded-md shadow-sm">
+                                                Continue
                                             </Button>
                                         )}
                                     </div>
-                                </CardBody>
-                            </Card>
-                        );
-                    })
+                                </div>
+                            );
+                        })}
+                    </div>
                 )}
 
                 {/* PAGINATION */}
-                <div className="flex flex-wrap justify-center gap-2 pt-8">
+                <div className="flex flex-wrap justify-center gap-2 pt-10">
                     {links.map((link, idx) => (
                         <button
                             key={idx}
                             dangerouslySetInnerHTML={{ __html: link.label }}
                             disabled={!link.url}
                             onClick={() => handlePageChange(link.label, link.url)}
-                            className={`px-4 py-2 border rounded-md text-sm ${link.active
-                                ? "bg-blue-600 text-white"
-                                : "bg-white text-gray-700 hover:bg-gray-100"
+                            className={`min-w-[36px] px-3 py-1.5 border text-sm rounded-md transition ${link.active
+                                    ? "bg-blue-600 text-white shadow"
+                                    : "bg-white text-gray-700 hover:bg-gray-100"
                                 }`}
                         />
                     ))}

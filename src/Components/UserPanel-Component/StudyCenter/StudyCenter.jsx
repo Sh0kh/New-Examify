@@ -70,19 +70,13 @@ export default function StudyCenter() {
                                             <Typography variant="h6" color="blue-gray" className="mb-1">
                                                 {exam.name}
                                             </Typography>
-
+{/* 
                                             <Typography color="gray" className="text-sm mb-2">
                                                 {exam?.description || "Tavsif mavjud emas"}
-                                            </Typography>
+                                            </Typography> */}
 
                                             <Typography color="blue-gray" className="text-xs font-medium">
-                                                {exam?.date
-                                                    ? new Date(exam.date).toLocaleDateString("uz-UZ", {
-                                                        year: "numeric",
-                                                        month: "long",
-                                                        day: "numeric",
-                                                    })
-                                                    : "Sana mavjud emas"}
+                                                Those who passed the exam: 100
                                             </Typography>
                                         </CardBody>
                                     </Card>

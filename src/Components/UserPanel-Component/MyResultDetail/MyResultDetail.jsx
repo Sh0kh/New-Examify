@@ -4,10 +4,8 @@ import Header from "../Header/Header";
 import { useEffect, useState } from "react";
 import { $api } from "../../../utils";
 import {
-    Card,
     CardBody,
     Typography,
-    Spinner,
 } from "@material-tailwind/react";
 import Loading from "../../UI/Loadings/Loading";
 
@@ -32,67 +30,98 @@ export default function MyResultDetail() {
         getMyResult();
     }, []);
 
+    const getSectionScore = (name) => {
+        return data?.section_scores?.find(s => s.section?.name === name);
+    };
+
+    if (loading) {
+        return (
+            <Loading />
+        )
+    }
+
     return (
         <>
             <Header />
-            <main className="min-h-[80vh] pt-[120px] bg-gray-50 py-6 px-4">
-                {loading ? (
-                    <div className="flex justify-center items-center h-[100vh]">
-                        <Loading />
-                    </div>
-                ) : (
-                    <section className="max-w-4xl mx-auto space-y-6">
-                        {/* Основная информация */}
-                        <Card className="shadow-md">
-                            <CardBody>
-                                <Typography variant="h5" className="mb-2 text-blue-700">
-                                    Imtihon natijasi: {data?.exam?.name}
-                                </Typography>
-                                <Typography color="gray" className="mb-1">
-                                    Til: <strong>{data?.exam?.language}</strong>
-                                </Typography>
-                                <Typography color="gray" className="mb-1">
-                                    Umumiy ball: <strong>{data?.score}</strong>
-                                </Typography>
-                                <Typography color="gray">
-                                    Natija (A1-C2): <strong>{data?.result}</strong>
-                                </Typography>
-                            </CardBody>
-                        </Card>
+            <main className="min-h-screen">
+                <section className="mt-[150px]">
+                    <div className="max-w-[1200px] mx-auto px-[10px]">
+                        <h1 className="text-[32px] font-[600]">My results</h1>
+                        <span className="block mt-[24px] text-[18px]">
+                            Exam name: {data?.exam?.name}
+                        </span>
+                        <span className="block mt-[20px] text-[18px]">
+                            Date: {new Date(data?.start_time).toLocaleString()}
+                        </span>
+                        <span className="block mt-[20px] text-[18px]">
+                            Status:
+                            <span className="text-[green]"> Finished</span>
+                        </span>
 
-                        {/* Bo‘limlar natijasi */}
-                        <div className="space-y-4">
-                            {data?.section_scores?.map((sectionScore) => (
-                                <NavLink className={'block'} to={`/my-result/${sectionScore?.exam_result_id}/${sectionScore?.id}`}>
-                                    <Card key={sectionScore.id} className="border border-blue-100">
-                                        <CardBody>
-                                            <Typography variant="h6" className="text-blue-600">
-                                                {sectionScore?.section?.name}
-                                            </Typography>
-                                            <Typography color="gray">
-                                                Holati:{" "}
-                                                <strong className="capitalize">
-                                                    {sectionScore.status}
-                                                </strong>
-                                            </Typography>
-                                            <Typography color="gray">
-                                                Ball: <strong>{sectionScore.score}</strong>
-                                            </Typography>
-                                            <Typography color="gray" className="text-sm mt-1">
-                                                Boshlangan vaqt:{" "}
-                                                {new Date(sectionScore.start_time).toLocaleTimeString()}
-                                            </Typography>
-                                            <Typography color="gray" className="text-sm">
-                                                Tugagan vaqt:{" "}
-                                                {new Date(sectionScore.end_time).toLocaleTimeString()}
-                                            </Typography>
-                                        </CardBody>
-                                    </Card>
-                                </NavLink>
-                            ))}
-                        </div>
-                    </section>
-                )}
+                        <div className="bg-[#F5F5F5] w-full h-[2px] my-[30px]"></div>
+
+                        {/* Сводная таблица по баллам */}
+                        <CardBody className="overflow-x-auto p-[0px] mt-[30px] ">
+                            <Typography variant="h5" className="mb-4 font-semibold text-gray-700">
+                                Summary of Scores
+                            </Typography>
+                            <table className="min-w-full shadow-lg table-auto text-center border border-gray-200 rounded-2xl">
+                                <thead className="bg-gray-100 text-gray-700 text-sm rounded-[20px]">
+                                    <tr>
+                                        <th className="p-4 border-b border-gray-200">Overall</th>
+                                        <th className="p-4 border-b border-gray-200">Listening</th>
+                                        <th className="p-4 border-b border-gray-200">Reading</th>
+                                        <th className="p-4 border-b border-gray-200">Speaking</th>
+                                        <th className="p-4 border-b border-gray-200">Writing</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-sm text-gray-800 font-medium">
+                                    <tr>
+                                        <td className="p-6 border-b border-gray-100">
+                                            {data?.score ?? "N/A"}
+                                        </td>
+
+                                        {/* Listening */}
+                                        <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
+                                            {getSectionScore("Listening") ? (
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Listening")?.section_id}`}>
+                                                    {getSectionScore("Listening")?.score}
+                                                </NavLink>
+                                            ) : "N/A"}
+                                        </td>
+
+                                        {/* Reading */}
+                                        <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
+                                            {getSectionScore("Reading") ? (
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Reading")?.section_id}`}>
+                                                    {getSectionScore("Reading")?.score}
+                                                </NavLink>
+                                            ) : "N/A"}
+                                        </td>
+
+                                        {/* Speaking */}
+                                        <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
+                                            {getSectionScore("Speaking") ? (
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Speaking")?.section_id}`}>
+                                                    {getSectionScore("Speaking")?.score}
+                                                </NavLink>
+                                            ) : "N/A"}
+                                        </td>
+
+                                        {/* Writing */}
+                                        <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
+                                            {getSectionScore("Writing") ? (
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Writing")?.section_id}`}>
+                                                    {getSectionScore("Writing")?.score}
+                                                </NavLink>
+                                            ) : "N/A"}
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </CardBody>
+                    </div>
+                </section>
             </main>
             <Footer />
         </>
