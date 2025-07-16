@@ -92,16 +92,17 @@ export default function Exams() {
                                         </h2>
                                         <div>
                                             <h3 className="text-lg mt-2">{exam.name}</h3>
-                                            <p className="text-sm mt-1">Center: {exam.center?.name || "Unknown"}</p>
                                             <p className="text-sm mt-1">Language: {exam.language}</p>
 
                                             <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium bg-white text-black`}>
-                                                Available
+                                                {exam.type_id == 1
+                                                    ? "Tekin"
+                                                    : exam.type_id == 2
+                                                        ? "Pullik"
+                                                        : exam.type_id == 3
+                                                            ? "Yopiq (kalitli)"
+                                                            : "Noma'lum"}
                                             </span>
-
-                                            <p className="mt-3 text-sm">
-                                                Make sure before taking the exam. "You'll get a 3x trial"
-                                            </p>
                                         </div>
 
                                         <button className="mt-4 flex items-center text-sm font-medium text-white">

@@ -70,3 +70,76 @@ input[type="number"]::-webkit-inner-spin-button {
 .Exam__test th {
   border: 1px solid black;
 }
+
+
+.strikethrough-word {
+    position: relative;
+    text-decoration: line-through;
+    cursor: pointer;
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.replacement-input {
+    position: absolute;
+    top: -25px;
+    left: 0;
+    min-width: 120px;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.replacement-tag {
+    position: absolute;
+    top: -18px;
+    left: 0;
+    font-size: 12px;
+    font-weight: bold;
+    white-space: nowrap;
+    padding: 2px 6px;
+    border-radius: 12px;
+}
+
+/* Темная тема */
+.dark .strikethrough-word {
+    background-color: rgba(59, 130, 246, 0.3);
+}
+
+.dark .replacement-input {
+    background: #1f2937;
+    color: #f3f4f6;
+    border: 1px solid #3b82f6;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.dark .replacement-tag {
+    color: #3b82f6;
+    background: #1f2937;
+    border: 1px solid #3b82f6;
+}
+
+/* Светлая тема */
+.light .strikethrough-word {
+    background-color: rgba(37, 99, 235, 0.2);
+}
+
+.light .replacement-input {
+    background: white;
+    color: #111827;
+    border: 1px solid #2563eb;
+}
+
+.light .replacement-tag {
+    color: #2563eb;
+    background: white;
+    border: 1px solid #2563eb;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    rotate: 45deg;
+    cursor: pointer;
+    text-decoration: solid;
+}

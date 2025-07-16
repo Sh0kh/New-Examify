@@ -59,9 +59,6 @@ function Header() {
                             <NavLink onClick={handleScrollUp} to={`/contact`} className="hover:text-black font-[600]">
                                 Contact
                             </NavLink>
-                            <NavLink onClick={handleScrollUp} to={`/bonus`} className="hover:text-black font-[600]">
-                                Bonus
-                            </NavLink>
                             <button
                                 onClick={openManualModal}
                                 className="hover:text-black font-[600]">

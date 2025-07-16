@@ -14,7 +14,7 @@ const faqData = [
     },
     {
         question: "How long does it take to receive my results after completing the mock exam?",
-        answer: "Results are typically available within 48 hours after completing the mock exam.",
+        answer: "How long does it take to get my results after completing the mock exam? Results are typically available within 2 minutes after completing the mock exam if checked by AI, and within 24 hours if checked by a human.",
     },
     {
         question: "Can I take the mock exam multiple times?",
