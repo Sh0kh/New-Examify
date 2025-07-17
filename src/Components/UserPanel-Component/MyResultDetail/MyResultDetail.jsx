@@ -70,22 +70,22 @@ export default function MyResultDetail() {
                                     <tr>
                                         <th className="p-4 border-b border-gray-200">Overall</th>
                                         <th className="p-4 border-b border-gray-200">
-                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Listening")?.section_id}`}>
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Listening")?.id}`}>
                                                 Listening
                                             </NavLink>
                                         </th>
                                         <th className="p-4 border-b border-gray-200">
-                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Reading")?.section_id}`}>
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Reading")?.id}`}>
                                                 Reading
                                             </NavLink>
                                         </th>
                                         <th className="p-4 border-b border-gray-200">
-                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Speaking")?.section_id}`}>
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Speaking")?.id}`}>
                                                 Speaking
                                             </NavLink>
                                         </th>
                                         <th className="p-4 border-b border-gray-200">
-                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Writing")?.section_id}`}>
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Writing")?.id}`}>
                                                 Writing
                                             </NavLink>
                                         </th>
@@ -99,7 +99,7 @@ export default function MyResultDetail() {
                                         {/* Listening */}
                                         <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
                                             {getSectionScore("Listening") ? (
-                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Listening")?.section_id}`}>
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Listening")?.id}`}>
                                                     {getSectionScore("Listening")?.score}
                                                 </NavLink>
                                             ) : "N/A"}
@@ -107,7 +107,7 @@ export default function MyResultDetail() {
                                         {/* Reading */}
                                         <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
                                             {getSectionScore("Reading") ? (
-                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Reading")?.section_id}`}>
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Reading")?.id}`}>
                                                     {getSectionScore("Reading")?.score}
                                                 </NavLink>
                                             ) : "N/A"}
@@ -115,7 +115,7 @@ export default function MyResultDetail() {
                                         {/* Speaking */}
                                         <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
                                             {getSectionScore("Speaking") ? (
-                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Speaking")?.section_id}`}>
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Speaking")?.id}`}>
                                                     {getSectionScore("Speaking")?.score}
                                                 </NavLink>
                                             ) : "N/A"}
@@ -124,7 +124,7 @@ export default function MyResultDetail() {
                                         {/* Writing */}
                                         <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
                                             {getSectionScore("Writing") ? (
-                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Writing")?.section_id}`}>
+                                                <NavLink to={`/my-result/${resultId}/${getSectionScore("Writing")?.id}`}>
                                                     {getSectionScore("Writing")?.score}
                                                 </NavLink>
                                             ) : "N/A"}
