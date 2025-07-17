@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import ReactLoading from 'react-loading';
-import PersonFoto from '../../../../../Images/FotoPerson.jpg';
+import PersonFoto from '@/Images/FotoPerson.jpg';
 import { $api } from '../../../../../utils';
 
 function Result() {
