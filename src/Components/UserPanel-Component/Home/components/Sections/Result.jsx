@@ -11,7 +11,7 @@ function Result() {
     const getResult = async () => {
         setLoading(true);
         try {
-            const response = await $api.get(`/user/get-center-exams/${5}`);
+            const response = await $api.get(`/user/rating`);
             setData(response.data || []);
         } catch (error) {
             console.log(error);
@@ -64,7 +64,7 @@ function Result() {
                                     >
                                         <div className='flex items-center gap-3 mb-2 sm:mb-0'>
                                             <img className='w-[40px] sm:w-[50px] h-[40px] sm:h-[50px] rounded-full' src={PersonFoto} alt="foto" />
-                                            <span className='text-base sm:text-lg font-medium'>{i?.user_name || "Unknown"}</span>
+                                            <span className='text-base sm:text-lg font-medium'>{i?.user?.name || "Unknown"}</span>
                                         </div>
 
                                         <span className='font-semibold text-[#181D27] text-sm sm:text-base mb-1 sm:mb-0'>
@@ -79,6 +79,7 @@ function Result() {
                             ) : (
                                 <p className='text-center text-gray-500'>No results found.</p>
                             )}
+
                         </>
                     )}
                     <div className='Result__over'></div>

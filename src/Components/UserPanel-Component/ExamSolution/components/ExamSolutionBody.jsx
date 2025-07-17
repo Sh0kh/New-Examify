@@ -200,8 +200,12 @@ const SelectableText = ({ children, theme }) => {
 
 export default function ExamSolutionBody({ examData, setAnswers }) {
     // Состояния компонента
-    const [activePart, setActivePart] = useState(null);
     const [userAnswers, setUserAnswers] = useState({});
+    const [activePart, setActivePart] = useState(() => {
+        // При инициализации пытаемся получить сохраненную часть из localStorage
+        const savedPart = localStorage.getItem('lastActivePart');
+        return savedPart || null;
+    });
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [theme, setTheme] = useState('light');
     const [writingTexts, setWritingTexts] = useState({}); // Объект для хранения текстов всех частей
@@ -212,6 +216,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     const parts = examData?.section?.parts || examData?.next_section?.parts || [];
     const currentPart = parts.find(part => part.id === activePart) || parts[0];
     const currentQuestions = currentPart?.questions || [];
+
 
     // Отключаем контекстное меню для всего приложения
     useEffect(() => {
@@ -229,9 +234,19 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
     // Инициализация активной части
     useEffect(() => {
-        if (parts.length > 0 && !activePart) {
-            setActivePart(parts[0].id);
-            // Инициализация текстов для всех Writing частей
+        if (parts.length > 0) {
+            // Проверяем, есть ли сохраненная часть в новых данных
+            const savedPart = localStorage.getItem('lastActivePart');
+            const isValidPart = savedPart && parts.some(p => p.id === savedPart);
+
+            // Если активная часть не установлена или сохраненная часть невалидна
+            if (!activePart || !isValidPart) {
+                const newActivePart = isValidPart ? savedPart : parts[0].id;
+                setActivePart(newActivePart);
+                localStorage.setItem('lastActivePart', newActivePart);
+            }
+
+            // Инициализация для Writing секции
             if (SectionType === 'Writing') {
                 const initialTexts = {};
                 const initialCounts = {};
@@ -249,7 +264,9 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 setWordCounts(initialCounts);
             }
         }
-    }, [parts, activePart, SectionType, userAnswers]);
+    }, [parts]); // Зависимость только от parts
+
+
 
     // Обработчик изменения текста для Writing секции
     const handleWritingChange = (e, partId) => {
@@ -428,8 +445,23 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     // Навигация между частями
     const handlePartChange = (partId) => {
         setActivePart(partId);
+        localStorage.setItem('lastActivePart', partId);
     };
 
+
+    useEffect(() => {
+        return () => {
+            localStorage.removeItem('lastActivePart');
+        };
+    }, []);
+
+    useEffect(() => {
+        if (parts.length > 0 && activePart === null) {
+            const savedPart = localStorage.getItem('lastActivePart');
+            const isValidPart = savedPart && parts.some(p => p.id === savedPart);
+            setActivePart(isValidPart ? savedPart : parts[0].id);
+        }
+    }, [parts, activePart]);
     // Подсчет отвеченных вопросов
     const getAnsweredQuestionsCount = (partId) => {
         const part = parts.find(p => p.id === partId);
