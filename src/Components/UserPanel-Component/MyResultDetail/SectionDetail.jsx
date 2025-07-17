@@ -52,7 +52,7 @@ export default function SectionDetail() {
     return (
         <>
             <Header />
-            <div className="container mx-auto p-4 h-screen mt-[150px]">
+            <div className="container mx-auto p-4  mt-[150px]">
                 <Card>
                     <CardBody>
                         <Typography variant="h5" color="blue-gray" className="mb-4">
@@ -72,7 +72,7 @@ export default function SectionDetail() {
                                             </Typography>
 
                                             {/* Показываем Chip только если это НЕ Speaking и НЕ Writing */}
-                                            {answer.type !== "Speaking" && answer.type !== "Writing" && (
+                                            {answer.type !== "Speaking" && answer.type !== "essay" && (
                                                 <Chip
                                                     color={answer.is_correct === "1" ? "green" : "red"}
                                                     value={answer.is_correct === "1" ? "Correct" : "Incorrect"}
@@ -87,7 +87,7 @@ export default function SectionDetail() {
                                                 <audio
                                                     controls
                                                     className="mt-2 w-full"
-                                                    src={`${CONFIG?.API_URL}/${answer.file_path.replace(/\\/g, "/")}`}
+                                                    src={`${CONFIG?.API_URL}audio_speeches/${answer.file_path.replace(/\\/g, "/")}`}
                                                 />
                                             </div>
                                         ) : (
