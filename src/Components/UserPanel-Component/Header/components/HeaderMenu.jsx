@@ -51,42 +51,22 @@ function HeaderMenu({ isOpen, onClose }) {
                     </div>
                 </NavLink>
                 <nav className='flex items-start flex-col gap-[20px]'>
-                    {/* {token && (
-                        <div className=''>
-                            <h2 className='font-bold text-[white]'>
-                                {data?.name}
-                            </h2>
-                            <h2 className='text-[white]'>
-                                {data?.phoneNumber}
-                            </h2>
-                            <h3 className='font-bold text-[white]'>
-                                IELTS Exam limit: {data?.todayExamCount}
-                            </h3>
-                            <h3 className='font-bold text-[white]'>
-                                Balance: {data?.balance?.toLocaleString("ru-RU")}
-                            </h3>
-                            <div className='w-full h-[2px] bg-[white] mt-[20px]'></div>
-                        </div>
-                    )} */}
                     <NavLink onClick={ScrollandClose} to={`/`} className="text-white font-bold text-[20px] transition-all duration-500 hover:tracking-widest">
                         Home
                     </NavLink>
-                    <NavLink onClick={ScrollandClose} to={`/multi-level`} className="text-white font-bold text-[20px] transition-all duration-500 hover:tracking-[8px]">
-                        CEFR
+                    <NavLink onClick={ScrollandClose} to={`/exams`} className="text-white font-bold text-[20px] transition-all duration-500 hover:tracking-[8px]">
+                        Exams
                     </NavLink>
-                    <NavLink onClick={ScrollandClose} to={`/test`} className="text-white font-bold text-[20px] transition-all duration-500 hover:tracking-[8px]">
-                        IELTS
+                    <NavLink onClick={ScrollandClose} to={`/study-center`} className="text-white font-bold text-[20px] transition-all duration-500 hover:tracking-[8px]">
+                        Study Center
                     </NavLink>
                     {token && (
-                        <NavLink onClick={ScrollandClose} to={`/myResult`} className="font-bold text-[white] text-[20px] transition-all duration-500 hover:tracking-[10px]">
+                        <NavLink onClick={ScrollandClose} to={`/my-result`} className="font-bold text-[white] text-[20px] transition-all duration-500 hover:tracking-[10px]">
                             My Result
                         </NavLink>
                     )}
                     <NavLink onClick={ScrollandClose} to={`/contact`} className="text-white font-bold text-[20px] transition-all duration-500 hover:tracking-widest">
                         Contact
-                    </NavLink>
-                    <NavLink onClick={ScrollandClose} to={`/bonus`} className="font-bold text-[white] text-[20px] transition-all duration-500 hover:tracking-widest">
-                        Bonus
                     </NavLink>
                     <button
                         onClick={openManualModal} // Открытие модала

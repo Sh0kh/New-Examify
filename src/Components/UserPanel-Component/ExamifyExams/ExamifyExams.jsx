@@ -5,12 +5,10 @@ import { useEffect, useMemo, useState } from "react";
 import Loading from "../../UI/Loadings/Loading";
 import { FaArrowRight } from "react-icons/fa";
 import Logo from "@/Images/logo.png";
-import ExamBuyModal from "./components/ExamBuyModal";
-import BalanceErrorModal from "./components/BalanceErrorModal";
-import { useParams } from "react-router-dom";
+import ExamBuyModal from "../Exams/components/ExamBuyModal";
+import BalanceErrorModal from "../Exams/components/BalanceErrorModal";
 
-export default function Exams() {
-    const { stID } = useParams()
+export default function ExamifyExams() {
     const [loading, setLoading] = useState(true);
     const [exams, setExams] = useState([]);
     const [BuyExamModal, setBuyExamModal] = useState(false);
@@ -32,7 +30,7 @@ export default function Exams() {
     const getAllExam = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`/user/get-center-exams/${stID}`);
+            const response = await axios.get(`/user/get-center-exams/${4}`);
             setExams(response.data);
         } catch (error) {
             console.log(error);
@@ -54,7 +52,7 @@ export default function Exams() {
             <Header />
             <main className="min-h-screen px-4 py-10 mt-[80px]">
                 <div className="container">
-                    <h1 className="text-3xl font-bold">Exams</h1>
+                    <h1 className="text-3xl font-bold">Examify Exams</h1>
                     <p className="text-gray-600 mt-2">
                         Dear user. The Examify team wishes you good luck and we want you to pass the tests successfully.
                     </p>
@@ -96,13 +94,12 @@ export default function Exams() {
 
                                             <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium bg-white text-black`}>
                                                 {exam.type_id == 1
-                                                    ? "Free"
+                                                    ? "Tekin"
                                                     : exam.type_id == 2
-                                                        ? "Paid"
+                                                        ? "Pullik"
                                                         : exam.type_id == 3
-                                                            ? "Private (with key)"
-                                                            : "Unknown"}
-
+                                                            ? "Yopiq (kalitli)"
+                                                            : "Noma'lum"}
                                             </span>
                                         </div>
 

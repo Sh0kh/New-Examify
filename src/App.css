@@ -27,7 +27,7 @@
   padding: 24px;
   overflow-y: auto;
   transform: translateX(-100%);
-  transition: all 2s ease;
+  transition: all 1s ease;
   z-index: 11;
 }
 
@@ -39,7 +39,7 @@
   bottom: 0;
   background-color: rgba(51, 51, 51, .5);
   transform: translateX(-100%);
-  transition: all .4s cubic-bezier(0.45, 0.48, 0.75, 0.76) 1s;
+  transition: all .2s cubic-bezier(0.45, 0.48, 0.75, 0.76) 1s;
   visibility: visible;
   z-index: 10;
 }
@@ -50,7 +50,7 @@
 
 .HeaderMenuShadowActive {
   transform: translateX(0);
-  transition: all .6s cubic-bezier(.22, .61, .24, 1) 0s;
+  transition: all .4s cubic-bezier(.22, .61, .24, 1) 0s;
 }
 /* 
 ::-webkit-scrollbar {

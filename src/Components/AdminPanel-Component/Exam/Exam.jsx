@@ -13,7 +13,7 @@ export default function Exam() {
     const getExam = async () => {
         setLoading(true);
         try {
-            const response = await $api.get(`/study-center/exams`);
+            const response = await $api.get(`/admin/study-center-exams/${localStorage.getItem('StId')}`);
             setExam(response?.data);
         } catch (error) {
             console.error(error);
@@ -21,7 +21,6 @@ export default function Exam() {
             setLoading(false);
         }
     };
-
     useEffect(() => {
         getExam();
     }, []);
