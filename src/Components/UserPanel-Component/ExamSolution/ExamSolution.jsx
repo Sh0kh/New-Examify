@@ -60,6 +60,54 @@ export default function ExamSolution() {
 
     // console.log(examData)
 
+    useEffect(() => {
+        const handleBeforeUnload = (e) => {
+            const confirmationMessage = "Вы действительно хотите покинуть страницу? Ваш прогресс может быть утерян.";
+            e.preventDefault();
+            e.returnValue = confirmationMessage; // Стандартизированное поведение
+            return confirmationMessage; // Для некоторых браузеров (например, Firefox)
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, []);
+
+    useEffect(() => {
+        const blockKeys = (e) => {
+            // Разрешаем только нажатие Alt отдельно
+            if (e.key === "Alt" && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
+                return;
+            }
+
+            // Блокируем F5, Ctrl+R, Ctrl+P
+            const blocked =
+                e.key === "F5" ||
+                (e.ctrlKey && e.key === "r") ||
+                (e.ctrlKey && e.key === "p");
+
+            if (blocked) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        };
+
+        const blockContextMenu = (e) => {
+            e.preventDefault();
+        };
+
+        window.addEventListener("keydown", blockKeys);
+        window.addEventListener("contextmenu", blockContextMenu);
+
+        return () => {
+            window.removeEventListener("keydown", blockKeys);
+            window.removeEventListener("contextmenu", blockContextMenu);
+        };
+    }, []);
+
+
 
     useEffect(() => {
         document.documentElement.classList.toggle("dark", theme);

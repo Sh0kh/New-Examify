@@ -3,16 +3,32 @@ import { ChevronLeft, ChevronRight, Clock, FileText, CheckCircle, XCircle, Alert
 import CONFIG from '../../../../utils/Config';
 import parse, { domToReact } from 'html-react-parser';
 import { $api } from '../../../../utils';
+import {
+    Dialog,
+    DialogHeader,
+    DialogBody,
+    DialogFooter,
+    Button
+} from "@material-tailwind/react";
 import QuestionRenderer from './QuestionType/QuestionRenderer'
 
-// Компонент для работы с выделяемым текстом
 const SelectableText = ({ children, theme }) => {
     const textRef = useRef(null);
     const [selectedWords, setSelectedWords] = useState(new Map());
     const [highlightedElement, setHighlightedElement] = useState(null);
     const lastSelection = useRef(null);
+    const activeInputRef = useRef(null); // Добавляем ref для активного input
+
+    const cleanupActiveInput = useCallback(() => {
+        if (activeInputRef.current) {
+            activeInputRef.current.remove();
+            activeInputRef.current = null;
+        }
+    }, []);
 
     const handleLeftClickSelection = useCallback(() => {
+        cleanupActiveInput(); // Очищаем предыдущий input при новом выделении
+
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0 || !selection.toString().trim()) return;
 
@@ -33,10 +49,12 @@ const SelectableText = ({ children, theme }) => {
         } catch (e) {
             console.error('Cannot highlight:', e);
         }
-    }, [theme]);
+    }, [theme, cleanupActiveInput]);
 
     const handleRightClickSelection = useCallback(() => {
         if (!lastSelection.current) return;
+
+        cleanupActiveInput(); // Очищаем предыдущий input перед созданием нового
 
         const { text, range } = lastSelection.current;
         const selection = window.getSelection();
@@ -46,32 +64,32 @@ const SelectableText = ({ children, theme }) => {
         const strikeSpan = document.createElement('span');
         strikeSpan.className = 'strikethrough-word';
         strikeSpan.style.cssText = `
-      position: relative;
-      text-decoration: line-through;
-      cursor: pointer;
-      background-color: ${theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(37, 99, 235, 0.2)'};
-      padding: 2px 4px;
-      border-radius: 3px;
-    `;
+            position: relative;
+            text-decoration: line-through;
+            cursor: pointer;
+            background-color: ${theme === 'dark' ? 'rgba(59, 130, 246, 0.3)' : 'rgba(37, 99, 235, 0.2)'};
+            padding: 2px 4px;
+            border-radius: 3px;
+        `;
 
         const replacementInput = document.createElement('input');
         replacementInput.type = 'text';
         replacementInput.placeholder = 'Введите замену...';
         replacementInput.className = 'replacement-input';
         replacementInput.style.cssText = `
-      position: absolute;
-      top: -25px;
-      left: 0;
-      min-width: 120px;
-      padding: 4px 8px;
-      border: 1px solid ${theme === 'dark' ? '#3b82f6' : '#2563eb'};
-      border-radius: 4px;
-      font-size: 13px;
-      background: ${theme === 'dark' ? '#1f2937' : 'white'};
-      color: ${theme === 'dark' ? '#f3f4f6' : '#111827'};
-      z-index: 100;
-      box-shadow: ${theme === 'dark' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'};
-    `;
+            position: absolute;
+            top: -25px;
+            left: 0;
+            min-width: 120px;
+            padding: 4px 8px;
+            border: 1px solid ${theme === 'dark' ? '#3b82f6' : '#2563eb'};
+            border-radius: 4px;
+            font-size: 13px;
+            background: ${theme === 'dark' ? '#1f2937' : 'white'};
+            color: ${theme === 'dark' ? '#f3f4f6' : '#111827'};
+            z-index: 100;
+            box-shadow: ${theme === 'dark' ? '0 2px 4px rgba(0,0,0,0.3)' : '0 2px 4px rgba(0,0,0,0.1)'};
+        `;
 
         const handleInputConfirm = (e) => {
             if (e.key === 'Enter' || e.type === 'blur') {
@@ -80,18 +98,18 @@ const SelectableText = ({ children, theme }) => {
                     const replacementSpan = document.createElement('span');
                     replacementSpan.className = 'replacement-tag';
                     replacementSpan.style.cssText = `
-            position: absolute;
-            top: -18px;
-            left: 0;
-            font-size: 12px;
-            color: ${theme === 'dark' ? '#3b82f6' : '#2563eb'};
-            font-weight: bold;
-            white-space: nowrap;
-            background: ${theme === 'dark' ? '#1f2937' : 'white'};
-            padding: 2px 6px;
-            border-radius: 12px;
-            border: 1px solid ${theme === 'dark' ? '#3b82f6' : '#2563eb'};
-          `;
+                        position: absolute;
+                        top: -18px;
+                        left: 0;
+                        font-size: 12px;
+                        color: ${theme === 'dark' ? '#3b82f6' : '#2563eb'};
+                        font-weight: bold;
+                        white-space: nowrap;
+                        background: ${theme === 'dark' ? '#1f2937' : 'white'};
+                        padding: 2px 6px;
+                        border-radius: 12px;
+                        border: 1px solid ${theme === 'dark' ? '#3b82f6' : '#2563eb'};
+                    `;
                     replacementSpan.textContent = replacement;
                     strikeSpan.appendChild(replacementSpan);
 
@@ -101,21 +119,25 @@ const SelectableText = ({ children, theme }) => {
                         return newMap;
                     });
                 }
-                replacementInput.remove();
+                cleanupActiveInput();
             }
         };
 
         replacementInput.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
-                replacementInput.remove();
+                cleanupActiveInput();
             }
         });
         replacementInput.addEventListener('keypress', handleInputConfirm);
         replacementInput.addEventListener('blur', handleInputConfirm);
 
-        strikeSpan.addEventListener('click', () => {
-            const existingInput = strikeSpan.querySelector('.replacement-input');
-            if (existingInput) return;
+        strikeSpan.addEventListener('click', (e) => {
+            e.stopPropagation(); // Предотвращаем всплытие
+
+            if (activeInputRef.current) {
+                // Если уже есть активный input, не создаем новый
+                return;
+            }
 
             const newInput = replacementInput.cloneNode(true);
             newInput.addEventListener('keypress', handleInputConfirm);
@@ -129,6 +151,7 @@ const SelectableText = ({ children, theme }) => {
 
             strikeSpan.appendChild(newInput);
             newInput.focus();
+            activeInputRef.current = newInput;
         });
 
         try {
@@ -137,22 +160,30 @@ const SelectableText = ({ children, theme }) => {
             strikeSpan.textContent = text;
             strikeSpan.appendChild(replacementInput);
             replacementInput.focus();
+            activeInputRef.current = replacementInput;
             selection.removeAllRanges();
         } catch (e) {
             console.error("Couldn't insert strike span:", e);
         }
-    }, [theme, selectedWords]);
+    }, [theme, selectedWords, cleanupActiveInput]);
 
     const handleDelete = useCallback((e) => {
         if (e.key === 'Delete' && highlightedElement) {
             highlightedElement.remove();
             setHighlightedElement(null);
+            cleanupActiveInput();
         }
-    }, [highlightedElement]);
+    }, [highlightedElement, cleanupActiveInput]);
 
     useEffect(() => {
         const element = textRef.current;
         if (!element) return;
+
+        const handleClickOutside = (e) => {
+            if (!element.contains(e.target)) {
+                cleanupActiveInput();
+            }
+        };
 
         const handleMouseUp = (e) => {
             if (e.button === 0) handleLeftClickSelection();
@@ -161,12 +192,14 @@ const SelectableText = ({ children, theme }) => {
 
         element.addEventListener('mouseup', handleMouseUp);
         window.addEventListener('keydown', handleDelete);
+        document.addEventListener('click', handleClickOutside);
 
         return () => {
             element.removeEventListener('mouseup', handleMouseUp);
             window.removeEventListener('keydown', handleDelete);
+            document.removeEventListener('click', handleClickOutside);
         };
-    }, [handleLeftClickSelection, handleRightClickSelection, handleDelete]);
+    }, [handleLeftClickSelection, handleRightClickSelection, handleDelete, cleanupActiveInput]);
 
     useEffect(() => {
         const handleContextMenu = (e) => {
@@ -210,6 +243,8 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     const [theme, setTheme] = useState('light');
     const [writingTexts, setWritingTexts] = useState({}); // Объект для хранения текстов всех частей
     const [wordCounts, setWordCounts] = useState({}); // Объект для хранения счетчиков слов
+    const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+    const [modalImageUrl, setModalImageUrl] = useState("");
 
     // Данные экзамена
     const SectionType = examData?.next_section?.type;
@@ -217,6 +252,17 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     const currentPart = parts.find(part => part.id === activePart) || parts[0];
     const currentQuestions = currentPart?.questions || [];
 
+
+
+    const openImageModal = (url) => {
+        setModalImageUrl(url);
+        setIsImageModalOpen(true);
+    };
+
+    const closeImageModal = () => {
+        setIsImageModalOpen(false);
+        setModalImageUrl("");
+    };
 
     // Отключаем контекстное меню для всего приложения
     useEffect(() => {
@@ -525,7 +571,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
             {SectionType === 'Reading' ? (
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Левая часть - Текст для чтения */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                                 Reading Passage
@@ -540,7 +586,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     </div>
 
                     {/* Правая часть - Вопросы */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         {currentPart?.description && (
                             <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                                 <SelectableText theme={theme}>
@@ -592,7 +638,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
             ) : SectionType === 'Writing' ? (
                 <div className="flex flex-col md:flex-row gap-6">
                     {/* Левая часть - Задание и вопрос */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                                 Writing Task {parts.findIndex(p => p.id === currentPart.id) + 1}
@@ -610,10 +656,21 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                         <img
                                             src={CONFIG.API_URL + currentQuestions[0].image_url}
                                             alt="Question visual"
-                                            className="max-w-[400px] h-auto mt-4 rounded-lg border"
+                                            className="max-w-[400px] h-auto mt-4 rounded-lg border cursor-pointer hover:opacity-90 transition"
+                                            onClick={() => openImageModal(CONFIG.API_URL + currentQuestions[0].image_url)}
                                             onContextMenu={(e) => e.preventDefault()}
                                         />
                                     )}
+                                    <Dialog open={isImageModalOpen} handler={closeImageModal} size="xl">
+                                        <DialogBody className="p-4 flex items-center justify-center bg-black">
+                                            <img
+                                                src={modalImageUrl}
+                                                alt="Full view"
+                                                className="max-h-[80vh] w-auto rounded-lg"
+                                            />
+                                        </DialogBody>
+                                    </Dialog>
+
                                 </div>
                             )}
 
@@ -639,7 +696,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     </div>
 
                     {/* Правая часть - Поле для ввода */}
-                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[550px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+                    <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <div className="relative mb-4">
                                 <textarea
