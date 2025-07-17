@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
+import { useSelector } from "react-redux";
 import ExamStart from "./components/ExamStart";
-import { useCallback } from "react";
 import ExamSolutionHeader from "./components/ExamSolutionHeader";
 import ExamSolutionBody from "./components/ExamSolutionBody";
 import LeavExamModal from "./components/LeavExamModal";
@@ -8,39 +8,59 @@ import NextSectionModal from "./components/NextSectionModal";
 import CONFIG from "../../../utils/Config";
 
 export default function ExamSolution() {
-    const [examStartModal, setExamStartModal] = useState(true)
-    const [examData, setExamData] = useState([])
+    // Получаем данные из Redux store
+    const { DataExam, loading, error } = useSelector((state) => state.exam);
+    
+
+    // Локальное состояние
+    const [examData, setExamData] = useState(DataExam || null);
+    const [examStartModal, setExamStartModal] = useState(!DataExam);
     const [timeLeft, setTimeLeft] = useState(0);
     const [outModal, setOutModal] = useState(false);
     const [nextSectionModal, setNextSectionModal] = useState(false);
     const [answers, setAnswers] = useState([]);
     const [theme, setTheme] = useState(() => {
         return localStorage.getItem("theme") === "dark";
-    }); const handleDataFromChild = useCallback((data) => {
+    });
+
+    // Обработчик получения данных от дочернего компонента
+    const handleDataFromChild = useCallback((data) => {
         setExamData(data);
+        setExamStartModal(false);
     }, []);
 
+    // Синхронизация данных при изменении DataExam из Redux
     useEffect(() => {
-        if (examData?.section?.audio) {
-            const audioSrc = CONFIG.API_URL + 'audio/' + examData.section.audio;
-            const audioElement = new Audio(audioSrc);
-            audioElement.play().catch(err => {
-                console.warn("Audio playback failed:", err);
-            });
-
-            return () => {
-                audioElement.pause();
-                audioElement.currentTime = 0;
-            };
+        if (DataExam) {
+            setExamData(DataExam);
+            setExamStartModal(false);
         }
+    }, [DataExam]);
+
+    // Воспроизведение аудио при изменении секции
+    useEffect(() => {
+        if (!examData?.section?.audio) return;
+
+        const audioSrc = CONFIG.API_URL + 'audio/' + examData.section.audio;
+        const audioElement = new Audio(audioSrc);
+
+        audioElement.play().catch(err => {
+            console.warn("Audio playback failed:", err);
+        });
+
+        return () => {
+            audioElement.pause();
+            audioElement.currentTime = 0;
+        };
     }, [examData]);
 
-
+    // Установка таймера
     useEffect(() => {
         const durationInMinutes = examData?.section?.duration || examData?.next_section?.duration || 0;
         setTimeLeft(durationInMinutes * 60);
     }, [examData]);
 
+    // Обратный отсчет времени
     useEffect(() => {
         if (timeLeft <= 0) return;
 
@@ -51,52 +71,37 @@ export default function ExamSolution() {
         return () => clearInterval(timer);
     }, [timeLeft]);
 
+    // Форматирование времени
     const formatTime = (seconds) => {
         const m = String(Math.floor(seconds / 60)).padStart(2, "0");
         const s = String(seconds % 60).padStart(2, "0");
         return `${m}:${s}`;
     };
 
-
-    // console.log(examData)
-
+    // Защита от закрытия страницы
     useEffect(() => {
         const handleBeforeUnload = (e) => {
             const confirmationMessage = "Вы действительно хотите покинуть страницу? Ваш прогресс может быть утерян.";
             e.preventDefault();
-            e.returnValue = confirmationMessage; // Стандартизированное поведение
-            return confirmationMessage; // Для некоторых браузеров (например, Firefox)
+            e.returnValue = confirmationMessage;
+            return confirmationMessage;
         };
 
         window.addEventListener("beforeunload", handleBeforeUnload);
-
-        return () => {
-            window.removeEventListener("beforeunload", handleBeforeUnload);
-        };
+        return () => window.removeEventListener("beforeunload", handleBeforeUnload);
     }, []);
 
+    // Блокировка клавиш и контекстного меню
     useEffect(() => {
         const blockKeys = (e) => {
-            // Разрешаем только нажатие Alt отдельно
-            if (e.key === "Alt" && !e.ctrlKey && !e.shiftKey && !e.metaKey) {
-                return;
-            }
-
-            // Блокируем F5, Ctrl+R, Ctrl+P
-            const blocked =
-                e.key === "F5" ||
-                (e.ctrlKey && e.key === "r") ||
-                (e.ctrlKey && e.key === "p");
-
-            if (blocked) {
+            if (e.key === "Alt" && !e.ctrlKey && !e.shiftKey && !e.metaKey) return;
+            if (e.key === "F5" || (e.ctrlKey && ["r", "p"].includes(e.key))) {
                 e.preventDefault();
                 e.stopPropagation();
             }
         };
 
-        const blockContextMenu = (e) => {
-            e.preventDefault();
-        };
+        const blockContextMenu = (e) => e.preventDefault();
 
         window.addEventListener("keydown", blockKeys);
         window.addEventListener("contextmenu", blockContextMenu);
@@ -107,8 +112,7 @@ export default function ExamSolution() {
         };
     }, []);
 
-
-
+    // Управление темой
     useEffect(() => {
         document.documentElement.classList.toggle("dark", theme);
     }, [theme]);
@@ -119,16 +123,50 @@ export default function ExamSolution() {
         setTheme(value);
     };
 
+    // Состояния загрузки и ошибки
+    if (loading) return <div className="flex justify-center items-center h-screen">Loading exam data...</div>;
+    if (error) return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>;
+
     return (
-        <>
-            <ExamSolutionHeader
-                theme={theme}
-                setTheme={handleThemeChange}
-                nextSection={() => setNextSectionModal(true)} activeOutModal={() => setOutModal(true)} examData={examData} timeLeft={formatTime(timeLeft)} />
-            <ExamSolutionBody theme={theme} setAnswers={setAnswers} examData={examData} />
-            <ExamStart isOpen={examStartModal} onClose={() => setExamStartModal(false)} setDataFromChild={handleDataFromChild} />
-            <LeavExamModal isOpen={outModal} onClose={() => setOutModal(false)} />
-            <NextSectionModal setDataFromChild={handleDataFromChild} examData={examData} answers={answers} isOpen={nextSectionModal} onClose={() => setNextSectionModal(false)} />
-        </>
-    )
+        <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+            {/* Основной интерфейс экзамена */}
+            {examData && (
+                <>
+                    <ExamSolutionHeader
+                        theme={theme}
+                        setTheme={handleThemeChange}
+                        nextSection={() => setNextSectionModal(true)}
+                        activeOutModal={() => setOutModal(true)}
+                        examData={examData}
+                        timeLeft={formatTime(timeLeft)}
+                    />
+                    <ExamSolutionBody
+                        theme={theme}
+                        setAnswers={setAnswers}
+                        examData={examData}
+                    />
+                </>
+            )}
+
+            {/* Модальные окна */}
+            <ExamStart
+                isOpen={examStartModal && !examData}
+                onClose={() => setExamStartModal(false)}
+                setDataFromChild={handleDataFromChild}
+            />
+
+            <LeavExamModal
+                isOpen={outModal}
+                onClose={() => setOutModal(false)}
+            />
+
+            <NextSectionModal
+                setDataFromChild={handleDataFromChild}
+                examData={examData}
+                answers={answers}
+                isOpen={nextSectionModal}
+                onClose={() => setNextSectionModal(false)}
+            />
+        </div>
+    );
 }
