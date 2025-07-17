@@ -91,12 +91,22 @@ export default function SectionDetail() {
                                                 />
                                             </div>
                                         ) : (
+                                            <>
                                             <div className="mt-2">
                                                 <Typography color="gray">Your Answer:</Typography>
                                                 <Typography className="mt-1">
-                                                    {answer.answer_text || "No answer provided"}
+                                                    {answer.answer_text || answer?.selected_answer?.answer_text}
                                                 </Typography>
+                                                
                                             </div>
+                                            <div className="mt-2">
+                                                <Typography color="gray">Correct Answer:</Typography>
+                                                <Typography className="mt-1">
+                                                    {answer.answer_text || answer?.correct_answer}
+                                                </Typography>
+                                                
+                                            </div>
+                                            </>
                                         )}
 
                                         <div className="mt-2">
