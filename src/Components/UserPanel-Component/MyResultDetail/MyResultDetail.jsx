@@ -69,10 +69,26 @@ export default function MyResultDetail() {
                                 <thead className="bg-gray-100 text-gray-700 text-sm rounded-[20px]">
                                     <tr>
                                         <th className="p-4 border-b border-gray-200">Overall</th>
-                                        <th className="p-4 border-b border-gray-200">Listening</th>
-                                        <th className="p-4 border-b border-gray-200">Reading</th>
-                                        <th className="p-4 border-b border-gray-200">Speaking</th>
-                                        <th className="p-4 border-b border-gray-200">Writing</th>
+                                        <th className="p-4 border-b border-gray-200">
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Listening")?.section_id}`}>
+                                                Listening
+                                            </NavLink>
+                                        </th>
+                                        <th className="p-4 border-b border-gray-200">
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Reading")?.section_id}`}>
+                                                Reading
+                                            </NavLink>
+                                        </th>
+                                        <th className="p-4 border-b border-gray-200">
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Speaking")?.section_id}`}>
+                                                Speaking
+                                            </NavLink>
+                                        </th>
+                                        <th className="p-4 border-b border-gray-200">
+                                            <NavLink to={`/my-result/${resultId}/${getSectionScore("Writing")?.section_id}`}>
+                                                Writing
+                                            </NavLink>
+                                        </th>
                                     </tr>
                                 </thead>
                                 <tbody className="text-sm text-gray-800 font-medium">
@@ -80,7 +96,6 @@ export default function MyResultDetail() {
                                         <td className="p-6 border-b border-gray-100">
                                             {data?.score ?? "N/A"}
                                         </td>
-
                                         {/* Listening */}
                                         <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
                                             {getSectionScore("Listening") ? (
@@ -89,7 +104,6 @@ export default function MyResultDetail() {
                                                 </NavLink>
                                             ) : "N/A"}
                                         </td>
-
                                         {/* Reading */}
                                         <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
                                             {getSectionScore("Reading") ? (
@@ -98,7 +112,6 @@ export default function MyResultDetail() {
                                                 </NavLink>
                                             ) : "N/A"}
                                         </td>
-
                                         {/* Speaking */}
                                         <td className="p-6 border-b border-gray-100 text-blue-600 hover:underline cursor-pointer">
                                             {getSectionScore("Speaking") ? (
