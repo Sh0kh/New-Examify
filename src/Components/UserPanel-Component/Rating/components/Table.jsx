@@ -1,5 +1,5 @@
 import React from 'react'
-import PersonFoto from '../../../../images/FotoPerson.jpg'
+import PersonFoto from '@/images/FotoPerson.jpg'
 
 function Table({ data }) {
 

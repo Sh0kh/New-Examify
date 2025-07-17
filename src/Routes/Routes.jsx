@@ -34,6 +34,7 @@ import MyResult from "../Components/UserPanel-Component/MyResult/MyResult";
 import MyResultDetail from "../Components/UserPanel-Component/MyResultDetail/MyResultDetail";
 import SectionDetail from "../Components/UserPanel-Component/MyResultDetail/SectionDetail";
 import Rating from "../Components/UserPanel-Component/Rating/Rating";
+import ExamifyExams from "../Components/UserPanel-Component/ExamifyExams/ExamifyExams";
 
 
 export const UserRoutes = [
@@ -71,6 +72,11 @@ export const UserRoutes = [
         name: "Exams",
         path: "/study-center/:stID",
         component: <Exams />,
+    },
+    {
+        name: "Examify Exams",
+        path: "/exams",
+        component: <ExamifyExams />,
     },
     {
         name: "Rating",

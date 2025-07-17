@@ -48,6 +48,9 @@ function Header() {
                             </div>
                         </NavLink>
                         <nav className='hidden md:flex items-center gap-[20px] text-[#535862]'>
+                            <NavLink onClick={handleScrollUp} to={`/exams`} className="hover:text-black font-[600]">
+                                Tests
+                            </NavLink>
                             <NavLink onClick={handleScrollUp} to={`/study-center`} className="hover:text-black font-[600]">
                                 Study Center
                             </NavLink>
