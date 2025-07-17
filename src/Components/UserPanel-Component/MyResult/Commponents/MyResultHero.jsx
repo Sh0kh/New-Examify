@@ -8,12 +8,15 @@ import { $api } from "../../../../utils";
 import { CheckCircleIcon, ClockIcon } from "@heroicons/react/24/solid";
 import { NavLink } from "react-router-dom";
 import Loading from "../../../UI/Loadings/Loading";
+import ContinueExam from "./ContinueExam";
 
 export default function MyResultHero() {
     const [data, setData] = useState([]);
     const [links, setLinks] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [loading, setLoading] = useState(true);
+    const [Modal, setModal] = useState(false)
+    const [ModalData, setModalData] = useState([])
 
     const getMyResult = async (page = 1) => {
         try {
@@ -113,7 +116,7 @@ export default function MyResultHero() {
                                                 </Button>
                                             </NavLink>
                                         ) : (
-                                            <Button size="sm" color="amber" className="rounded-md shadow-sm">
+                                            <Button onClick={() => {setModal(true); setModalData(item)}} size="sm" color="amber" className="rounded-md shadow-sm">
                                                 Continue
                                             </Button>
                                         )}
@@ -133,13 +136,14 @@ export default function MyResultHero() {
                             disabled={!link.url}
                             onClick={() => handlePageChange(link.label, link.url)}
                             className={`min-w-[36px] px-3 py-1.5 border text-sm rounded-md transition ${link.active
-                                    ? "bg-blue-600 text-white shadow"
-                                    : "bg-white text-gray-700 hover:bg-gray-100"
+                                ? "bg-blue-600 text-white shadow"
+                                : "bg-white text-gray-700 hover:bg-gray-100"
                                 }`}
                         />
                     ))}
                 </div>
             </div>
+            <ContinueExam open={Modal} onClose={()=>setModal(false)} data={ModalData} />
         </section>
     );
 }
