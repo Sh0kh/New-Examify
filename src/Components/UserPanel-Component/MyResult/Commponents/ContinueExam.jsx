@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { examLoading, examReceived, examFailed } from "../../../../Store/examSlice";
-import { $api } from "../../../../utils";
 import { useNavigate } from "react-router-dom";
+import { $api } from "../../../../utils";
 
 export default function ContinueExam({ open, onClose, data }) {
     const [loading, setLoading] = useState(false);
-    const dispatch = useDispatch();
-    const navigate = useNavigate()
+    const navigate = useNavigate();
 
     const handleContinueExam = async () => {
         try {
             setLoading(true);
-            dispatch(examLoading());
 
             const response = await $api.post(`/user/continue-exam`, {
                 exam_result_id: data?.id,
@@ -23,19 +19,12 @@ export default function ContinueExam({ open, onClose, data }) {
                 throw new Error('No data received from server');
             }
 
-            // Сохраняем данные в Redux
-            dispatch(examReceived(response.data));
-
-            // Добавим задержку для гарантии обновления Redux
-            await new Promise(resolve => setTimeout(resolve, 50));
-
-            // Переходим на страницу экзамена
+            // Переход на страницу решения экзамена
             navigate(`/exam-solution/${data.id}`);
 
         } catch (error) {
             console.error("Continue exam error:", error);
-            dispatch(examFailed(error.message));
-            // Здесь можно добавить уведомление об ошибке
+            alert("Failed to continue exam. Please try again.");
         } finally {
             setLoading(false);
         }

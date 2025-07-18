@@ -367,34 +367,34 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         const result = parts.map(part => ({
             id: part.id,
             part_type: part.part_type,
-            answers: part.questions.map(q => {
+            answers: part.questions.flatMap(q => {
                 const userAnswer = userAnswers[q.id];
                 const questionType = parseInt(q.question_type_id);
 
                 // Обработка speaking вопросов (тип 7)
                 if (questionType === 7) {
-                    return {
+                    return [{
                         question_id: q.id,
                         question_type_id: q.question_type_id,
                         answer_id: userAnswer?.answer_id || null,
                         answer_text: userAnswer?.file_path ? null : "unanswered",
                         selected_answers: null,
                         file_path: userAnswer?.file_path || null
-                    };
+                    }];
                 }
 
                 // Обработка других типов вопросов
                 switch (questionType) {
                     case 1: case 5:
                         if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
-                            return {
+                            return [{
                                 question_id: q.id,
                                 question_type_id: q.question_type_id,
                                 answer_id: Number(userAnswer),
                                 answer_text: null,
                                 selected_answers: null,
                                 file_path: null
-                            };
+                            }];
                         }
                         break;
 
@@ -406,54 +406,51 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                 .filter(id => !isNaN(id));
 
                             if (validAnswers.length > 0) {
-                                return {
+                                return [{
                                     question_id: q.id,
                                     question_type_id: q.question_type_id,
                                     answer_id: null,
                                     answer_text: null,
                                     selected_answers: validAnswers,
                                     file_path: null
-                                };
+                                }];
                             }
                         }
                         break;
 
                     case 3: case 4:
                         if (Array.isArray(userAnswer)) {
-                            const textAnswers = userAnswer
+                            return userAnswer
                                 .map(answer => String(answer).trim())
-                                .filter(answerText => answerText !== '');
-
-                            if (textAnswers.length > 0) {
-                                return {
+                                .filter(answerText => answerText !== '')
+                                .map(answerText => ({
                                     question_id: q.id,
                                     question_type_id: q.question_type_id,
                                     answer_id: null,
-                                    answer_text: textAnswers.join('|'),
+                                    answer_text: answerText, // Каждый ответ отдельно
                                     selected_answers: null,
                                     file_path: null
-                                };
-                            }
+                                }));
                         }
                         break;
 
                     case 6:
                         const answerText = String(userAnswer || '').trim();
                         if (answerText !== '') {
-                            return {
+                            return [{
                                 question_id: q.id,
                                 question_type_id: q.question_type_id,
                                 answer_id: null,
                                 answer_text: answerText,
                                 selected_answers: null,
                                 file_path: null
-                            };
+                            }];
                         }
                         break;
                 }
 
-                // Для всех остальных типов вопросов без ответа возвращаем null
-                return null;
+                // Для всех остальных типов вопросов без ответа возвращаем пустой массив
+                return [];
             }).filter(answer => answer !== null)
         }));
 

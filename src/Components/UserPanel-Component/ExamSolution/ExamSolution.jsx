@@ -1,5 +1,4 @@
 import { useEffect, useState, useCallback } from "react";
-import { useSelector } from "react-redux";
 import ExamStart from "./components/ExamStart";
 import ExamSolutionHeader from "./components/ExamSolutionHeader";
 import ExamSolutionBody from "./components/ExamSolutionBody";
@@ -7,14 +6,9 @@ import LeavExamModal from "./components/LeavExamModal";
 import NextSectionModal from "./components/NextSectionModal";
 import CONFIG from "../../../utils/Config";
 
-export default function ExamSolution() {
-    // Получаем данные из Redux store
-    const { DataExam, loading, error } = useSelector((state) => state.exam);
-
-
-    // Локальное состояние
-    const [examData, setExamData] = useState(DataExam || null);
-    const [examStartModal, setExamStartModal] = useState(!DataExam);
+export default function ExamSolution({ initialExamData = null, loading = false, error = null }) {
+    const [examData, setExamData] = useState(initialExamData);
+    const [examStartModal, setExamStartModal] = useState(!initialExamData);
     const [timeLeft, setTimeLeft] = useState(0);
     const [outModal, setOutModal] = useState(false);
     const [nextSectionModal, setNextSectionModal] = useState(false);
@@ -23,21 +17,18 @@ export default function ExamSolution() {
         return localStorage.getItem("theme") === "dark";
     });
 
-    // Обработчик получения данных от дочернего компонента
     const handleDataFromChild = useCallback((data) => {
         setExamData(data);
         setExamStartModal(false);
     }, []);
 
-    // Синхронизация данных при изменении DataExam из Redux
     useEffect(() => {
-        if (DataExam) {
-            setExamData(DataExam);
+        if (initialExamData) {
+            setExamData(initialExamData);
             setExamStartModal(false);
         }
-    }, [DataExam]);
+    }, [initialExamData]);
 
-    // Воспроизведение аудио при изменении секции
     useEffect(() => {
         if (!examData?.section?.audio) return;
 
@@ -54,13 +45,11 @@ export default function ExamSolution() {
         };
     }, [examData]);
 
-    // Установка таймера
     useEffect(() => {
         const durationInMinutes = examData?.section?.duration || examData?.next_section?.duration || 0;
         setTimeLeft(durationInMinutes * 60);
     }, [examData]);
 
-    // Обратный отсчет времени
     useEffect(() => {
         if (timeLeft <= 0) return;
 
@@ -71,14 +60,12 @@ export default function ExamSolution() {
         return () => clearInterval(timer);
     }, [timeLeft]);
 
-    // Форматирование времени
     const formatTime = (seconds) => {
         const m = String(Math.floor(seconds / 60)).padStart(2, "0");
         const s = String(seconds % 60).padStart(2, "0");
         return `${m}:${s}`;
     };
 
-    // Защита от закрытия страницы
     useEffect(() => {
         const handleBeforeUnload = (e) => {
             const confirmationMessage = "Вы действительно хотите покинуть страницу? Ваш прогресс может быть утерян.";
@@ -91,7 +78,6 @@ export default function ExamSolution() {
         return () => window.removeEventListener("beforeunload", handleBeforeUnload);
     }, []);
 
-    // Блокировка клавиш и контекстного меню
     useEffect(() => {
         const blockKeys = (e) => {
             if (e.key === "Alt" && !e.ctrlKey && !e.shiftKey && !e.metaKey) return;
@@ -112,7 +98,6 @@ export default function ExamSolution() {
         };
     }, []);
 
-    // Управление темой
     useEffect(() => {
         document.documentElement.classList.toggle("dark", theme);
     }, [theme]);
@@ -123,14 +108,11 @@ export default function ExamSolution() {
         setTheme(value);
     };
 
-
-    // Состояния загрузки и ошибки
     if (loading) return <div className="flex justify-center items-center h-screen">Loading exam data...</div>;
     if (error) return <div className="flex justify-center items-center h-screen text-red-500">Error: {error}</div>;
 
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
-            {/* Основной интерфейс экзамена */}
             {examData && (
                 <>
                     <ExamSolutionHeader
@@ -149,7 +131,6 @@ export default function ExamSolution() {
                 </>
             )}
 
-            {/* Модальные окна */}
             <ExamStart
                 isOpen={examStartModal && !examData}
                 onClose={() => setExamStartModal(false)}
