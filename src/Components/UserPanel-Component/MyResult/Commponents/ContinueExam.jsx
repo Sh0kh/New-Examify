@@ -7,27 +7,9 @@ export default function ContinueExam({ open, onClose, data }) {
     const navigate = useNavigate();
 
     const handleContinueExam = async () => {
-        try {
-            setLoading(true);
-
-            const response = await $api.post(`/user/continue-exam`, {
-                exam_result_id: data?.id,
-                user_id: localStorage.getItem("user_id"),
-            });
-
-            if (!response.data) {
-                throw new Error('No data received from server');
-            }
-
-            // Переход на страницу решения экзамена
-            navigate(`/exam-solution/${data.id}`);
-
-        } catch (error) {
-            console.error("Continue exam error:", error);
-            alert("Failed to continue exam. Please try again.");
-        } finally {
-            setLoading(false);
-        }
+        navigate(`/exam-solution/${data.id}`, {
+            state: { continued: true },
+        });
     };
 
     return (
