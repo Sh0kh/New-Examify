@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 import { useState } from "react";
 import { $api } from "../../../../utils";
@@ -6,10 +6,16 @@ import { $api } from "../../../../utils";
 export default function ExamStart({ isOpen, onClose, setDataFromChild }) {
     const { ID } = useParams();
     const [loading, setLoading] = useState(false)
+    const location = useLocation();
+
+    console.log(document.referrer);
+
+
 
 
     const StartExam = async () => {
         setLoading(true);
+
         try {
             const formData = new FormData();
             formData.append("exam_result_id", ID);
