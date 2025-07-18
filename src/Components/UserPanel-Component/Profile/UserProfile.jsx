@@ -19,6 +19,8 @@ import { useEffect, useState } from "react";
 import { $api } from "../../../utils";
 import { Phone } from "lucide-react";
 import Loading from "../../UI/Loadings/Loading";
+import UserEdit from "./component/UserEdit";
+import CONFIG from "../../../utils/Config";
 
 export default function UserProfile() {
     const navigate = useNavigate();
@@ -70,7 +72,7 @@ export default function UserProfile() {
                 <Card className="w-full max-w-[1200px] rounded-2xl">
                     <CardBody className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-8">
                         <Avatar
-                            src={`https://ui-avatars.com/api/?name=${user.firstName}+${user.lastName}&background=0D8ABC&color=fff`}
+                            src={CONFIG?.API_URL + data?.photo}
                             alt="avatar"
                             size="xxl"
                             className="ring-4 ring-blue-500"
@@ -91,15 +93,7 @@ export default function UserProfile() {
                             </div>
 
                             <div className="flex flex-col sm:flex-row gap-3 w-full">
-                                {/* <Button
-                                    fullWidth
-                                    color="blue"
-                                    className="flex items-center justify-center gap-2"
-                                    onClick={handleEdit}
-                                >
-                                    <PencilSquareIcon className="h-5 w-5" />
-                                    Изменить
-                                </Button> */}
+                                <UserEdit data={data} refresh={getProfile} />
 
                                 <Button
                                     fullWidth
