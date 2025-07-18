@@ -34,7 +34,7 @@ export default function NextSectionModal({ isOpen, onClose, answers, examData, s
             };
             const response = await $api.post(`/user/check-section`, data);
             if (response?.data?.score || response?.data?.next_section === null) {
-                navigate('/')
+                navigate('/my-result')
             }
             setDataFromChild(response?.data);
             if (response?.data?.exam_result?.id) {
