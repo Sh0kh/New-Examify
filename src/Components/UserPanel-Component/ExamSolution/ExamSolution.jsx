@@ -10,7 +10,7 @@ import CONFIG from "../../../utils/Config";
 export default function ExamSolution() {
     // Получаем данные из Redux store
     const { DataExam, loading, error } = useSelector((state) => state.exam);
-    
+
 
     // Локальное состояние
     const [examData, setExamData] = useState(DataExam || null);
@@ -122,6 +122,7 @@ export default function ExamSolution() {
         localStorage.setItem("theme", newTheme);
         setTheme(value);
     };
+
 
     // Состояния загрузки и ошибки
     if (loading) return <div className="flex justify-center items-center h-screen">Loading exam data...</div>;

@@ -367,26 +367,34 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         const result = parts.map(part => ({
             id: part.id,
             part_type: part.part_type,
-            answers: part.questions.reduce((acc, q) => {
+            answers: part.questions.map(q => {
                 const userAnswer = userAnswers[q.id];
                 const questionType = parseInt(q.question_type_id);
 
-                if (userAnswer === undefined || userAnswer === null) {
-                    return acc;
+                // Обработка speaking вопросов (тип 7)
+                if (questionType === 7) {
+                    return {
+                        question_id: q.id,
+                        question_type_id: q.question_type_id,
+                        answer_id: userAnswer?.answer_id || null,
+                        answer_text: userAnswer?.file_path ? null : "unanswered",
+                        selected_answers: null,
+                        file_path: userAnswer?.file_path || null
+                    };
                 }
 
-                // Обработка разных типов вопросов
+                // Обработка других типов вопросов
                 switch (questionType) {
                     case 1: case 5:
-                        if (userAnswer !== '' && !isNaN(Number(userAnswer))) {
-                            acc.push({
+                        if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
+                            return {
                                 question_id: q.id,
                                 question_type_id: q.question_type_id,
                                 answer_id: Number(userAnswer),
                                 answer_text: null,
                                 selected_answers: null,
                                 file_path: null
-                            });
+                            };
                         }
                         break;
 
@@ -398,65 +406,55 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                 .filter(id => !isNaN(id));
 
                             if (validAnswers.length > 0) {
-                                acc.push({
+                                return {
                                     question_id: q.id,
                                     question_type_id: q.question_type_id,
                                     answer_id: null,
                                     answer_text: null,
                                     selected_answers: validAnswers,
                                     file_path: null
-                                });
+                                };
                             }
                         }
                         break;
 
                     case 3: case 4:
                         if (Array.isArray(userAnswer)) {
-                            userAnswer.forEach(answer => {
-                                const answerText = String(answer).trim();
-                                if (answerText !== '') {
-                                    acc.push({
-                                        question_id: q.id,
-                                        question_type_id: q.question_type_id,
-                                        answer_id: null,
-                                        answer_text: answerText,
-                                        selected_answers: null,
-                                        file_path: null
-                                    });
-                                }
-                            });
+                            const textAnswers = userAnswer
+                                .map(answer => String(answer).trim())
+                                .filter(answerText => answerText !== '');
+
+                            if (textAnswers.length > 0) {
+                                return {
+                                    question_id: q.id,
+                                    question_type_id: q.question_type_id,
+                                    answer_id: null,
+                                    answer_text: textAnswers.join('|'),
+                                    selected_answers: null,
+                                    file_path: null
+                                };
+                            }
                         }
                         break;
 
                     case 6:
-                        const answerText = String(userAnswer).trim();
+                        const answerText = String(userAnswer || '').trim();
                         if (answerText !== '') {
-                            acc.push({
+                            return {
                                 question_id: q.id,
                                 question_type_id: q.question_type_id,
                                 answer_id: null,
                                 answer_text: answerText,
                                 selected_answers: null,
                                 file_path: null
-                            });
-                        }
-                        break;
-
-                    case 7:
-                        if (userAnswer && (userAnswer.file_path || userAnswer.answer_id)) {
-                            acc.push({
-                                question_id: q.id,
-                                question_type_id: q.question_type_id,
-                                answer_id: userAnswer.answer_id || null,
-                                answer_text: null,
-                                selected_answers: null,
-                                file_path: userAnswer.file_path || null
-                            });
+                            };
                         }
                         break;
                 }
-                return acc;
-            }, [])
+
+                // Для всех остальных типов вопросов без ответа возвращаем null
+                return null;
+            }).filter(answer => answer !== null)
         }));
 
         return result.filter(part => part.answers.length > 0);

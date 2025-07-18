@@ -33,9 +33,7 @@ export default function SectionDetail() {
     }, []);
 
     if (loading) {
-        return (
-            <Loading />
-        );
+        return <Loading />;
     }
 
     if (!data) {
@@ -46,76 +44,124 @@ export default function SectionDetail() {
         );
     }
 
-    const { exam_result, user_answers } = data;
+    const { user_answers, section } = data;
+    const sectionType = section?.type;
 
+    // Определяем, нужно ли показывать таблицу (для Listening и Reading)
+    const showTable = sectionType === "Listening" || sectionType === "Reading";
 
     return (
         <>
             <Header />
-            <div className="container mx-auto p-4  mt-[150px]">
+            <div className="container mx-auto p-4 mt-[150px]">
                 <Card>
                     <CardBody>
                         <Typography variant="h5" color="blue-gray" className="mb-4">
-                            Your Answers
+                            {sectionType} Section Results
                         </Typography>
 
                         {user_answers.length > 0 ? (
-                            <div className="space-y-4">
-                                {user_answers.map((answer, index) => (
-                                    <div
-                                        key={answer.id}
-                                        className="border rounded-lg p-4 hover:shadow-md transition-shadow"
-                                    >
-                                        <div className="flex justify-between items-start">
-                                            <Typography variant="h6">
-                                                Question {index + 1}
-                                            </Typography>
+                            showTable ? (
+                                // Таблица для Listening и Reading
+                                <div className="overflow-x-auto">
+                                    <table className="min-w-full bg-white rounded-lg overflow-hidden">
+                                        <thead className="bg-gray-100">
+                                            <tr>
+                                                <th className="py-3 px-4 text-left font-semibold text-gray-700">#</th>
+                                                <th className="py-3 px-4 text-left font-semibold text-gray-700">Your Answer</th>
+                                                <th className="py-3 px-4 text-left font-semibold text-gray-700">Correct Answer</th>
+                                                <th className="py-3 px-4 text-left font-semibold text-gray-700">Result</th>
+                                                <th className="py-3 px-4 text-left font-semibold text-gray-700">Score</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-200">
+                                            {user_answers.map((answer, index) => (
+                                                <tr key={index} className="hover:bg-gray-50">
+                                                    <td className="py-3 px-4">{index + 1}</td>
+                                                    <td className="py-3 px-4">
+                                                        {answer.answer_text ||
+                                                            (answer.selected_answer?.answer_text
+                                                                ? `Selected: ${answer.selected_answer.answer_text}`
+                                                                : "No answer")}
+                                                    </td>
+                                                    <td className="py-3 px-4">
+                                                        {answer.correct_answer ||
+                                                            (answer.selected_answer?.is_correct
+                                                                ? "Correct"
+                                                                : "Incorrect")}
+                                                    </td>
+                                                    <td className="py-3 px-4">
+                                                        {answer.is_correct === "1" ? (
+                                                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-green-500 text-white">
+                                                                ✓
+                                                            </span>
+                                                        ) : (
+                                                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-red-500 text-white">
+                                                                ✗
+                                                            </span>
+                                                        )}
+                                                    </td>
+                                                    <td className="py-3 px-4">{answer.score || 0}</td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            ) : (
+                                // Карточки для Writing и Speaking
+                                <div className="space-y-4">
+                                    {user_answers.map((answer, index) => (
+                                        <Card key={index} className="border rounded-lg hover:shadow-md transition-shadow">
+                                            <CardBody>
+                                                <div className="flex justify-between items-start">
+                                                    <Typography variant="h6">Answer {index + 1}</Typography>
+                                                    {answer.is_correct !== undefined && (
+                                                        <Chip
+                                                            color={answer.is_correct === "1" ? "green" : "red"}
+                                                            value={answer.is_correct === "1" ? "Correct" : "Incorrect"}
+                                                            size="sm"
+                                                        />
+                                                    )}
+                                                </div>
 
-                                            {/* Показываем Chip только если это НЕ Speaking и НЕ Writing */}
-                                            {answer.type !== "Speaking" && answer.type !== "essay" && (
-                                                <Chip
-                                                    color={answer.is_correct === "1" ? "green" : "red"}
-                                                    value={answer.is_correct === "1" ? "Correct" : "Incorrect"}
-                                                    size="sm"
-                                                />
-                                            )}
-                                        </div>
+                                                {answer.file_path ? (
+                                                    <div className="mt-2">
+                                                        <Typography color="gray">Your Answer (Audio):</Typography>
+                                                        <audio
+                                                            controls
+                                                            className="mt-2 w-full max-w-xs"
+                                                            src={`${CONFIG?.API_URL}audio_speeches/${answer.file_path.replace(
+                                                                /\\/g,
+                                                                "/"
+                                                            )}`}
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <div className="mt-2">
+                                                            <Typography color="gray">Your Answer:</Typography>
+                                                            <Typography className="mt-1">
+                                                                {answer.answer_text || answer?.selected_answer?.answer_text || "-"}
+                                                            </Typography>
+                                                        </div>
+                                                        <div className="mt-2">
+                                                            <Typography color="gray">Correct Answer:</Typography>
+                                                            <Typography className="mt-1">
+                                                                {answer.correct_answer || "-"}
+                                                            </Typography>
+                                                        </div>
+                                                    </>
+                                                )}
 
-                                        {answer.file_path ? (
-                                            <div className="mt-2">
-                                                <Typography color="gray">Your Answer (Audio):</Typography>
-                                                <audio
-                                                    controls
-                                                    className="mt-2 w-full"
-                                                    src={`${CONFIG?.API_URL}audio_speeches/${answer.file_path.replace(/\\/g, "/")}`}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <>
-                                            <div className="mt-2">
-                                                <Typography color="gray">Your Answer:</Typography>
-                                                <Typography className="mt-1">
-                                                    {answer.answer_text || answer?.selected_answer?.answer_text}
-                                                </Typography>
-                                                
-                                            </div>
-                                            <div className="mt-2">
-                                                <Typography color="gray">Correct Answer:</Typography>
-                                                <Typography className="mt-1">
-                                                    {answer.answer_text || answer?.correct_answer}
-                                                </Typography>
-                                                
-                                            </div>
-                                            </>
-                                        )}
-
-                                        <div className="mt-2">
-                                            <Typography color="gray">Score:</Typography>
-                                            <Typography>{answer.score}</Typography>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
+                                                <div className="mt-2">
+                                                    <Typography color="gray">Score:</Typography>
+                                                    <Typography>{answer.score}</Typography>
+                                                </div>
+                                            </CardBody>
+                                        </Card>
+                                    ))}
+                                </div>
+                            )
                         ) : (
                             <Typography color="gray" className="text-center py-4">
                                 No answers found for this section
