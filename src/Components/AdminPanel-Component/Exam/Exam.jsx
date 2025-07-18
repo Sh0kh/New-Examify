@@ -13,7 +13,7 @@ export default function Exam() {
     const getExam = async () => {
         setLoading(true);
         try {
-            const response = await $api.get(`/study-center/exams`);
+            const response = await $api.get(`/study-center/get-my-exams`);
             setExam(response?.data);
         } catch (error) {
             console.error(error);
