@@ -12,12 +12,13 @@ import {
 } from "@material-tailwind/react";
 import QuestionRenderer from './QuestionType/QuestionRenderer'
 
+
 const SelectableText = ({ children, theme }) => {
     const textRef = useRef(null);
     const [selectedWords, setSelectedWords] = useState(new Map());
     const [highlightedElement, setHighlightedElement] = useState(null);
     const lastSelection = useRef(null);
-    const activeInputRef = useRef(null); // Добавляем ref для активного input
+    const activeInputRef = useRef(null);
 
     const cleanupActiveInput = useCallback(() => {
         if (activeInputRef.current) {
@@ -27,7 +28,7 @@ const SelectableText = ({ children, theme }) => {
     }, []);
 
     const handleLeftClickSelection = useCallback(() => {
-        cleanupActiveInput(); // Очищаем предыдущий input при новом выделении
+        cleanupActiveInput();
 
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0 || !selection.toString().trim()) return;
@@ -37,7 +38,7 @@ const SelectableText = ({ children, theme }) => {
 
         const span = document.createElement('span');
         span.className = 'highlighted-word';
-        span.style.backgroundColor = theme === 'dark' ? 'rgba(59, 130, 246, 0.4)' : 'rgba(37, 99, 235, 0.3)';
+        span.style.backgroundColor = 'yellow'; // Жёлтый цвет выделения
         span.style.padding = '2px 4px';
         span.style.borderRadius = '3px';
 
@@ -49,12 +50,12 @@ const SelectableText = ({ children, theme }) => {
         } catch (e) {
             console.error('Cannot highlight:', e);
         }
-    }, [theme, cleanupActiveInput]);
+    }, [cleanupActiveInput]);
 
     const handleRightClickSelection = useCallback(() => {
         if (!lastSelection.current) return;
 
-        cleanupActiveInput(); // Очищаем предыдущий input перед созданием нового
+        cleanupActiveInput();
 
         const { text, range } = lastSelection.current;
         const selection = window.getSelection();
@@ -132,12 +133,8 @@ const SelectableText = ({ children, theme }) => {
         replacementInput.addEventListener('blur', handleInputConfirm);
 
         strikeSpan.addEventListener('click', (e) => {
-            e.stopPropagation(); // Предотвращаем всплытие
-
-            if (activeInputRef.current) {
-                // Если уже есть активный input, не создаем новый
-                return;
-            }
+            e.stopPropagation();
+            if (activeInputRef.current) return;
 
             const newInput = replacementInput.cloneNode(true);
             newInput.addEventListener('keypress', handleInputConfirm);
@@ -228,6 +225,8 @@ const SelectableText = ({ children, theme }) => {
         </div>
     );
 };
+
+
 
 
 
