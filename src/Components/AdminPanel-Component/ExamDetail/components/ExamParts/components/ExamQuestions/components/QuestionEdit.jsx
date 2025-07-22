@@ -60,7 +60,7 @@ export default function QuestionEditPage({ refresh }) {
             if (form.image) formData.append("image", form.image);
             if (form.audio) formData.append("audio", form.audio);
 
-            await $api.patch(`/study-center/questions/${questionID}`, formData, {
+            await $api.post(`/study-center/update-question/${questionID}`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
