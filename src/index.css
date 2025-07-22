@@ -145,7 +145,7 @@ input[type="number"]::-webkit-inner-spin-button {
 }
 
 
-.highlighted-word[data-replacement]:hover::after {
+.strikethrough-word[data-replacement]:hover::after {
   content: attr(data-replacement);
   position: absolute;
   top: -28px;
@@ -161,7 +161,7 @@ input[type="number"]::-webkit-inner-spin-button {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
 }
 
-.dark .highlighted-word[data-replacement]:hover::after {
+.dark .strikethrough-word[data-replacement]:hover::after {
   background-color: #1f2937;
   color: #f9fafb;
   border: 1px solid #374151;
