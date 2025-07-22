@@ -21,6 +21,7 @@ import { Phone } from "lucide-react";
 import Loading from "../../UI/Loadings/Loading";
 import UserEdit from "./component/UserEdit";
 import CONFIG from "../../../utils/Config";
+import PersonFoto from '@/Images/FotoPerson.jpg'
 
 export default function UserProfile() {
     const navigate = useNavigate();
@@ -72,14 +73,15 @@ export default function UserProfile() {
                 <Card className="w-full max-w-[1200px] rounded-2xl">
                     <CardBody className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-8">
                         <Avatar
-                            src={CONFIG?.API_URL + data?.photo}
+                            src={data?.photo ? CONFIG.API_URL + data.photo : PersonFoto}
                             alt="avatar"
                             size="xxl"
                             className="ring-4 ring-blue-500"
                         />
+
                         <div className="flex flex-col items-center sm:items-start w-full">
                             <Typography variant="h4" color="blue-gray" className="mb-1">
-                                {data?.name}
+                                {data?.name} {' '} {data?.surname}
                             </Typography>
 
                             <div className="flex items-center text-gray-600 mb-2 gap-2">

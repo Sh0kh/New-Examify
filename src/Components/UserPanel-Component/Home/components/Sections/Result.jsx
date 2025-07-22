@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import ReactLoading from 'react-loading';
 import PersonFoto from '@/Images/FotoPerson.jpg';
 import { $api } from '../../../../../utils';
+import CONFIG from '../../../../../utils/Config';
 
 function Result() {
     const [data, setData] = useState([]);
@@ -63,7 +64,7 @@ function Result() {
                                         className='Result__Card bg-[#0A0D120D] w-full px-4 sm:px-6 py-4 sm:py-5 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between cursor-pointer transition duration-500 hover:bg-[#0a0d1216]'
                                     >
                                         <div className='flex items-center gap-3 mb-2 sm:mb-0'>
-                                            <img className='w-[40px] sm:w-[50px] h-[40px] sm:h-[50px] rounded-full' src={PersonFoto} alt="foto" />
+                                            <img className='w-[40px] sm:w-[50px] h-[40px] object-cover sm:h-[50px] rounded-full' src={CONFIG?.API_URL + i?.user?.photo || PersonFoto} alt="foto" />
                                             <span className='text-base sm:text-lg font-medium'>{i?.user?.name || "Unknown"}</span>
                                         </div>
 

@@ -90,7 +90,7 @@ export default function ExamPartEdit({ data, refresh }) {
                     dataToSend.append(key, formData[key]);
                 }
             }
-            await $api.put(`/study-center/parts/${data.id}`, dataToSend, {
+            await $api.post(`/study-center/update-part/${data.id}`, dataToSend, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
             refresh();

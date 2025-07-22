@@ -7,6 +7,7 @@ import Info from "./Components/Info";
 import CenterExam from "./Components/CenterExam/CenterExam";
 import Payment from "./Components/Payment";
 import StKey from "./Components/StKey";
+import StudyCenterEditModal from "./Components/StudyCenterEdit";
 
 export default function StudyCenterDetail() {
     const { studyCenterId } = useParams();
@@ -63,6 +64,7 @@ export default function StudyCenterDetail() {
                     <h1 className="text-[black] font-bold text-[25px]">
                         {center.name}
                     </h1>
+                    <StudyCenterEditModal refresh={getStudyCenterDetails} data={center} />
                 </NavBarContent>
             </StyledAppBar>
 
