@@ -10,8 +10,7 @@ import {
     DialogFooter,
     Button
 } from "@material-tailwind/react";
-import QuestionRenderer from './QuestionType/QuestionRenderer'
-
+import QuestionRenderer from './QuestionType/QuestionRenderer';
 
 const SelectableText = ({ children, theme }) => {
     const textRef = useRef(null);
@@ -38,7 +37,7 @@ const SelectableText = ({ children, theme }) => {
 
         const span = document.createElement('span');
         span.className = 'highlighted-word';
-        span.style.backgroundColor = 'yellow'; // Жёлтый цвет выделения
+        span.style.backgroundColor = 'yellow';
         span.style.padding = '2px 4px';
         span.style.borderRadius = '3px';
 
@@ -226,32 +225,23 @@ const SelectableText = ({ children, theme }) => {
     );
 };
 
-
-
-
-
 export default function ExamSolutionBody({ examData, setAnswers }) {
-    // Состояния компонента
     const [userAnswers, setUserAnswers] = useState({});
     const [activePart, setActivePart] = useState(() => {
-        // При инициализации пытаемся получить сохраненную часть из localStorage
         const savedPart = localStorage.getItem('lastActivePart');
         return savedPart || null;
     });
     const [timeRemaining, setTimeRemaining] = useState(null);
     const [theme, setTheme] = useState('light');
-    const [writingTexts, setWritingTexts] = useState({}); // Объект для хранения текстов всех частей
-    const [wordCounts, setWordCounts] = useState({}); // Объект для хранения счетчиков слов
+    const [writingTexts, setWritingTexts] = useState({});
+    const [wordCounts, setWordCounts] = useState({});
     const [isImageModalOpen, setIsImageModalOpen] = useState(false);
     const [modalImageUrl, setModalImageUrl] = useState("");
 
-    // Данные экзамена
     const SectionType = examData?.next_section?.type;
     const parts = examData?.section?.parts || examData?.next_section?.parts || [];
     const currentPart = parts.find(part => part.id === activePart) || parts[0];
     const currentQuestions = currentPart?.questions || [];
-
-
 
     const openImageModal = (url) => {
         setModalImageUrl(url);
@@ -263,7 +253,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         setModalImageUrl("");
     };
 
-    // Отключаем контекстное меню для всего приложения
     useEffect(() => {
         const disableContextMenu = (e) => {
             e.preventDefault();
@@ -271,27 +260,20 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         };
 
         document.addEventListener('contextmenu', disableContextMenu);
-
-        return () => {
-            document.removeEventListener('contextmenu', disableContextMenu);
-        };
+        return () => document.removeEventListener('contextmenu', disableContextMenu);
     }, []);
 
-    // Инициализация активной части
     useEffect(() => {
         if (parts.length > 0) {
-            // Проверяем, есть ли сохраненная часть в новых данных
             const savedPart = localStorage.getItem('lastActivePart');
             const isValidPart = savedPart && parts.some(p => p.id === savedPart);
 
-            // Если активная часть не установлена или сохраненная часть невалидна
             if (!activePart || !isValidPart) {
                 const newActivePart = isValidPart ? savedPart : parts[0].id;
                 setActivePart(newActivePart);
                 localStorage.setItem('lastActivePart', newActivePart);
             }
 
-            // Инициализация для Writing секции
             if (SectionType === 'Writing') {
                 const initialTexts = {};
                 const initialCounts = {};
@@ -309,38 +291,21 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 setWordCounts(initialCounts);
             }
         }
-    }, [parts]); // Зависимость только от parts
+    }, [parts]);
 
-
-
-    // Обработчик изменения текста для Writing секции
     const handleWritingChange = (e, partId) => {
         const text = e.target.value;
+        setWritingTexts(prev => ({ ...prev, [partId]: text }));
 
-        // Обновляем текст для текущей части
-        setWritingTexts(prev => ({
-            ...prev,
-            [partId]: text
-        }));
-
-        // Обновляем счетчик слов для текущей части
         const words = text.trim() ? text.trim().split(/\s+/) : [];
-        setWordCounts(prev => ({
-            ...prev,
-            [partId]: words.length
-        }));
+        setWordCounts(prev => ({ ...prev, [partId]: words.length }));
 
-        // Сохраняем ответ в userAnswers для вопроса текущей части
         const question = parts.find(p => p.id === partId)?.questions?.[0];
         if (question) {
-            setUserAnswers(prev => ({
-                ...prev,
-                [question.id]: text
-            }));
+            setUserAnswers(prev => ({ ...prev, [question.id]: text }));
         }
     };
 
-    // Управление темой
     useEffect(() => {
         const checkAndApplyTheme = () => {
             const currentTheme = localStorage.getItem('theme') || 'light';
@@ -361,7 +326,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         };
     }, [theme]);
 
-    // Формирование ответов для отправки
     const formattedParts = useMemo(() => {
         const result = parts.map(part => ({
             id: part.id,
@@ -370,7 +334,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 const userAnswer = userAnswers[q.id];
                 const questionType = parseInt(q.question_type_id);
 
-                // Обработка speaking вопросов (тип 7)
                 if (questionType === 7) {
                     return [{
                         question_id: q.id,
@@ -382,7 +345,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                     }];
                 }
 
-                // Обработка других типов вопросов
                 switch (questionType) {
                     case 1: case 5:
                         if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
@@ -426,7 +388,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                     question_id: q.id,
                                     question_type_id: q.question_type_id,
                                     answer_id: null,
-                                    answer_text: answerText, // Каждый ответ отдельно
+                                    answer_text: answerText,
                                     selected_answers: null,
                                     file_path: null
                                 }));
@@ -435,7 +397,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
                     case 6:
                         const answerText = String(userAnswer || '').trim();
-                        // Всегда отправляем ответ для типа 6, даже если он пустой
                         return [{
                             question_id: q.id,
                             question_type_id: q.question_type_id,
@@ -446,7 +407,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         }];
                 }
 
-                // Для всех остальных типов вопросов без ответа возвращаем пустой массив
                 return [];
             }).filter(answer => answer !== null)
         }));
@@ -454,19 +414,16 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         return result.filter(part => part.answers.length > 0);
     }, [parts, userAnswers]);
 
-    // Используем useCallback для стабилизации setAnswers
     const updateAnswers = useCallback((newAnswers) => {
         setAnswers(newAnswers);
     }, []);
 
-    // Обновляем ответы только при реальных изменениях
     useEffect(() => {
         if (formattedParts.length > 0) {
             updateAnswers(formattedParts);
         }
     }, [formattedParts, updateAnswers]);
 
-    // Таймер
     useEffect(() => {
         if (timeRemaining > 0) {
             const timer = setInterval(() => setTimeRemaining(prev => prev - 1), 1000);
@@ -480,12 +437,10 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         }
     }, [parts, activePart]);
 
-    // Навигация между частями
     const handlePartChange = (partId) => {
         setActivePart(partId);
         localStorage.setItem('lastActivePart', partId);
     };
-
 
     useEffect(() => {
         return () => {
@@ -493,21 +448,12 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         };
     }, []);
 
-    useEffect(() => {
-        if (parts.length > 0 && activePart === null) {
-            const savedPart = localStorage.getItem('lastActivePart');
-            const isValidPart = savedPart && parts.some(p => p.id === savedPart);
-            setActivePart(isValidPart ? savedPart : parts[0].id);
-        }
-    }, [parts, activePart]);
-    // Подсчет отвеченных вопросов
     const getAnsweredQuestionsCount = (partId) => {
         const part = parts.find(p => p.id === partId);
         if (!part) return 0;
         return part.questions.filter(q => userAnswers[q.id] !== undefined).length;
     };
 
-    // Загрузка данных
     if (!examData) {
         return (
             <div className={`flex items-center justify-center h-64 ${theme === 'dark' ? 'bg-gray-900' : 'bg-[#FAFAFA]'}`}>
@@ -521,10 +467,8 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         );
     }
 
-    // Рендер компонента
     return (
         <div className={`min-h-screen Exam__test pt-[90px] p-2 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
-            {/* Навигация по частям */}
             <div className="mb-6">
                 <div className="flex flex-wrap gap-2">
                     {parts.length > 0 && parts.map((part, index) => {
@@ -538,7 +482,7 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                 onClick={() => handlePartChange(part.id)}
                                 onContextMenu={(e) => e.preventDefault()}
                                 className={`relative px-4 py-3 rounded-lg border transition-all duration-200 font-medium
-                ${isActive
+                                    ${isActive
                                         ? theme === 'dark'
                                             ? 'bg-blue-700 text-white border-blue-600 shadow-md'
                                             : 'bg-blue-600 text-white border-blue-600 shadow-md'
@@ -559,10 +503,8 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 </div>
             </div>
 
-            {/* Основное содержимое в зависимости от типа секции */}
             {SectionType === 'Reading' ? (
                 <div className="flex flex-col md:flex-row gap-6">
-                    {/* Левая часть - Текст для чтения */}
                     <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
@@ -577,7 +519,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         </div>
                     </div>
 
-                    {/* Правая часть - Вопросы */}
                     <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         {currentPart?.description && (
                             <div className={`border-b px-6 py-4 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
@@ -629,14 +570,12 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                 </div>
             ) : SectionType === 'Writing' ? (
                 <div className="flex flex-col md:flex-row gap-6">
-                    {/* Левая часть - Задание и вопрос */}
                     <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <h3 className={`text-lg font-semibold mb-4 ${theme === 'dark' ? 'text-gray-100' : 'text-gray-800'}`}>
                                 Writing Task {parts.findIndex(p => p.id === currentPart.id) + 1}
                             </h3>
 
-                            {/* Отображение вопроса и изображения */}
                             {currentQuestions.length > 0 && (
                                 <div className="mb-6">
                                     <SelectableText theme={theme}>
@@ -662,7 +601,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                             />
                                         </DialogBody>
                                     </Dialog>
-
                                 </div>
                             )}
 
@@ -687,12 +625,11 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                         </div>
                     </div>
 
-                    {/* Правая часть - Поле для ввода */}
                     <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
                         <div className="p-6">
                             <div className="relative mb-4">
                                 <textarea
-                                    spellCheck={false} // <-- отключает проверку орфографии
+                                    spellCheck={false}
                                     value={writingTexts[currentPart.id] || ""}
                                     onChange={(e) => handleWritingChange(e, currentPart.id)}
                                     onContextMenu={(e) => e.preventDefault()}
