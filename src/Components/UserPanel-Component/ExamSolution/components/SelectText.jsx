@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 
 export default function SelectableText({ children, theme }) {
     let activeInput = null;
-    let highlighted = null;
+    let lastHighlighted = null;
 
     function cleanupInput() {
         if (activeInput) {
@@ -11,48 +11,59 @@ export default function SelectableText({ children, theme }) {
         }
     }
 
-    function onMouseUp(e) {
-        const selection = window.getSelection();
-        if (!selection || selection.rangeCount === 0) return;
+   function createDeleteButton(span) {
+    const btn = document.createElement('button');
+    btn.textContent = '×';
+    btn.title = 'Delete';
+    btn.className = 'delete-btn';
 
-        const text = selection.toString().trim();
-        if (!text) return;
+    btn.style.cssText = `
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 20px;
+        height: 20px;
+        border: none;
+        border-radius: 50%;
+        background: red;
+        color: white;
+        font-size: 14px;
+        line-height: 1;
+        cursor: pointer;
+        display: none;
+        z-index: 1000;
+    `;
 
-        const range = selection.getRangeAt(0);
-        if (!e.currentTarget.contains(range.commonAncestorContainer)) return;
+    span.style.position = 'relative';
+    span.appendChild(btn);
 
-        if (e.button === 0) {
-            const span = document.createElement('span');
-            span.className = 'highlighted-word';
-            span.textContent = text;
-            span.style.backgroundColor = 'yellow';
-            span.style.padding = '2px 4px';
-            span.style.borderRadius = '3px';
-            span.style.cursor = 'pointer';
+    span.addEventListener('mouseenter', () => {
+        btn.style.display = 'block';
+    });
 
-            range.deleteContents();
-            range.insertNode(span);
-            selection.removeAllRanges();
+    span.addEventListener('mouseleave', () => {
+        btn.style.display = 'none';
+    });
 
-            span.addEventListener('contextmenu', (event) => {
-                event.preventDefault();
-                createInputModal(span, theme);
-            });
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const parent = span.parentNode;
 
-            span.addEventListener('click', () => {
-                cleanupInput();
-            });
+        const cloned = span.cloneNode(true);
+        [...cloned.querySelectorAll('button')].forEach(btn => btn.remove());
+        const textNode = document.createTextNode(cloned.textContent);
 
-            highlighted = span;
-        }
-    }
+        parent.replaceChild(textNode, span);
+        cleanupInput();
+    });
+}
 
-    function createInputModal(span, theme) {
+    function createInputModal(span) {
         cleanupInput();
 
         const input = document.createElement('input');
         input.type = 'text';
-        input.placeholder = 'Заменить на...';
+        input.placeholder = 'Write';
         input.className = 'replacement-input';
 
         input.style.cssText = `
@@ -60,12 +71,11 @@ export default function SelectableText({ children, theme }) {
             top: -30px;
             left: 0;
             min-width: 120px;
-            padding: 4px 8px;
-            border: 1px solid ${theme === 'dark' ? '#3b82f6' : '#2563eb'};
+            border: 1px solid #2563eb;
             border-radius: 4px;
             font-size: 13px;
-            background: ${theme === 'dark' ? '#1f2937' : 'white'};
-            color: ${theme === 'dark' ? '#f3f4f6' : '#111827'};
+            background: white;
+            color: #111827;
             z-index: 100;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         `;
@@ -92,25 +102,74 @@ export default function SelectableText({ children, theme }) {
         });
     }
 
-    function onKeyDown(e) {
-        if (e.key === 'Delete') {
-            document.querySelectorAll('.highlighted-word, .strikethrough-word').forEach(el => {
-                el.remove();
-            });
+    function onMouseUp(e) {
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) return;
+
+        const text = selection.toString().trim();
+        if (!text) return;
+
+        const range = selection.getRangeAt(0);
+        const container = document.getElementById('selectable-container');
+        if (!container.contains(range.commonAncestorContainer)) return;
+
+        if (e.button === 0) {
+            const span = document.createElement('span');
+            span.className = 'highlighted-word';
+            span.textContent = text;
+            span.style.backgroundColor = 'yellow';
+            span.style.borderRadius = '3px';
+            span.style.cursor = 'pointer';
+            span.style.display = 'inline-block';
+
+            range.deleteContents();
+            range.insertNode(span);
+            selection.removeAllRanges();
+
+            createDeleteButton(span);
+            lastHighlighted = span;
         }
+    }
+
+    function onContextMenu(e) {
+        const container = document.getElementById('selectable-container');
+        if (!container.contains(e.target)) return;
+
+        e.preventDefault();
+
+        let span = e.target.closest('.highlighted-word');
+        if (!span) return;
+
+        const strikeSpan = document.createElement('span');
+        strikeSpan.className = 'strikethrough-word';
+        strikeSpan.textContent = span.textContent;
+
+        strikeSpan.style.cssText = `
+            position: relative;
+            text-decoration: line-through;
+            background-color: rgba(37, 99, 235, 0.2);
+            border-radius: 3px;
+            cursor: pointer;
+            display: inline-block;
+        `;
+
+        span.replaceWith(strikeSpan);
+        createDeleteButton(strikeSpan);
+        lastHighlighted = strikeSpan;
+
+        createInputModal(strikeSpan);
     }
 
     useEffect(() => {
         const container = document.getElementById('selectable-container');
-
         if (!container) return;
 
         container.addEventListener('mouseup', onMouseUp);
-        window.addEventListener('keydown', onKeyDown);
+        document.addEventListener('contextmenu', onContextMenu);
 
         return () => {
             container.removeEventListener('mouseup', onMouseUp);
-            window.removeEventListener('keydown', onKeyDown);
+            document.removeEventListener('contextmenu', onContextMenu);
         };
     }, []);
 
