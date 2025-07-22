@@ -435,17 +435,15 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
                     case 6:
                         const answerText = String(userAnswer || '').trim();
-                        if (answerText !== '') {
-                            return [{
-                                question_id: q.id,
-                                question_type_id: q.question_type_id,
-                                answer_id: null,
-                                answer_text: answerText,
-                                selected_answers: null,
-                                file_path: null
-                            }];
-                        }
-                        break;
+                        // Всегда отправляем ответ для типа 6, даже если он пустой
+                        return [{
+                            question_id: q.id,
+                            question_type_id: q.question_type_id,
+                            answer_id: null,
+                            answer_text: answerText,
+                            selected_answers: null,
+                            file_path: null
+                        }];
                 }
 
                 // Для всех остальных типов вопросов без ответа возвращаем пустой массив

@@ -2,6 +2,7 @@ import { CardBody, Typography, Card, Button } from "@material-tailwind/react";
 import ExamSectionsCreate from "./components/ExamSectionsCreate";
 import { NavLink } from "react-router-dom";
 import ExamSectionEdit from "./components/ExamSectionEdit";
+import ExamSectionDelete from "./components/ExamSectionDelete";
 
 export default function ExamSections({ sectionData, refresh }) {
     return (
@@ -27,6 +28,7 @@ export default function ExamSections({ sectionData, refresh }) {
                                     </Button>
                                 </NavLink>
                                 <ExamSectionEdit section={item} refresh={refresh} />
+                                <ExamSectionDelete id={item?.id} refresh={refresh} />
                             </div>
                         </CardBody>
                     </Card>

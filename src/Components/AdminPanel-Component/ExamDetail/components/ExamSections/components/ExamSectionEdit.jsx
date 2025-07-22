@@ -94,7 +94,7 @@ export default function ExamSectionEdit({ section, refresh }) {
     return (
         <>
             <Button onClick={handleOpen} color="amber">
-                Edit
+                O'zgartirish
             </Button>
 
             <Dialog open={open} handler={handleOpen} size="xl">
