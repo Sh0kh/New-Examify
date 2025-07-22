@@ -11,59 +11,56 @@ export default function SelectableText({ children, theme }) {
         }
     }
 
-   function createDeleteButton(span) {
-    const btn = document.createElement('button');
-    btn.textContent = '×';
-    btn.title = 'Delete';
-    btn.className = 'delete-btn';
+    function createDeleteButton(span) {
+        const btn = document.createElement('button');
+        btn.innerHTML = '&times;';
+        btn.title = 'Delete';
+        btn.className = 'delete-btn';
 
-    btn.style.cssText = `
-        position: absolute;
-        top: -8px;
-        right: -8px;
-        width: 20px;
-        height: 20px;
-        border: none;
-        border-radius: 50%;
-        background: red;
-        color: white;
-        font-size: 14px;
-        line-height: 1;
-        cursor: pointer;
-        display: none;
-        z-index: 1000;
-    `;
+        btn.style.cssText = `
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            width: 20px;
+            height: 20px;
+            border: none;
+            border-radius: 50%;
+            background: red;
+            color: white;
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+            display: none;
+            z-index: 1000;
+            pointer-events: auto;
+        `;
 
-    span.style.position = 'relative';
-    span.appendChild(btn);
+        span.style.position = 'relative';
+        span.appendChild(btn);
 
-    span.addEventListener('mouseenter', () => {
-        btn.style.display = 'block';
-    });
+        span.addEventListener('mouseenter', () => {
+            btn.style.display = 'block';
+        });
 
-    span.addEventListener('mouseleave', () => {
-        btn.style.display = 'none';
-    });
+        span.addEventListener('mouseleave', () => {
+            btn.style.display = 'none';
+        });
 
-    btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const parent = span.parentNode;
-
-        const cloned = span.cloneNode(true);
-        [...cloned.querySelectorAll('button')].forEach(btn => btn.remove());
-        const textNode = document.createTextNode(cloned.textContent);
-
-        parent.replaceChild(textNode, span);
-        cleanupInput();
-    });
-}
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const parent = span.parentNode;
+            const textNode = document.createTextNode(span.firstChild.textContent);
+            parent.replaceChild(textNode, span);
+            cleanupInput();
+        });
+    }
 
     function createInputModal(span) {
         cleanupInput();
 
         const input = document.createElement('input');
         input.type = 'text';
-        input.placeholder = 'Write';
+        input.placeholder = 'Write here...';
         input.className = 'replacement-input';
 
         input.style.cssText = `
@@ -116,11 +113,24 @@ export default function SelectableText({ children, theme }) {
         if (e.button === 0) {
             const span = document.createElement('span');
             span.className = 'highlighted-word';
-            span.textContent = text;
-            span.style.backgroundColor = 'yellow';
-            span.style.borderRadius = '3px';
-            span.style.cursor = 'pointer';
-            span.style.display = 'inline-block';
+
+            // Сохраняем оригинальные стили
+            const originalStyles = window.getComputedStyle(range.commonAncestorContainer.parentNode);
+            span.style.cssText = `
+                background-color: yellow;
+                border-radius: 3px;
+                cursor: pointer;
+                display: inline;
+                color: ${originalStyles.color};
+                font-family: ${originalStyles.fontFamily};
+                font-size: ${originalStyles.fontSize};
+                font-weight: ${originalStyles.fontWeight};
+                line-height: ${originalStyles.lineHeight};
+            `;
+
+            // Копируем выделенный текст без изменения структуры
+            const clonedContent = range.cloneContents();
+            span.appendChild(clonedContent);
 
             range.deleteContents();
             range.insertNode(span);
@@ -140,18 +150,28 @@ export default function SelectableText({ children, theme }) {
         let span = e.target.closest('.highlighted-word');
         if (!span) return;
 
+        // Сохраняем оригинальные стили
+        const originalStyles = window.getComputedStyle(span);
+
         const strikeSpan = document.createElement('span');
         strikeSpan.className = 'strikethrough-word';
-        strikeSpan.textContent = span.textContent;
-
         strikeSpan.style.cssText = `
-            position: relative;
             text-decoration: line-through;
             background-color: rgba(37, 99, 235, 0.2);
             border-radius: 3px;
             cursor: pointer;
-            display: inline-block;
+            display: inline;
+            color: ${originalStyles.color};
+            font-family: ${originalStyles.fontFamily};
+            font-size: ${originalStyles.fontSize};
+            font-weight: ${originalStyles.fontWeight};
+            line-height: ${originalStyles.lineHeight};
         `;
+
+        // Переносим содержимое с сохранением форматирования
+        while (span.firstChild) {
+            strikeSpan.appendChild(span.firstChild);
+        }
 
         span.replaceWith(strikeSpan);
         createDeleteButton(strikeSpan);
@@ -176,12 +196,10 @@ export default function SelectableText({ children, theme }) {
     return (
         <div
             id="selectable-container"
-            className={`selectable-text ${theme === 'dark' ? 'text-gray-300 dark' : 'text-gray-700'}`}
+            className={`selectable-text ${theme === 'dark' ? 'dark-theme' : 'light-theme'}`}
             style={{
                 userSelect: 'text',
                 cursor: 'text',
-                lineHeight: '1.6',
-                wordSpacing: '0.1em',
             }}
         >
             {children}
