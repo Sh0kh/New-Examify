@@ -101,6 +101,11 @@ export default function ExamifyExams() {
                                                             ? "Yopiq (kalitli)"
                                                             : "Noma'lum"}
                                             </span>
+                                            {exam.type_id == 2 && (
+                                                <p className="text-sm mt-1">
+                                                    Price: {exam.price.toLocaleString("ru-RU")} UZS
+                                                </p>
+                                            )}
                                         </div>
 
                                         <button className="mt-4 flex items-center text-sm font-medium text-white">
