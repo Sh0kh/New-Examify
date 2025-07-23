@@ -68,7 +68,7 @@ export default function ExamBuyModal({ isOpen, onClose, id, Error, examType }) {
             if (error?.status === 401) {
                 navigate('/login');
                 localStorage.clear();
-            } else  {
+            } else {
                 Error();
             }
             onClose();
@@ -82,7 +82,7 @@ export default function ExamBuyModal({ isOpen, onClose, id, Error, examType }) {
                 showCloseButton: true,
                 toast: true,
                 showConfirmButton: false,
-                
+
             });
         } finally {
             setLoading(false);
@@ -118,6 +118,9 @@ export default function ExamBuyModal({ isOpen, onClose, id, Error, examType }) {
                 <h2 className="text-lg font-semibold">
                     What will you choose to have your test checked by AI or Human?
                 </h2>
+                <p>
+                    
+                </p>
 
                 {examType == 3 && (
                     <div className="mt-4">

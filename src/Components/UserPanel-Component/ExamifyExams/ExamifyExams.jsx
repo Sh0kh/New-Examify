@@ -93,13 +93,13 @@ export default function ExamifyExams() {
                                             <p className="text-sm mt-1">Language: {exam.language}</p>
 
                                             <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium bg-white text-black`}>
-                                                {exam.type_id == 1
-                                                    ? "Tekin"
+                                              {exam.type_id == 1
+                                                    ? "Free"
                                                     : exam.type_id == 2
-                                                        ? "Pullik"
+                                                        ? "Paid"
                                                         : exam.type_id == 3
-                                                            ? "Yopiq (kalitli)"
-                                                            : "Noma'lum"}
+                                                            ? "Private (with key)"
+                                                            : "Unknown"}
                                             </span>
                                             {exam.type_id == 2 && (
                                                 <p className="text-sm mt-1">

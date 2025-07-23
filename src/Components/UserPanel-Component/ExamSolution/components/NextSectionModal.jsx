@@ -42,7 +42,6 @@ export default function NextSectionModal({ isOpen, onClose, answers, examData, s
             }
 
             onClose();
-            Alert("Muvaffaqiyatli qo'shildi", "success");
         } catch (error) {
             console.log(error);
             Alert(`Xatolik: ${error}`, "error");

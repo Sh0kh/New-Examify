@@ -34,14 +34,13 @@ export default function QuestionDetail() {
 
     // Заменить {textinput} на 1) _____, 2) _____ и т.д.
     const processQuestionText = (text) => {
-        let counter = 1;
-        return text.replace(/\{textinput\}/g, () => `${counter++}) _____`);
+        return text.replace(/\{textinput\}/g, () => `_____`);
     };
 
     const processedQuestionText = processQuestionText(data?.question_text || "");
 
     return (
-        <div className="p-4 space-y-6">
+        <div className="Exam__test p-4 space-y-6">
             <div className="flex items-center justify-between mb-4">
                 <h1 className="text-2xl font-bold">Savol tafsilotlari</h1>
                 <AnswerCreate refresh={getQuestionById} />

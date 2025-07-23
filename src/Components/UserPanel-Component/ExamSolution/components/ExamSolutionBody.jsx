@@ -393,17 +393,6 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
                                 <div className={`prose max-w-none mb-6 ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
                                     dangerouslySetInnerHTML={{ __html: currentPart?.rules }}
                                 />
-
-                                {currentPart?.description && (
-                                    <div className={`p-4 rounded-lg ${theme === 'dark' ? 'bg-gray-700' : 'bg-gray-50'}`}>
-                                        <h4 className={`font-medium mb-2 ${theme === 'dark' ? 'text-gray-200' : 'text-gray-700'}`}>
-                                            Task Requirements:
-                                        </h4>
-                                        <div className={`prose max-w-none ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}
-                                            dangerouslySetInnerHTML={{ __html: currentPart.description }}
-                                        />
-                                    </div>
-                                )}
                             </div>
                         </div>
 
@@ -493,3 +482,5 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
     );
 }
+
+
