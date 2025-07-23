@@ -18,6 +18,7 @@ export default function ExamSectionsCreate({ refresh }) {
   const { examID } = useParams();
   const [open, setOpen] = useState(false);
   const types = ["Listening", "Reading", "Speaking", "Writing"];
+  const [loading, setLoading] = useState(false)
 
   const [formData, setFormData] = useState({
     exam_id: examID,
@@ -79,6 +80,7 @@ export default function ExamSectionsCreate({ refresh }) {
   };
 
   const handleCreate = async () => {
+    setLoading(true)
     try {
       const data = new FormData();
 
@@ -146,6 +148,8 @@ export default function ExamSectionsCreate({ refresh }) {
       }
 
       Alert(`Xatolik: ${errorMessage}`, "error");
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -266,8 +270,8 @@ export default function ExamSectionsCreate({ refresh }) {
           <Button variant="text" color="red" onClick={handleOpen}>
             Cancel
           </Button>
-          <Button color="green" onClick={handleCreate}>
-            Save
+          <Button color="green" onClick={handleCreate} disabled={loading}>
+            {loading ? 'Saving...' : 'Save'}
           </Button>
         </DialogFooter>
       </Dialog>

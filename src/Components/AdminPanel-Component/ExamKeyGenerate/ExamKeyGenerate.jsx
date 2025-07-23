@@ -78,16 +78,19 @@ export default function ExamKeyGenerate() {
                             <Typography variant="h6" className="text-gray-800 text-center">
                                 Jami: {total} ta kalit yaratildi
                             </Typography>
-
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                                 {keys.map((key, index) => (
                                     <Chip
                                         key={index}
                                         value={key}
-                                        className="text-sm px-3 py-2 bg-blue-100 text-blue-900 border border-blue-300"
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(key);
+                                        }}
+                                        className="text-sm px-3 py-2 bg-blue-100 text-blue-900 border border-blue-300 cursor-pointer hover:bg-blue-200 transition normal-case"
                                     />
                                 ))}
                             </div>
+
                         </>
                     ) : (
                         <Typography variant="h6" className="text-gray-500 text-center">

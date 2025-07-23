@@ -1,5 +1,6 @@
 import React from 'react'
 import PersonFoto from '@/Images/FotoPerson.jpg'
+import CONFIG from '../../../../utils/Config'
 
 function Table({ data }) {
 
@@ -16,7 +17,7 @@ function Table({ data }) {
                                 >
                                     <div className='flex items-center gap-[5px]'>
                                         <div>
-                                            <img className='w-[50px] rounded-[50%] h-50px' src={PersonFoto} alt="foto" />
+                                            <img className='w-[40px] sm:w-[50px] h-[40px] object-cover sm:h-[50px] rounded-full' src={CONFIG?.API_URL + i?.user?.photo || PersonFoto} alt="foto" />
                                         </div>
                                         <span className='text-[18px] font-semibold w-[50px]'>{i?.user?.name || "Unknown"}</span>
                                     </div>

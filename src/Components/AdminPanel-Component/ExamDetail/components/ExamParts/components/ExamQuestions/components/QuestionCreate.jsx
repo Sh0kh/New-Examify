@@ -110,6 +110,9 @@ export default function QuestionCreatePage({ refresh, getPartById }) {
                             <>
                                 <div>
                                     <label className="block text-sm font-medium mb-2">Savol matni</label>
+                                    <p>
+                                        Kalit so'zi {`{textinput}`}
+                                    </p>
                                     <RichText
                                         content={form.question_text}
                                         onChange={(newContent) => setForm((prev) => ({ ...prev, question_text: newContent }))}
