@@ -138,16 +138,15 @@ const formattedParts = useMemo(() => {
 
             switch (questionType) {
                 case 1: case 5:
-                    // Always return answer_id as null for these types
+                    // For types 1 and 5, put user's answer in answer_id if answered
                     if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
                         return [{
                             question_id: q.id,
                             question_type_id: q.question_type_id,
-                            answer_id: null, // Changed to always be null
+                            answer_id: Number(userAnswer), // Now contains user's answer
                             answer_text: null,
                             selected_answers: null,
-                            file_path: null,
-                            user_answer: Number(userAnswer) // Add user's answer here if needed
+                            file_path: null
                         }];
                     }
                     // Return empty answer with null answer_id if no answer
@@ -157,8 +156,7 @@ const formattedParts = useMemo(() => {
                         answer_id: null,
                         answer_text: null,
                         selected_answers: null,
-                        file_path: null,
-                        user_answer: null
+                        file_path: null
                     }];
 
                 case 2:
@@ -172,7 +170,7 @@ const formattedParts = useMemo(() => {
                             return [{
                                 question_id: q.id,
                                 question_type_id: q.question_type_id,
-                                answer_id: null, // Always null for type 2
+                                answer_id: null,
                                 answer_text: null,
                                 selected_answers: validAnswers,
                                 file_path: null
@@ -190,49 +188,54 @@ const formattedParts = useMemo(() => {
                     }];
 
                 case 3: case 4:
-                    // Extract correct answers from question_text
+                    // Extract correct answers from question_text (оригинальные)
                     const questionText = q.question_text || "";
                     const inputRegex = /{textinput(?:\([^)]*\))?}/g;
                     const inputMatches = questionText.match(inputRegex) || [];
 
+                    // Получаем правильные ответы БЕЗ очистки (оригинальные)
                     const correctAnswers = inputMatches.map(match => {
                         const answerMatch = match.match(/{textinput\(([^)]*)\)}/);
-                        return answerMatch ? answerMatch[1].toLowerCase().replace(/\s+/g, '') : null;
+                        return answerMatch ? answerMatch[1].trim() : null; // Только trim(), без toLowerCase() и replace()
                     });
+
+                    // Функция очистки ТОЛЬКО для сравнения
+                    const cleanString = (str) =>
+                        str?.toLowerCase().replace(/[^a-z0-9а-яё]/gi, '') || '';
 
                     if (Array.isArray(userAnswer)) {
                         return userAnswer.map((answer, index) => {
+                            // Оригинальный ответ пользователя (без очистки)
                             const userAnswerText = String(answer || '').trim();
+                            // Оригинальный правильный ответ (без очистки)
                             const correctAnswer = correctAnswers[index];
 
-                            // Determine if answer is correct
+                            // Определяем правильность через очищенные версии (только для сравнения)
                             let isRight = false;
                             if (userAnswerText && correctAnswer) {
-                                isRight = userAnswerText.toLowerCase().replace(/\s+/g, '') === correctAnswer;
+                                isRight = cleanString(userAnswerText) === cleanString(correctAnswer);
                             }
 
                             return {
                                 question_id: q.id,
                                 question_type_id: q.question_type_id,
                                 answer_id: null,
-                                user_answer: userAnswerText,
-                                correct_answer: correctAnswer,
+                                correct_answer: correctAnswer, // Оригинальный правильный ответ
                                 is_right: isRight,
-                                answer_text: userAnswerText,
+                                answer_text: userAnswerText, // Оригинальный ответ пользователя
                                 selected_answers: null,
                                 file_path: null
                             };
-                        }).filter(answer => answer.user_answer !== '' || answer.correct_answer);
+                        }).filter(answer => answer.answer_text !== '' || answer.correct_answer);
                     } else {
                         // If user didn't answer type 3-4 questions, create records with is_right: false
                         return correctAnswers.map((correctAnswer, index) => ({
                             question_id: q.id,
                             question_type_id: q.question_type_id,
                             answer_id: null,
-                            user_answer: "",
-                            correct_answer: correctAnswer,
+                            correct_answer: correctAnswer, // Оригинальный правильный ответ
                             is_right: false,
-                            answer_text: "",
+                            answer_text: "", // Empty string for unanswered
                             selected_answers: null,
                             file_path: null
                         }));
