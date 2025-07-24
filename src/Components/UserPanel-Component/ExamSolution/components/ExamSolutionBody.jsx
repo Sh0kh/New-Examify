@@ -117,93 +117,145 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         };
     }, [theme]);
 
-    const formattedParts = useMemo(() => {
-        const result = parts.map(part => ({
-            id: part.id,
-            part_type: part.part_type,
-            answers: part.questions.flatMap(q => {
-                const userAnswer = userAnswers[q.id];
-                const questionType = parseInt(q.question_type_id);
+const formattedParts = useMemo(() => {
+    const result = parts.map(part => ({
+        id: part.id,
+        part_type: part.part_type,
+        answers: part.questions.flatMap(q => {
+            const userAnswer = userAnswers[q.id];
+            const questionType = parseInt(q.question_type_id);
 
-                if (questionType === 7) {
-                    return [{
-                        question_id: q.id,
-                        question_type_id: q.question_type_id,
-                        answer_id: userAnswer?.answer_id || null,
-                        answer_text: userAnswer?.file_path ? null : "unanswered",
-                        selected_answers: null,
-                        file_path: userAnswer?.file_path || null
-                    }];
-                }
+            if (questionType === 7) {
+                return [{
+                    question_id: q.id,
+                    question_type_id: q.question_type_id,
+                    answer_id: userAnswer?.answer_id || null,
+                    answer_text: userAnswer?.file_path ? null : "unanswered",
+                    selected_answers: null,
+                    file_path: userAnswer?.file_path || null
+                }];
+            }
 
-                switch (questionType) {
-                    case 1: case 5:
-                        if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
-                            return [{
-                                question_id: q.id,
-                                question_type_id: q.question_type_id,
-                                answer_id: Number(userAnswer),
-                                answer_text: null,
-                                selected_answers: null,
-                                file_path: null
-                            }];
-                        }
-                        break;
-
-                    case 2:
-                        if (Array.isArray(userAnswer)) {
-                            const validAnswers = userAnswer
-                                .filter(id => id !== undefined && id !== null && id !== '')
-                                .map(Number)
-                                .filter(id => !isNaN(id));
-
-                            if (validAnswers.length > 0) {
-                                return [{
-                                    question_id: q.id,
-                                    question_type_id: q.question_type_id,
-                                    answer_id: null,
-                                    answer_text: null,
-                                    selected_answers: validAnswers,
-                                    file_path: null
-                                }];
-                            }
-                        }
-                        break;
-
-                    case 3: case 4:
-                        if (Array.isArray(userAnswer)) {
-                            return userAnswer
-                                .map(answer => String(answer).trim())
-                                .filter(answerText => answerText !== '')
-                                .map(answerText => ({
-                                    question_id: q.id,
-                                    question_type_id: q.question_type_id,
-                                    answer_id: null,
-                                    answer_text: answerText,
-                                    selected_answers: null,
-                                    file_path: null
-                                }));
-                        }
-                        break;
-
-                    case 6:
-                        const answerText = String(userAnswer || '').trim();
+            switch (questionType) {
+                case 1: case 5:
+                    // Always return answer_id as null for these types
+                    if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
                         return [{
                             question_id: q.id,
                             question_type_id: q.question_type_id,
+                            answer_id: null, // Changed to always be null
+                            answer_text: null,
+                            selected_answers: null,
+                            file_path: null,
+                            user_answer: Number(userAnswer) // Add user's answer here if needed
+                        }];
+                    }
+                    // Return empty answer with null answer_id if no answer
+                    return [{
+                        question_id: q.id,
+                        question_type_id: q.question_type_id,
+                        answer_id: null,
+                        answer_text: null,
+                        selected_answers: null,
+                        file_path: null,
+                        user_answer: null
+                    }];
+
+                case 2:
+                    if (Array.isArray(userAnswer)) {
+                        const validAnswers = userAnswer
+                            .filter(id => id !== undefined && id !== null && id !== '')
+                            .map(Number)
+                            .filter(id => !isNaN(id));
+
+                        if (validAnswers.length > 0) {
+                            return [{
+                                question_id: q.id,
+                                question_type_id: q.question_type_id,
+                                answer_id: null, // Always null for type 2
+                                answer_text: null,
+                                selected_answers: validAnswers,
+                                file_path: null
+                            }];
+                        }
+                    }
+                    // Return empty answer with null answer_id if no answer
+                    return [{
+                        question_id: q.id,
+                        question_type_id: q.question_type_id,
+                        answer_id: null,
+                        answer_text: null,
+                        selected_answers: null,
+                        file_path: null
+                    }];
+
+                case 3: case 4:
+                    // Extract correct answers from question_text
+                    const questionText = q.question_text || "";
+                    const inputRegex = /{textinput(?:\([^)]*\))?}/g;
+                    const inputMatches = questionText.match(inputRegex) || [];
+
+                    const correctAnswers = inputMatches.map(match => {
+                        const answerMatch = match.match(/{textinput\(([^)]*)\)}/);
+                        return answerMatch ? answerMatch[1].toLowerCase().replace(/\s+/g, '') : null;
+                    });
+
+                    if (Array.isArray(userAnswer)) {
+                        return userAnswer.map((answer, index) => {
+                            const userAnswerText = String(answer || '').trim();
+                            const correctAnswer = correctAnswers[index];
+
+                            // Determine if answer is correct
+                            let isRight = false;
+                            if (userAnswerText && correctAnswer) {
+                                isRight = userAnswerText.toLowerCase().replace(/\s+/g, '') === correctAnswer;
+                            }
+
+                            return {
+                                question_id: q.id,
+                                question_type_id: q.question_type_id,
+                                answer_id: null,
+                                user_answer: userAnswerText,
+                                correct_answer: correctAnswer,
+                                is_right: isRight,
+                                answer_text: userAnswerText,
+                                selected_answers: null,
+                                file_path: null
+                            };
+                        }).filter(answer => answer.user_answer !== '' || answer.correct_answer);
+                    } else {
+                        // If user didn't answer type 3-4 questions, create records with is_right: false
+                        return correctAnswers.map((correctAnswer, index) => ({
+                            question_id: q.id,
+                            question_type_id: q.question_type_id,
                             answer_id: null,
-                            answer_text: answerText,
+                            user_answer: "",
+                            correct_answer: correctAnswer,
+                            is_right: false,
+                            answer_text: "",
                             selected_answers: null,
                             file_path: null
-                        }];
-                }
+                        }));
+                    }
 
-                return [];
-            }).filter(answer => answer !== null)
-        }));
+                case 6:
+                    const answerText = String(userAnswer || '').trim();
+                    return [{
+                        question_id: q.id,
+                        question_type_id: q.question_type_id,
+                        answer_id: null,
+                        answer_text: answerText,
+                        selected_answers: null,
+                        file_path: null
+                    }];
+            }
 
-        return result.filter(part => part.answers.length > 0);
-    }, [parts, userAnswers]);
+            return [];
+        }).filter(answer => answer !== null)
+    }));
+
+    return result.filter(part => part.answers.length > 0);
+}, [parts, userAnswers]);
 
     const updateAnswers = useCallback((newAnswers) => {
         setAnswers(newAnswers);
@@ -366,9 +418,9 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
 
                                 {currentQuestions.length > 0 && (
                                     <div className="mb-6">
-                                            <div className={`prose max-w-none ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
-                                                dangerouslySetInnerHTML={{ __html: currentQuestions[0]?.question_text }}
-                                            />
+                                        <div className={`prose max-w-none ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}
+                                            dangerouslySetInnerHTML={{ __html: currentQuestions[0]?.question_text }}
+                                        />
                                         {currentQuestions[0]?.image_url && (
                                             <img
                                                 src={CONFIG.API_URL + currentQuestions[0].image_url}
