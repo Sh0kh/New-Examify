@@ -19,3 +19,20 @@ $api.interceptors.request.use((config) => {
 }, (error) => {
     return Promise.reject(error);
 });
+
+// Интерцептор для обработки ответов
+$api.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            // Удаляем токен из localStorage
+            localStorage.clear();
+
+            // Перенаправляем на страницу логина
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);

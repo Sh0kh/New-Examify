@@ -115,13 +115,6 @@ export default function SectionDetail() {
                                             <CardBody>
                                                 <div className="flex justify-between items-start">
                                                     <Typography variant="h6">Answer {index + 1}</Typography>
-                                                    {answer.is_correct !== undefined && (
-                                                        <Chip
-                                                            color={answer.is_correct === "1" ? "green" : "red"}
-                                                            value={answer.is_correct === "1" ? "Correct" : "Incorrect"}
-                                                            size="sm"
-                                                        />
-                                                    )}
                                                 </div>
 
                                                 {answer.file_path ? (
@@ -130,7 +123,7 @@ export default function SectionDetail() {
                                                         <audio
                                                             controls
                                                             className="mt-2 w-full max-w-xs"
-                                                            src={`${CONFIG?.API_URL}audio_speeches/${answer.file_path.replace(
+                                                            src={`${CONFIG?.API_URL}${answer.file_path.replace(
                                                                 /\\/g,
                                                                 "/"
                                                             )}`}
