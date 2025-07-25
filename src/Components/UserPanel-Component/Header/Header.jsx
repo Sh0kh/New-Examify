@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import logo from '@/Images/examifyNew.png';
 import { NavLink } from 'react-router-dom';
 import HeaderMenu from './components/HeaderMenu';
@@ -7,6 +7,8 @@ import { Spin as Hamburger } from 'hamburger-react';
 // import { fetchData } from '../../Redux/MyInformation';
 import ManualModal from './components/ManualModal';
 import PersonFoto from '@/Images/FotoPerson.jpg'
+import { $api } from '../../../utils';
+import CONFIG from '../../../utils/Config';
 
 function Header() {
     const [active, setActive] = useState(false);
@@ -14,9 +16,20 @@ function Header() {
     const closeMenu = () => setActive(false);
     const token = localStorage.getItem('token');
     const [manualModal, setManualModal] = useState(false);
+    const [profileData, setProfileData] = useState([])
 
+    const getMyProfile = async () => {
+        try {
+            const response = await $api.get(`/user/profile`)
+            setProfileData(response?.data?.user)
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
-
+    useEffect(() => {
+        getMyProfile()
+    }, [])
 
 
     const handleScrollUp = () => {
@@ -76,7 +89,8 @@ function Header() {
                         {token ? (
                             <NavLink to={`/profil`}>
                                 <button className='header__login__btn' >
-                                    <img className='w-[40px] h-[40px] sm:w-[50px] sm:h-[50px] rounded-[50%] border-[1px] border-[black]' src={PersonFoto} alt="Foto" />
+                                    <img className='w-[40px] h-[40px] object-cover sm:w-[50px] sm:h-[50px] rounded-[50%] border-[1px] border-[black]' src={profileData?.photo ? CONFIG.API_URL + profileData.photo : PersonFoto}
+                                        alt="Foto" />
                                 </button>
                             </NavLink>
                         ) : (

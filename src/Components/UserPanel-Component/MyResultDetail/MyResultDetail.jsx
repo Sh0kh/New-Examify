@@ -30,8 +30,8 @@ export default function MyResultDetail() {
         getMyResult();
     }, []);
 
-    const getSectionScore = (name) => {
-        return data?.section_scores?.find(s => s.section?.name === name);
+    const getSectionScore = (type) => {
+        return data?.section_scores?.find(s => s.section?.type === type);
     };
 
     if (loading) {

@@ -46,10 +46,7 @@ export default function FillInBlankQuestion({ question, onAnswer, userAnswer, th
                 // Сравнение ТОЛЬКО для отображения (очищенные строки)
                 const isCorrect = cleanString(userInputValue) === cleanString(correctAnswer);
 
-                console.log(isCorrect)
 
-                console.log(cleanString(userInputValue))
-                console.log(cleanString(correctAnswer))
 
                 return (
                     <input
@@ -61,11 +58,6 @@ export default function FillInBlankQuestion({ question, onAnswer, userAnswer, th
                             ? 'bg-gray-700 border-gray-600 text-white'
                             : 'bg-white border-gray-300'
                             }`}
-                        style={{
-                            // Визуальная индикация правильности (опционально)
-                            borderColor: userInputValue && correctAnswer ?
-                                (isCorrect ? 'green' : 'red') : undefined
-                        }}
                     />
                 );
             }
