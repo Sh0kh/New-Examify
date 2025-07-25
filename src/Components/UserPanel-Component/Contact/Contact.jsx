@@ -2,8 +2,7 @@ import React, { useState } from "react";
 // import { axiosAPI2 } from "../Service/axios";
 import Swal from 'sweetalert2'
 import { useNavigate } from "react-router-dom";
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
+
 
 
 export default function Contact() {
@@ -66,7 +65,6 @@ export default function Contact() {
 
     return (
         <>
-            <Header />
             <main>
                 <section className="mt-[200px] mb-[50px]">
                     <div className="container">
@@ -152,7 +150,6 @@ export default function Contact() {
                     </div>
                 </section>
             </main>
-            <Footer />
         </>
     );
 }

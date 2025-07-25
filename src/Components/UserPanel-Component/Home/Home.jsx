@@ -1,5 +1,4 @@
-import Footer from "../Footer/Footer";
-import Header from "../Header/Header";
+
 import ChatTeam from "./components/Sections/ChatTeam";
 import FAQ from "./components/Sections/FAQ";
 import Hero from "./components/Sections/Hero";
@@ -10,7 +9,6 @@ import Service from "./components/Sections/Service";
 export default function Home() {
     return (
         <>
-            <Header />
             <main>
                 <Hero />
                 <Service />
@@ -19,7 +17,6 @@ export default function Home() {
                 <FAQ />
                 <ChatTeam />
             </main>
-            <Footer />
         </>
     );
 }

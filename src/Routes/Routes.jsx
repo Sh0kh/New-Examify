@@ -22,7 +22,7 @@ import TkExamDetail from "../Components/AdminPanel-Component/TkExam-Detail/TkExa
 import TkExamDetailsSpeaking from "../Components/AdminPanel-Component/TkExam-Detail/TkExamDetailsSpeaking";
 import TkExamDetailWriting from "../Components/AdminPanel-Component/TkExam-Detail/TkExamDetailWriting";
 import TkExam from "../Components/AdminPanel-Component/TkExam/TkExam";
-import Profile from "../Components/Profile/Profile";
+import Profile from "../Components/AdminPanel-Component/Profile/Profile";
 import UserStudyCenter from '../Components/UserPanel-Component/StudyCenter/StudyCenter'
 import Contact from "../Components/UserPanel-Component/Contact/Contact";
 import Exams from "../Components/UserPanel-Component/Exams/Exams";

@@ -7,8 +7,6 @@ import {
     Typography,
     Chip,
 } from "@material-tailwind/react";
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
 import CONFIG from "../../../utils/Config";
 import Loading from "../../UI/Loadings/Loading";
 
@@ -52,7 +50,6 @@ export default function SectionDetail() {
 
     return (
         <>
-            <Header />
             <div className="container mx-auto p-4 mt-[150px]">
                 <Card>
                     <CardBody>
@@ -163,7 +160,6 @@ export default function SectionDetail() {
                     </CardBody>
                 </Card>
             </div>
-            <Footer />
         </>
     );
 }

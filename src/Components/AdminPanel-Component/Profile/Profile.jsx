@@ -7,10 +7,10 @@ import {
 } from "@material-tailwind/react";
 import AvatarLogo from '@/Images/FotoPerson.jpg';
 import { Button } from "@mui/material";
-import { $api } from "../../utils";
+import { $api } from "../../../utils/index";
 import { useEffect, useState } from "react";
 import ProfileEditModal from "./components/ProfileEditModal";
-import Loading from "../UI/Loadings/Loading";
+import Loading from "../../UI/Loadings/Loading";
 
 export default function Profile() {
     const [data, setData] = useState([])
