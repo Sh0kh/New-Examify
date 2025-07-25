@@ -4,7 +4,7 @@ import { Link, NavLink } from "react-router-dom";
 export default function Hero() {
     return (
         <div className="Hero mx-auto flex flex-col items-center text-center py-16 px-6 pt-[200px] pb-[100px]">
-            <NavLink to={'/multi-level'} className="hidden sm:flex">
+            <NavLink to={'/exams'} className="hidden sm:flex">
                 <div className="flex items-center space-x-4 cursor-pointer shadow-sm p-[4px] border border-[#D5D7DA] rounded-lg">
                     <div className="flex items-center space-x-2 border border-[#D5D7DA] px-[8px] py-[2px] rounded-[5px]">
                         <svg xmlns="http://www.w3.org/2000/svg" width="13" height="12" viewBox="0 0 13 12" fill="none">
