@@ -9,6 +9,7 @@ import ManualModal from './components/ManualModal';
 import PersonFoto from '@/Images/FotoPerson.jpg'
 import { $api } from '../../../utils';
 import CONFIG from '../../../utils/Config';
+import axios from 'axios';
 
 function Header() {
     const [active, setActive] = useState(false);
@@ -17,13 +18,17 @@ function Header() {
     const token = localStorage.getItem('token');
     const [manualModal, setManualModal] = useState(false);
     const [profileData, setProfileData] = useState([])
-
     const getMyProfile = async () => {
         try {
-            const response = await $api.get(`/user/profile`)
-            setProfileData(response?.data?.user)
+            const token = localStorage.getItem('token') // или откуда ты его берёшь
+            const response = await axios.get(`/user/profile`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setProfileData(response?.data?.user);
         } catch (error) {
-            console.log(error)
+            console.log(error);
         }
     }
 

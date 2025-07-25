@@ -27,10 +27,7 @@ $api.interceptors.response.use(
     },
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Удаляем токен из localStorage
             localStorage.clear();
-
-            // Перенаправляем на страницу логина
             window.location.href = '/login';
         }
         return Promise.reject(error);
