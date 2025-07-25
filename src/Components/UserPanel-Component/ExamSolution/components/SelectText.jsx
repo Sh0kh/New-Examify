@@ -14,7 +14,7 @@ export default function SelectableText({ children, theme }) {
     function createDeleteButton(span) {
         const btn = document.createElement('button');
         btn.innerHTML = '&times;';
-        btn.title = 'Delete';
+        btn.title = 'Отменить';
         btn.className = 'delete-btn';
 
         btn.style.cssText = `
@@ -38,6 +38,9 @@ export default function SelectableText({ children, theme }) {
         span.style.position = 'relative';
         span.appendChild(btn);
 
+        // Всегда скрываем кнопку при создании
+        btn.style.display = 'none';
+
         span.addEventListener('mouseenter', () => {
             btn.style.display = 'block';
         });
@@ -49,7 +52,27 @@ export default function SelectableText({ children, theme }) {
         btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const parent = span.parentNode;
-            const textNode = document.createTextNode(span.firstChild.textContent);
+            
+            // Создаем текстовый узел с содержимым span (исключаем кнопку и инпут)
+            let textContent = '';
+            
+            function extractTextContent(node) {
+                for (let child of node.childNodes) {
+                    if (child.nodeType === Node.TEXT_NODE) {
+                        textContent += child.textContent;
+                    } else if (child.nodeType === Node.ELEMENT_NODE) {
+                        // Пропускаем служебные элементы
+                        if (!child.classList.contains('delete-btn') && 
+                            !child.classList.contains('replacement-input')) {
+                            extractTextContent(child);
+                        }
+                    }
+                }
+            }
+            
+            extractTextContent(span);
+            
+            const textNode = document.createTextNode(textContent);
             parent.replaceChild(textNode, span);
             cleanupInput();
         });
@@ -75,6 +98,7 @@ export default function SelectableText({ children, theme }) {
             color: #111827;
             z-index: 100;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            padding: 4px 8px;
         `;
 
         span.appendChild(input);
@@ -114,18 +138,11 @@ export default function SelectableText({ children, theme }) {
             const span = document.createElement('span');
             span.className = 'highlighted-word';
 
-            // Сохраняем оригинальные стили
-            const originalStyles = window.getComputedStyle(range.commonAncestorContainer.parentNode);
+            // Применяем только фон и курсор, остальные стили наследуются
             span.style.cssText = `
                 background-color: yellow;
                 border-radius: 3px;
                 cursor: pointer;
-                display: inline;
-                color: ${originalStyles.color};
-                font-family: ${originalStyles.fontFamily};
-                font-size: ${originalStyles.fontSize};
-                font-weight: ${originalStyles.fontWeight};
-                line-height: ${originalStyles.lineHeight};
             `;
 
             // Копируем выделенный текст без изменения структуры
@@ -150,22 +167,15 @@ export default function SelectableText({ children, theme }) {
         let span = e.target.closest('.highlighted-word');
         if (!span) return;
 
-        // Сохраняем оригинальные стили
-        const originalStyles = window.getComputedStyle(span);
-
         const strikeSpan = document.createElement('span');
         strikeSpan.className = 'strikethrough-word';
+        
+        // Применяем только зачеркивание и фон, остальные стили наследуются
         strikeSpan.style.cssText = `
             text-decoration: line-through;
             background-color: rgba(37, 99, 235, 0.2);
             border-radius: 3px;
             cursor: pointer;
-            display: inline;
-            color: ${originalStyles.color};
-            font-family: ${originalStyles.fontFamily};
-            font-size: ${originalStyles.fontSize};
-            font-weight: ${originalStyles.fontWeight};
-            line-height: ${originalStyles.lineHeight};
         `;
 
         // Переносим содержимое с сохранением форматирования
@@ -174,6 +184,8 @@ export default function SelectableText({ children, theme }) {
         }
 
         span.replaceWith(strikeSpan);
+        
+        // Создаем кнопку удаления для зачеркнутого элемента
         createDeleteButton(strikeSpan);
         lastHighlighted = strikeSpan;
 
