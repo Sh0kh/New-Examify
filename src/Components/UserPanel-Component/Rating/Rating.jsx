@@ -4,8 +4,6 @@ import Table from './components/Table'
 // import axios from '../Service/axios'
 import ReactLoading from 'react-loading';
 import { $api } from '../../../utils';
-import Header from '../Header/Header';
-import Footer from '../Footer/Footer';
 
 function Rating() {
   const [data, setData] = useState([])
@@ -33,12 +31,10 @@ function Rating() {
   }
   return (
     <>
-      <Header />
       <div className='Rating mt-[100px]'>
         <Top3 data={data} />
         <Table data={data} />
       </div>
-      <Footer />
     </>
   )
 }

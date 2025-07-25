@@ -7,8 +7,8 @@ import {
     Input,
 } from "@material-tailwind/react";
 import { useState } from "react";
-import { $api } from "../../../utils";
-import { Alert } from "../../../utils/Alert";
+import { $api } from "../../../../utils";
+import { Alert } from "../../../../utils/Alert";
 
 export default function ProfileEditModal({ data }) {
     const [open, setOpen] = useState(false);

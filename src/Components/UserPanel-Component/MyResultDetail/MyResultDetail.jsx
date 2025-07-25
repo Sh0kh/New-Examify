@@ -1,6 +1,5 @@
 import { NavLink, useParams } from "react-router-dom";
-import Footer from "../Footer/Footer";
-import Header from "../Header/Header";
+
 import { useEffect, useState } from "react";
 import { $api } from "../../../utils";
 import {
@@ -42,7 +41,6 @@ export default function MyResultDetail() {
 
     return (
         <>
-            <Header />
             <main className="min-h-screen">
                 <section className="mt-[150px]">
                     <div className="max-w-[1200px] mx-auto px-[10px]">
@@ -136,7 +134,6 @@ export default function MyResultDetail() {
                     </div>
                 </section>
             </main>
-            <Footer />
         </>
     );
 }

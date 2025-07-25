@@ -1,6 +1,4 @@
 import axios from "axios";
-import Footer from "../Footer/Footer";
-import Header from "../Header/Header";
 import { useEffect, useMemo, useState } from "react";
 import Loading from "../../UI/Loadings/Loading";
 import { FaArrowRight } from "react-icons/fa";
@@ -49,7 +47,6 @@ export default function ExamifyExams() {
 
     return (
         <>
-            <Header />
             <main className="min-h-screen px-4 py-10 mt-[80px]">
                 <div className="container">
                     <h1 className="text-3xl font-bold">Examify Exams</h1>
@@ -93,7 +90,7 @@ export default function ExamifyExams() {
                                             <p className="text-sm mt-1">Language: {exam.language}</p>
 
                                             <span className={`inline-block mt-2 px-3 py-1 rounded-full text-sm font-medium bg-white text-black`}>
-                                              {exam.type_id == 1
+                                                {exam.type_id == 1
                                                     ? "Free"
                                                     : exam.type_id == 2
                                                         ? "Paid"
@@ -119,7 +116,6 @@ export default function ExamifyExams() {
 
                 </div>
             </main>
-            <Footer />
             <ExamBuyModal id={examId} examType={examType} isOpen={BuyExamModal} onClose={() => setBuyExamModal(false)} Error={() => setError(true)} />
             <BalanceErrorModal isOpen={error} onClose={() => setError(false)} />
         </>

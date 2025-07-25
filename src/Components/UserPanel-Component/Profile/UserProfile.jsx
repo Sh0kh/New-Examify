@@ -12,8 +12,7 @@ import {
     MapPinIcon,
     ChartBarSquareIcon,
 } from "@heroicons/react/24/solid";
-import Header from "../Header/Header";
-import Footer from "../Footer/Footer";
+
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { $api } from "../../../utils";
@@ -68,7 +67,6 @@ export default function UserProfile() {
 
     return (
         <>
-            <Header />
             <div className="flex justify-center items-center min-h-screen ">
                 <Card className="w-full max-w-[1200px] rounded-2xl">
                     <CardBody className="flex flex-col sm:flex-row items-center sm:items-start gap-6 p-8">
@@ -121,7 +119,6 @@ export default function UserProfile() {
                     </CardBody>
                 </Card>
             </div>
-            <Footer />
         </>
     );
 }

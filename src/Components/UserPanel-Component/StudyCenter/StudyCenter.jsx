@@ -5,8 +5,7 @@ import {
     Typography,
 } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
-import Footer from "../Footer/Footer";
-import Header from "../Header/Header";
+
 import axios from "axios";
 import Loading from "../../UI/Loadings/Loading";
 import CONFIG from "../../../utils/Config";
@@ -36,7 +35,6 @@ export default function StudyCenter() {
 
     return (
         <>
-            <Header />
             <main className="min-h-screen px-4 py-10 mt-[80px]">
                 <div className="container mx-auto">
                     <h1 className="text-3xl font-bold ">Study Center</h1>
@@ -87,7 +85,6 @@ export default function StudyCenter() {
 
                 </div>
             </main>
-            <Footer />
         </>
     );
 }
