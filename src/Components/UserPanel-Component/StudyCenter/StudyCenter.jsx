@@ -58,7 +58,7 @@ export default function StudyCenter() {
                                     key={exam.id}
                                     className="transform transition duration-300 hover:scale-[1.02]"
                                 >
-                                    <Card className="shadow-md hover:shadow-2xl transition-shadow duration-300 cursor-pointer">
+                                    <Card className="shadow-md hover:shadow-2xl  bg-[#F5F5F5] border-[#E9EAEB] transition-shadow duration-300 cursor-pointer">
                                         <CardHeader floated={false} className="h-40">
                                             <img
                                                 src={CONFIG.API_URL + exam?.logo}
@@ -67,15 +67,15 @@ export default function StudyCenter() {
                                             />
                                         </CardHeader>
                                         <CardBody>
-                                            <Typography variant="h6" color="blue-gray" className="mb-1">
+                                            <Typography variant="h6" color="blue-gray" className="mb-1 text-[24px]">
                                                 {exam.name}
                                             </Typography>
-{/* 
+                                            {/* 
                                             <Typography color="gray" className="text-sm mb-2">
                                                 {exam?.description || "Tavsif mavjud emas"}
                                             </Typography> */}
 
-                                            <Typography color="blue-gray" className="text-xs font-medium">
+                                            <Typography color="blue-gray" className="text-xs font-medium text-[#535862] mt-[12px] block">
                                                 Those who passed the exam: 100
                                             </Typography>
                                         </CardBody>
