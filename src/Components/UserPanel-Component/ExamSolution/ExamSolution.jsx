@@ -116,6 +116,7 @@ export default function ExamSolution({ initialExamData = null, loading = false, 
             {examData && (
                 <>
                     <ExamSolutionHeader
+                        time={timeLeft}
                         theme={theme}
                         setTheme={handleThemeChange}
                         nextSection={() => setNextSectionModal(true)}
@@ -143,6 +144,7 @@ export default function ExamSolution({ initialExamData = null, loading = false, 
             />
 
             <NextSectionModal
+                time={timeLeft}
                 setDataFromChild={handleDataFromChild}
                 examData={examData}
                 answers={answers}

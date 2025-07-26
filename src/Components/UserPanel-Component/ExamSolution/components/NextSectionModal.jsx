@@ -11,17 +11,22 @@ import { Alert } from "../../../../utils/Alert";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-export default function NextSectionModal({ isOpen, onClose, answers, examData, setDataFromChild }) {
+export default function NextSectionModal({ time, isOpen, onClose, answers, examData, setDataFromChild }) {
     const [loading, setLoading] = useState(false);
     const [resultId, setResultId] = useState(null);
-    const navigate = useNavigate()
-
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (examData?.exam_result?.id && !resultId) {
             setResultId(examData.exam_result.id);
         }
     }, [examData, resultId]);
+
+    useEffect(() => {
+        if (time === 0) {
+            handleNextSection();
+        }
+    }, [time]);
 
     const handleNextSection = async () => {
         setLoading(true);
@@ -34,7 +39,7 @@ export default function NextSectionModal({ isOpen, onClose, answers, examData, s
             };
             const response = await $api.post(`/user/check-section`, data);
             if (response?.data?.score || response?.data?.next_section === null) {
-                navigate('/my-result')
+                navigate('/my-result');
             }
             setDataFromChild(response?.data);
             if (response?.data?.exam_result?.id) {
