@@ -117,148 +117,148 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
         };
     }, [theme]);
 
-const formattedParts = useMemo(() => {
-    const result = parts.map(part => ({
-        id: part.id,
-        part_type: part.part_type,
-        answers: part.questions.flatMap(q => {
-            const userAnswer = userAnswers[q.id];
-            const questionType = parseInt(q.question_type_id);
+    const formattedParts = useMemo(() => {
+        const result = parts.map(part => ({
+            id: part.id,
+            part_type: part.part_type,
+            answers: part.questions.flatMap(q => {
+                const userAnswer = userAnswers[q.id];
+                const questionType = parseInt(q.question_type_id);
 
-            if (questionType === 7) {
-                return [{
-                    question_id: q.id,
-                    question_type_id: q.question_type_id,
-                    answer_id: userAnswer?.answer_id || null,
-                    answer_text: userAnswer?.file_path ? null : "unanswered",
-                    selected_answers: null,
-                    file_path: userAnswer?.file_path || null
-                }];
-            }
+                if (questionType === 7) {
+                    return [{
+                        question_id: q.id,
+                        question_type_id: q.question_type_id,
+                        answer_id: userAnswer?.answer_id || null,
+                        answer_text: userAnswer?.file_path ? null : "unanswered",
+                        selected_answers: null,
+                        file_path: userAnswer?.file_path || null
+                    }];
+                }
 
-            switch (questionType) {
-                case 1: case 5:
-                    // For types 1 and 5, put user's answer in answer_id if answered
-                    if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
+                switch (questionType) {
+                    case 1: case 5:
+                        // For types 1 and 5, put user's answer in answer_id if answered
+                        if (userAnswer !== undefined && userAnswer !== null && userAnswer !== '' && !isNaN(Number(userAnswer))) {
+                            return [{
+                                question_id: q.id,
+                                question_type_id: q.question_type_id,
+                                answer_id: Number(userAnswer), // Now contains user's answer
+                                answer_text: null,
+                                selected_answers: null,
+                                file_path: null
+                            }];
+                        }
+                        // Return empty answer with null answer_id if no answer
                         return [{
                             question_id: q.id,
                             question_type_id: q.question_type_id,
-                            answer_id: Number(userAnswer), // Now contains user's answer
+                            answer_id: null,
                             answer_text: null,
                             selected_answers: null,
                             file_path: null
                         }];
-                    }
-                    // Return empty answer with null answer_id if no answer
-                    return [{
-                        question_id: q.id,
-                        question_type_id: q.question_type_id,
-                        answer_id: null,
-                        answer_text: null,
-                        selected_answers: null,
-                        file_path: null
-                    }];
 
-                case 2:
-                    if (Array.isArray(userAnswer)) {
-                        const validAnswers = userAnswer
-                            .filter(id => id !== undefined && id !== null && id !== '')
-                            .map(Number)
-                            .filter(id => !isNaN(id));
+                    case 2:
+                        if (Array.isArray(userAnswer)) {
+                            const validAnswers = userAnswer
+                                .filter(id => id !== undefined && id !== null && id !== '')
+                                .map(Number)
+                                .filter(id => !isNaN(id));
 
-                        if (validAnswers.length > 0) {
-                            return [{
-                                question_id: q.id,
-                                question_type_id: q.question_type_id,
-                                answer_id: null,
-                                answer_text: null,
-                                selected_answers: validAnswers,
-                                file_path: null
-                            }];
-                        }
-                    }
-                    // Return empty answer with null answer_id if no answer
-                    return [{
-                        question_id: q.id,
-                        question_type_id: q.question_type_id,
-                        answer_id: null,
-                        answer_text: null,
-                        selected_answers: null,
-                        file_path: null
-                    }];
-
-                case 3: case 4:
-                    // Extract correct answers from question_text (оригинальные)
-                    const questionText = q.question_text || "";
-                    const inputRegex = /{textinput(?:\([^)]*\))?}/g;
-                    const inputMatches = questionText.match(inputRegex) || [];
-
-                    // Получаем правильные ответы БЕЗ очистки (оригинальные)
-                    const correctAnswers = inputMatches.map(match => {
-                        const answerMatch = match.match(/{textinput\(([^)]*)\)}/);
-                        return answerMatch ? answerMatch[1].trim() : null; // Только trim(), без toLowerCase() и replace()
-                    });
-
-                    // Функция очистки ТОЛЬКО для сравнения
-                    const cleanString = (str) =>
-                        str?.toLowerCase().replace(/[^a-z0-9а-яё]/gi, '') || '';
-
-                    if (Array.isArray(userAnswer)) {
-                        return userAnswer.map((answer, index) => {
-                            // Оригинальный ответ пользователя (без очистки)
-                            const userAnswerText = String(answer || '').trim();
-                            // Оригинальный правильный ответ (без очистки)
-                            const correctAnswer = correctAnswers[index];
-
-                            // Определяем правильность через очищенные версии (только для сравнения)
-                            let isRight = false;
-                            if (userAnswerText && correctAnswer) {
-                                isRight = cleanString(userAnswerText) === cleanString(correctAnswer);
+                            if (validAnswers.length > 0) {
+                                return [{
+                                    question_id: q.id,
+                                    question_type_id: q.question_type_id,
+                                    answer_id: null,
+                                    answer_text: null,
+                                    selected_answers: validAnswers,
+                                    file_path: null
+                                }];
                             }
+                        }
+                        // Return empty answer with null answer_id if no answer
+                        return [{
+                            question_id: q.id,
+                            question_type_id: q.question_type_id,
+                            answer_id: null,
+                            answer_text: null,
+                            selected_answers: null,
+                            file_path: null
+                        }];
 
-                            return {
+                    case 3: case 4:
+                        // Extract correct answers from question_text (оригинальные)
+                        const questionText = q.question_text || "";
+                        const inputRegex = /{textinput(?:\([^)]*\))?}/g;
+                        const inputMatches = questionText.match(inputRegex) || [];
+
+                        // Получаем правильные ответы БЕЗ очистки (оригинальные)
+                        const correctAnswers = inputMatches.map(match => {
+                            const answerMatch = match.match(/{textinput\(([^)]*)\)}/);
+                            return answerMatch ? answerMatch[1].trim() : null; // Только trim(), без toLowerCase() и replace()
+                        });
+
+                        // Функция очистки ТОЛЬКО для сравнения
+                        const cleanString = (str) =>
+                            str?.toLowerCase().replace(/[^a-z0-9а-яё]/gi, '') || '';
+
+                        if (Array.isArray(userAnswer)) {
+                            return userAnswer.map((answer, index) => {
+                                // Оригинальный ответ пользователя (без очистки)
+                                const userAnswerText = String(answer || '').trim();
+                                // Оригинальный правильный ответ (без очистки)
+                                const correctAnswer = correctAnswers[index];
+
+                                // Определяем правильность через очищенные версии (только для сравнения)
+                                let isRight = false;
+                                if (userAnswerText && correctAnswer) {
+                                    isRight = cleanString(userAnswerText) === cleanString(correctAnswer);
+                                }
+
+                                return {
+                                    question_id: q.id,
+                                    question_type_id: q.question_type_id,
+                                    answer_id: null,
+                                    correct_answer: correctAnswer, // Оригинальный правильный ответ
+                                    is_right: isRight,
+                                    answer_text: userAnswerText, // Оригинальный ответ пользователя
+                                    selected_answers: null,
+                                    file_path: null
+                                };
+                            }).filter(answer => answer.answer_text !== '' || answer.correct_answer);
+                        } else {
+                            // If user didn't answer type 3-4 questions, create records with is_right: false
+                            return correctAnswers.map((correctAnswer, index) => ({
                                 question_id: q.id,
                                 question_type_id: q.question_type_id,
                                 answer_id: null,
                                 correct_answer: correctAnswer, // Оригинальный правильный ответ
-                                is_right: isRight,
-                                answer_text: userAnswerText, // Оригинальный ответ пользователя
+                                is_right: false,
+                                answer_text: "", // Empty string for unanswered
                                 selected_answers: null,
                                 file_path: null
-                            };
-                        }).filter(answer => answer.answer_text !== '' || answer.correct_answer);
-                    } else {
-                        // If user didn't answer type 3-4 questions, create records with is_right: false
-                        return correctAnswers.map((correctAnswer, index) => ({
+                            }));
+                        }
+
+                    case 6:
+                        const answerText = String(userAnswer || '').trim();
+                        return [{
                             question_id: q.id,
                             question_type_id: q.question_type_id,
                             answer_id: null,
-                            correct_answer: correctAnswer, // Оригинальный правильный ответ
-                            is_right: false,
-                            answer_text: "", // Empty string for unanswered
+                            answer_text: answerText,
                             selected_answers: null,
                             file_path: null
-                        }));
-                    }
+                        }];
+                }
 
-                case 6:
-                    const answerText = String(userAnswer || '').trim();
-                    return [{
-                        question_id: q.id,
-                        question_type_id: q.question_type_id,
-                        answer_id: null,
-                        answer_text: answerText,
-                        selected_answers: null,
-                        file_path: null
-                    }];
-            }
+                return [];
+            }).filter(answer => answer !== null)
+        }));
 
-            return [];
-        }).filter(answer => answer !== null)
-    }));
-
-    return result.filter(part => part.answers.length > 0);
-}, [parts, userAnswers]);
+        return result.filter(part => part.answers.length > 0);
+    }, [parts, userAnswers]);
 
     const updateAnswers = useCallback((newAnswers) => {
         setAnswers(newAnswers);
@@ -314,42 +314,42 @@ const formattedParts = useMemo(() => {
     }
 
     return (
-        <SelectableText theme={theme}>
-            <div className={`min-h-screen Exam__test pt-[90px] p-2 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
-                <div className="mb-6">
-                    <div className="flex flex-wrap gap-2">
-                        {parts.length > 0 && parts.map((part, index) => {
-                            const answeredCount = getAnsweredQuestionsCount(part.id);
-                            const totalQuestions = part.questions.length;
-                            const isActive = activePart === part.id || (index === 0 && activePart === null);
+        <div className={`min-h-screen Exam__test pt-[90px] p-2 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
+            <div className="mb-6">
+                <div className="flex flex-wrap gap-2">
+                    {parts.length > 0 && parts.map((part, index) => {
+                        const answeredCount = getAnsweredQuestionsCount(part.id);
+                        const totalQuestions = part.questions.length;
+                        const isActive = activePart === part.id || (index === 0 && activePart === null);
 
-                            return (
-                                <button
-                                    key={part.id}
-                                    onClick={() => handlePartChange(part.id)}
-                                    onContextMenu={(e) => e.preventDefault()}
-                                    className={`relative px-4 py-3 rounded-lg border transition-all duration-200 font-medium
+                        return (
+                            <button
+                                key={part.id}
+                                onClick={() => handlePartChange(part.id)}
+                                onContextMenu={(e) => e.preventDefault()}
+                                className={`relative px-4 py-3 rounded-lg border transition-all duration-200 font-medium
                                     ${isActive
-                                            ? theme === 'dark'
-                                                ? 'bg-blue-700 text-white border-blue-600 shadow-md'
-                                                : 'bg-blue-600 text-white border-blue-600 shadow-md'
-                                            : theme === 'dark'
-                                                ? 'bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700'
-                                                : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                                        }`}
-                                >
-                                    <div className="flex flex-col items-center">
-                                        <span className="text-sm">Part {index + 1}</span>
-                                    </div>
-                                    {answeredCount === totalQuestions && totalQuestions > 0 && (
-                                        <CheckCircle className="absolute -top-1 -right-1 h-4 w-4 text-green-500 bg-white rounded-full" />
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
-                </div>
+                                        ? theme === 'dark'
+                                            ? 'bg-blue-700 text-white border-blue-600 shadow-md'
 
+                                            : 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                        : theme === 'dark'
+                                            ? 'bg-gray-800 text-gray-200 border-gray-700 hover:bg-gray-700'
+                                            : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                                    }`}
+                            >
+                                <div className="flex flex-col items-center">
+                                    <span className="text-sm">Part {index + 1}</span>
+                                </div>
+                                {answeredCount === totalQuestions && totalQuestions > 0 && (
+                                    <CheckCircle className="absolute -top-1 -right-1 h-4 w-4 text-green-500 bg-white rounded-full" />
+                                )}
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+            <SelectableText theme={theme}>
                 {SectionType === 'Reading' ? (
                     <div className="flex flex-col md:flex-row gap-6">
                         <div className={`md:w-1/2 rounded-lg shadow-sm overflow-y-auto h-[680px] border ${theme === 'dark' ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
@@ -532,8 +532,8 @@ const formattedParts = useMemo(() => {
                         )}
                     </div>
                 )}
-            </div>
-        </SelectableText>
+            </SelectableText>
+        </div>
 
     );
 }
