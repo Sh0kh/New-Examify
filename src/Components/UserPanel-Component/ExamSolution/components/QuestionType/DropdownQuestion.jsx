@@ -32,7 +32,7 @@ export default function DropdownQuestion({ question, onAnswer, userAnswer, theme
                         : 'bg-white border-gray-300'
                         }`}
                 >
-                    <option value="">Tanlang</option>
+                    <option value="">Select</option>
                     {question.answers.map((answer) => (
                         <option key={answer.id} value={answer.id}>
                             {answer.answer_text}
