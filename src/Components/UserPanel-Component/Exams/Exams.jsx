@@ -10,6 +10,7 @@ import BalanceErrorModal from "./components/BalanceErrorModal";
 import { useParams } from "react-router-dom";
 
 export default function Exams() {
+    
     const { stID } = useParams()
     const [loading, setLoading] = useState(true);
     const [exams, setExams] = useState([]);
@@ -17,7 +18,6 @@ export default function Exams() {
     const [examId, setExamId] = useState(null);
     const [examType, setExamType] = useState(null);
     const [error, setError] = useState(false);
-
 
     const gradientColors = [
         "from-pink-400 to-red-500",
@@ -51,7 +51,6 @@ export default function Exams() {
 
     return (
         <>
-            <Header />
             <main className="min-h-screen px-4 py-10 mt-[80px]">
                 <div className="container">
                     <h1 className="text-3xl font-bold">Exams</h1>
@@ -124,7 +123,6 @@ export default function Exams() {
 
                 </div>
             </main>
-            <Footer />
             <ExamBuyModal id={examId} examType={examType} isOpen={BuyExamModal} onClose={() => setBuyExamModal(false)} Error={() => setError(true)} />
             <BalanceErrorModal isOpen={error} onClose={() => setError(false)} />
         </>
