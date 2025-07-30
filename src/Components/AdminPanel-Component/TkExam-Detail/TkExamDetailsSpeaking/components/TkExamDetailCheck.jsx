@@ -1,25 +1,17 @@
-import {
-    Card,
-    CardBody,
-    Typography,
-    Button,
-    Input,
-} from "@material-tailwind/react";
-import { $api } from "../../../utils";
-import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import Loading from "../../UI/Loadings/Loading";
-import CONFIG from "../../../utils/Config";
-import { Alert } from "../../../utils/Alert";
+import { useNavigate } from "react-router-dom";
+import Loading from "../../../../UI/Loadings/Loading";
+import { Alert } from "../../../../../utils/Alert";
+import { Button, Card, CardBody, Typography, Input } from "@material-tailwind/react";
+import CONFIG from "../../../../../utils/Config";
+import { $api } from "../../../../../utils";
 
-export default function TkExamDetailsSpeaking() {
-    const { tkExamId } = useParams();
-    const { sectionID } = useParams();
+export default function DetailedCheck({ tkExamId, sectionID }) {
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
     const [sectionData, setSectionData] = useState(null);
-    const [scores, setScores] = useState({});
-    const navigate = useNavigate()
+    const [partScores, setPartScores] = useState({});
+    const navigate = useNavigate();
 
     const getUserAnswer = async () => {
         setLoading(true);
@@ -31,14 +23,17 @@ export default function TkExamDetailsSpeaking() {
             const response = await $api.post(`/study-center/user-answers`, data);
             setSectionData(response.data);
 
-            // Initialize scores from existing data
-            const initialScores = {};
+            const initialPartScores = {};
             response.data.part_scores?.forEach(partScore => {
-                partScore.user_answers?.forEach(answer => {
-                    initialScores[answer.id] = answer.score || 0;
-                });
+                initialPartScores[partScore.id] = {
+                    fluency: 0,
+                    lexical: 0,
+                    grammar: 0,
+                    pronunciation: 0
+                };
             });
-            setScores(initialScores);
+
+            setPartScores(initialPartScores);
         } catch (error) {
             console.log(error);
         } finally {
@@ -46,11 +41,14 @@ export default function TkExamDetailsSpeaking() {
         }
     };
 
-    const handleScoreChange = (answerId, score) => {
-        const numScore = parseInt(score) || 0;
-        setScores(prev => ({
+    const handlePartScoreChange = (partId, field, value) => {
+        const numScore = parseInt(value) || 0;
+        setPartScores(prev => ({
             ...prev,
-            [answerId]: numScore
+            [partId]: {
+                ...prev[partId],
+                [field]: numScore
+            }
         }));
     };
 
@@ -59,10 +57,13 @@ export default function TkExamDetailsSpeaking() {
         try {
             const parts_scores = sectionData.part_scores.map(partScore => ({
                 part_score_id: partScore.id,
-                answers: partScore.user_answers.map(answer => ({
-                    user_answer_id: answer.id,
-                    score: scores[answer.id] || 0
-                }))
+                part_score: {
+                    fluency: partScores[partScore.id]?.fluency || 0,
+                    lexical: partScores[partScore.id]?.lexical || 0,
+                    grammar: partScores[partScore.id]?.grammar || 0,
+                    pronunciation: partScores[partScore.id]?.pronunciation || 0
+                },
+                answers: [] // убрали баллы за отдельные вопросы
             }));
 
             const submitData = {
@@ -73,7 +74,7 @@ export default function TkExamDetailsSpeaking() {
 
             await $api.post(`/study-center/check`, submitData);
             Alert("Muvaffaqiyatli qo'shildi", "success");
-            navigate(-1)
+            navigate(-1);
         } catch (error) {
             console.log(error);
             Alert(`Xatolik: ${error}`, "error");
@@ -86,9 +87,7 @@ export default function TkExamDetailsSpeaking() {
         getUserAnswer();
     }, []);
 
-    if (loading) {
-        return <Loading />;
-    }
+    if (loading) return <Loading />;
 
     if (!sectionData) {
         return (
@@ -101,17 +100,60 @@ export default function TkExamDetailsSpeaking() {
     }
 
     return (
-        <div className="min-h-screen p-6">
-            <Typography variant="h4" color="blue-gray" className="mb-6">
-                Speaking Tekshirish
-            </Typography>
-
+        <div className="min-h-screen p-4">
             {sectionData.part_scores?.map((partScore, partIndex) => (
                 <Card key={partScore.id} className="mb-6 shadow-md">
                     <CardBody>
                         <Typography variant="h5" color="blue" className="mb-4">
                             Part {partIndex + 1}
                         </Typography>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                            <div>
+                                <Typography variant="small">Fluency and Coherence</Typography>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    value={partScores[partScore.id]?.fluency || ''}
+                                    onChange={(e) =>
+                                        handlePartScoreChange(partScore.id, "fluency", e.target.value)
+                                    }
+                                />
+                            </div>
+                            <div>
+                                <Typography variant="small">Lexical Resource</Typography>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    value={partScores[partScore.id]?.lexical || ''}
+                                    onChange={(e) =>
+                                        handlePartScoreChange(partScore.id, "lexical", e.target.value)
+                                    }
+                                />
+                            </div>
+                            <div>
+                                <Typography variant="small">Grammar</Typography>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    value={partScores[partScore.id]?.grammar || ''}
+                                    onChange={(e) =>
+                                        handlePartScoreChange(partScore.id, "grammar", e.target.value)
+                                    }
+                                />
+                            </div>
+                            <div>
+                                <Typography variant="small">Pronunciation</Typography>
+                                <Input
+                                    type="number"
+                                    min="0"
+                                    value={partScores[partScore.id]?.pronunciation || ''}
+                                    onChange={(e) =>
+                                        handlePartScoreChange(partScore.id, "pronunciation", e.target.value)
+                                    }
+                                />
+                            </div>
+                        </div>
 
                         <div className="space-y-4">
                             {partScore.user_answers?.map((answer, answerIndex) => (
@@ -141,33 +183,16 @@ export default function TkExamDetailsSpeaking() {
                                             </audio>
                                         </div>
                                     )}
-
-                                    <div className="flex items-center gap-2">
-                                        <Typography variant="small" color="blue-gray">
-                                            Baho:
-                                        </Typography>
-                                        <Input
-                                            type="number"
-                                            min="0"
-                                            value={scores[answer.id] || ''}
-                                            onChange={(e) => handleScoreChange(answer.id, e.target.value)}
-                                            className="w-20"
-                                            containerProps={{ className: "min-w-0" }}
-                                        />
-                                    </div>
                                 </div>
                             ))}
                         </div>
                     </CardBody>
+                    
                 </Card>
             ))}
 
             <div className="mt-6 text-center">
-                <Button
-                    color="blue"
-                    onClick={submitScores}
-                    loading={submitting}
-                >
+                <Button color="blue" onClick={submitScores} loading={submitting}>
                     {submitting ? 'Saqlanmoqda...' : 'Baholarni saqlash'}
                 </Button>
             </div>

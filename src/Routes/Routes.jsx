@@ -19,7 +19,7 @@ import StudyCenterDashboard from "../Components/AdminPanel-Component/Study-Cente
 import StudyCenterDetail from "../Components/AdminPanel-Component/StudyCenter-Detail/StudyCenterDetail";
 import StudyCenter from "../Components/AdminPanel-Component/StudyCenter/StudyCenter";
 import TkExamDetail from "../Components/AdminPanel-Component/TkExam-Detail/TkExamDetail";
-import TkExamDetailsSpeaking from "../Components/AdminPanel-Component/TkExam-Detail/TkExamDetailsSpeaking";
+import TkExamDetailsSpeaking from "../Components/AdminPanel-Component/TkExam-Detail/TkExamDetailsSpeaking/TkExamDetailsSpeaking";
 import TkExamDetailWriting from "../Components/AdminPanel-Component/TkExam-Detail/TkExamDetailWriting";
 import TkExam from "../Components/AdminPanel-Component/TkExam/TkExam";
 import Profile from "../Components/AdminPanel-Component/Profile/Profile";

@@ -9,7 +9,7 @@ import CONFIG from "../../../utils/Config";
 export default function ExamSolution({ initialExamData = null, loading = false, error = null }) {
     const [examData, setExamData] = useState(initialExamData);
     const [examStartModal, setExamStartModal] = useState(!initialExamData);
-    const [timeLeft, setTimeLeft] = useState(0);
+    const [timeLeft, setTimeLeft] = useState(null);
     const [outModal, setOutModal] = useState(false);
     const [nextSectionModal, setNextSectionModal] = useState(false);
     const [answers, setAnswers] = useState([]);

@@ -76,7 +76,7 @@ export default function Reyting() {
                                         <tr key={item.id}>
                                             <td className={classes}>
                                                 <Typography variant="small" color="blue-gray" className="font-normal">
-                                                    {index + 1}. {item.user_id}
+                                                    {index + 1}. {item.user?.name || "—"} {' '} {item.user?.surname || "—"}
                                                 </Typography>
                                             </td>
                                             <td className={classes}>
