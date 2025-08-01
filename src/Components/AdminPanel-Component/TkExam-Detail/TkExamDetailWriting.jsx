@@ -161,7 +161,6 @@ export default function TkExamDetailsWriting() {
                                             className="w-20"
                                             containerProps={{ className: "min-w-0" }}
                                         />
-
                                     </div>
                                 </div>
                             ))}
