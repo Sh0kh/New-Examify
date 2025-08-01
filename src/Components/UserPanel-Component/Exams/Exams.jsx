@@ -18,6 +18,7 @@ export default function Exams() {
     const [examId, setExamId] = useState(null);
     const [examType, setExamType] = useState(null);
     const [error, setError] = useState(false);
+    const [examPrice, setExamPrice] = useState(null);
 
     const gradientColors = [
         "from-pink-400 to-red-500",
@@ -46,9 +47,14 @@ export default function Exams() {
     }, []);
 
     const activeExams = useMemo(() => {
-        return exams.filter(exam => exam.status === "active");
+        return exams
+            .filter(exam => exam.status === "active")
+            .sort((a, b) => {
+                if (a.type_id == 1 && b.type_id !== 1) return -1;
+                if (a.type_id !== 1 && b.type_id == 1) return 1;
+                return 0;
+            });
     }, [exams]);
-
     return (
         <>
             <main className="min-h-screen px-4 py-10 mt-[80px]">
@@ -80,6 +86,7 @@ export default function Exams() {
                                             setExamId(exam?.id);
                                             setExamType(exam?.type_id);
                                             setBuyExamModal(true);
+                                            setExamPrice(exam?.price);
                                         }}
                                         className={`p-6 rounded-2xl h-[314px] flex flex-col justify-between text-white shadow-lg 
                     ${colorClass}
@@ -94,7 +101,7 @@ export default function Exams() {
                                                 const createdDate = new Date(exam.created_at);
                                                 const today = new Date();
                                                 const diffInDays = (today - createdDate) / (1000 * 60 * 60 * 24);
-                                                return diffInDays <= 20 ? <span>New</span> : null;
+                                                return diffInDays <= 20 ? <span >New!</span> : null;
                                             })()}
                                         </div>
                                         <div>
@@ -132,7 +139,7 @@ export default function Exams() {
                 </div>
             </main>
             <ExamBuyModal id={examId} examType={examType} isOpen={BuyExamModal} onClose={() => setBuyExamModal(false)} Error={() => setError(true)} />
-            <BalanceErrorModal isOpen={error} onClose={() => setError(false)} />
+            <BalanceErrorModal examPrice={examPrice} isOpen={error} onClose={() => setError(false)} />
         </>
     );
 }
