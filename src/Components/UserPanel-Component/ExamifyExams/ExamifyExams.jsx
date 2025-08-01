@@ -81,10 +81,18 @@ export default function ExamifyExams() {
                     ${colorClass}
                     cursor-pointer transition-transform hover:scale-105`}
                                     >
-                                        <h2 className="text-xl font-semibold flex items-center space-x-2">
-                                            <img src={Logo} alt="IELTS logo" className="w-[25px] h-[34px]" />
-                                            <span>Examify</span>
-                                        </h2>
+                                        <div className="flex items-center justify-between">
+                                            <h2 className="text-xl font-semibold flex items-center space-x-2">
+                                                <img src={Logo} alt="IELTS logo" className="w-[25px] h-[34px]" />
+                                                <span>Examify</span>
+                                            </h2>
+                                            {exam?.created_at && (() => {
+                                                const createdDate = new Date(exam.created_at);
+                                                const today = new Date();
+                                                const diffInDays = (today - createdDate) / (1000 * 60 * 60 * 24);
+                                                return diffInDays <= 20 ? <span>New</span> : null;
+                                            })()}
+                                        </div>
                                         <div>
                                             <h3 className="text-lg mt-2">{exam.name}</h3>
                                             <p className="text-sm mt-1">Language: {exam.language}</p>
