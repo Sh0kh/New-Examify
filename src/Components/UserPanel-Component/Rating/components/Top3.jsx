@@ -14,8 +14,8 @@ function Top3({ data }) {
                         <div className='flex items-center justify-center'>
                             <img src={foto2} alt="" />
                         </div>
-                        <h2 className='text-[black] font-bold text-[36px] text-center mt-[10px]'>
-                            {data[1]?.user?.name || 'No name'}
+                        <h2 className='text-[black] font-bold text-[28px] text-center mt-[10px]'>
+                            {data[1]?.user?.name} {' '}  {data[1]?.user?.surname}
                         </h2>
                         <span className='text-[black] block my-[16px]'>
                             {data[1]?.created_at?.split('T')[0]}
@@ -29,8 +29,8 @@ function Top3({ data }) {
                         <div className='flex items-center justify-center'>
                             <img src={foto1} alt="" />
                         </div>
-                        <h2 className='text-[black] font-bold text-[36px] text-center mt-[10px]'>
-                            {data[0]?.user?.name}
+                        <h2 className='text-[black] font-bold text-[28px] text-center mt-[10px]'>
+                            {data[0]?.user?.name} {' '}  {data[0]?.user?.surname}
                         </h2>
                         <span className='text-[black] block my-[16px]'>
                             {data[0]?.created_at?.split('T')[0]}
@@ -44,8 +44,8 @@ function Top3({ data }) {
                         <div className='flex items-center justify-center'>
                             <img src={foto3} alt="" />
                         </div>
-                        <h2 className='text-[black] font-bold text-[36px] text-center mt-[10px]'>
-                            {data[2]?.user?.name || 'No name'}
+                        <h2 className='text-[black] font-bold text-[28px] text-center mt-[10px]'>
+                            {data[2]?.user?.name} {' '}  {data[2]?.user?.surname}
                         </h2>
                         <span className='text-[black] block my-[16px]'>
                             {data[2]?.created_at?.split('T')[0]}
@@ -61,8 +61,8 @@ function Top3({ data }) {
                         <div className='flex items-center justify-center'>
                             <img src={foto1} alt="" />
                         </div>
-                        <h2 className='text-[black] font-bold text-[36px] text-center mt-[10px]'>
-                            {data[0]?.user?.name}
+                        <h2 className='text-[black] font-bold text-[28px] text-center mt-[10px]'>
+                            {data[0]?.user?.name} {' '}  {data[0]?.user?.surname}
                         </h2>
                         <span className='text-[black] block my-[16px]'>
                             {data[0]?.created_at?.split('T')[0]}
@@ -76,8 +76,8 @@ function Top3({ data }) {
                         <div className='flex items-center justify-center'>
                             <img src={foto2} alt="" />
                         </div>
-                        <h2 className='text-[black] font-bold text-[36px] text-center mt-[10px]'>
-                            {data[1]?.user?.name || 'No name'}
+                        <h2 className='text-[black] font-bold text-[28px] text-center mt-[10px]'>
+                            {data[1]?.user?.name} {' '}  {data[1]?.user?.surname}
                         </h2>
                         <span className='text-[black] block my-[16px]'>
                             {data[1]?.created_at?.split('T')[0]}
@@ -91,8 +91,8 @@ function Top3({ data }) {
                         <div className='flex items-center justify-center'>
                             <img src={foto3} alt="" />
                         </div>
-                        <h2 className='text-[black] font-bold text-[36px] text-center mt-[10px]'>
-                            {data[2]?.user?.name}
+                        <h2 className='text-[black] font-bold text-[28px] text-center mt-[10px]'>
+                            {data[2]?.user?.name} {' '}  {data[2]?.user?.surname}
                         </h2>
                         <span className='text-[black] block my-[16px]'>
                             {data[2]?.created_at?.split('T')[0]}
