@@ -46,12 +46,13 @@ export default function TkExamDetailsWriting() {
     };
 
     const handleScoreChange = (answerId, score) => {
-        const numScore = parseInt(score) || 0;
+        const numScore = parseFloat(score) || 0;
         setScores(prev => ({
             ...prev,
             [answerId]: numScore
         }));
     };
+
 
     const submitScores = async () => {
         setSubmitting(true);
@@ -153,12 +154,14 @@ export default function TkExamDetailsWriting() {
                                         </Typography>
                                         <Input
                                             type="number"
+                                            step="0.1"
                                             min="0"
                                             value={scores[answer.id] || ''}
                                             onChange={(e) => handleScoreChange(answer.id, e.target.value)}
                                             className="w-20"
                                             containerProps={{ className: "min-w-0" }}
                                         />
+
                                     </div>
                                 </div>
                             ))}
