@@ -1,9 +1,12 @@
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
-export default function BalanceErrorModal({ isOpen, onClose, }) {
+export default function BalanceErrorModal({ isOpen, onClose, examPrice }) {
+    const navigate = useNavigate();
 
-
-
+    const handleRedirect = () => {
+        navigate("/payment", { state: { examPrice } });
+        onClose();
+    };
 
     return (
         <div
@@ -12,26 +15,23 @@ export default function BalanceErrorModal({ isOpen, onClose, }) {
                 }`}
         >
             <div
-                className={`TestModal p-4 sm:p-6 bg-white rounded-[8px] w-[10   0%] sm:w-[50%] lg:w-[28%] transform transition-all duration-500 
+                className={`TestModal p-4 sm:p-6 bg-white rounded-[8px] w-[100%] sm:w-[50%] lg:w-[28%] transform transition-all duration-500 
                     ${isOpen ? 'scale-100 opacity-100 translate-y-0' : 'scale-75 opacity-0 translate-y-10'}`}
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className='flex items-center justify-between mb-[10px]'>
-                    <div>
-                    </div>
+                    <div></div>
                     <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✖</button>
                 </div>
-                <h2 className="text-lg font-semibold">There is not enough money on your balance
-                </h2>
+                <h2 className="text-lg font-semibold">There is not enough money on your balance</h2>
                 <div className="flex items-center justify-center gap-[12px] mt-[10px]">
-                    <NavLink
-                        to={'/payment'}>
-                        <button className="bg-[#2970FF] text-[white] p-[10px] w-full rounded-[10px] px-[20px] border-[2px] border-[#2970FF] transition duration-500 hover:bg-transparent hover:text-[#2970FF]">
-                            Top up balance
-                        </button>
-                    </NavLink>
+                    <button
+                        onClick={handleRedirect}
+                        className="bg-[#2970FF] text-white p-[10px] w-full rounded-[10px] px-[20px] border-[2px] border-[#2970FF] transition duration-500 hover:bg-transparent hover:text-[#2970FF]">
+                        Top up balance
+                    </button>
                 </div>
             </div>
-        </div >
-    )
+        </div>
+    );
 }

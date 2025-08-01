@@ -42,8 +42,17 @@ export default function ExamifyExams() {
     }, []);
 
     const activeExams = useMemo(() => {
-        return exams.filter(exam => exam.status === "active");
+        return exams
+            .filter(exam => exam.status === "active")
+            .sort((a, b) => {
+                if (a.type_id == 1 && b.type_id !== 1) return -1;
+                if (a.type_id !== 1 && b.type_id == 1) return 1;
+                return 0;
+            });
     }, [exams]);
+
+
+
 
     return (
         <>
@@ -68,7 +77,6 @@ export default function ExamifyExams() {
                             {activeExams.map((exam, index) => {
                                 const colorClass =
                                     `bg-gradient-to-r ${gradientColors[index % gradientColors.length]}`;
-
                                 return (
                                     <div
                                         key={exam.id}
