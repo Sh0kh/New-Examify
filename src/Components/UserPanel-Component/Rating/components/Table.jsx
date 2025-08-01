@@ -19,7 +19,7 @@ function Table({ data }) {
                                         <div>
                                             <img className='w-[40px] sm:w-[50px] h-[40px] object-cover sm:h-[50px] rounded-full' src={ i?.user?.photo ? CONFIG?.API_URL + i?.user?.photo : PersonFoto} alt="foto" />
                                         </div>
-                                        <span className='text-[18px] font-semibold w-[50px]'>{i?.user?.name || "Unknown"}</span>
+                                        <span className='text-[18px] font-semibold w-[300px]'>{i?.user?.name || "Unknown"} {i?.user?.surname || "Unknown"}</span>
                                     </div>
                                     <span className='font-semibold text-[#181D27]'>
                                         Score: {i.score}
