@@ -14,6 +14,7 @@ import {
     Tooltip,
     Legend,
 } from "chart.js";
+import { $api } from "../../../utils";
 
 ChartJS.register(
     LineElement,
@@ -62,6 +63,16 @@ const stats = [
 ];
 
 const ReportDashboardUzbek = () => {
+
+    const getReport = async ()=>{
+        try{
+            const response = await $api.get(`/admin/dashboard?study_center_id=5&start_date&end_date`)
+        }catch(error){
+            console.error("Xatolik yuz berdi:", error);
+        }
+    }
+
+
     return (
         <div className="p-6 bg-gray-50 min-h-screen w-full">
             <Typography variant="h4" color="blue-gray" className="mb-6 text-center">
