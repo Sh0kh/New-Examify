@@ -1,5 +1,5 @@
 import Logo from '@/Images/LogoLightMode.png'
-import { FaInstagram, FaTelegram, FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
+import { FaInstagram, FaTelegram, FaFacebook, FaTwitter, FaLinkedin, FaYoutube } from "react-icons/fa";
 
 export default function Footer() {
     return (
@@ -7,13 +7,15 @@ export default function Footer() {
             <div className="container mx-auto flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0 px-4">
 
                 <div className="flex space-x-4">
-                    <FaInstagram className="text-xl hover:text-gray-400 transition cursor-pointer" />
+                    <a href="https://www.instagram.com/examify.uz/" target="_blank" rel="noopener noreferrer">
+                        <FaInstagram className="text-xl hover:text-gray-400 transition cursor-pointer" />
+                    </a>
                     <a href="https://t.me/mock_examify" target="_blank" rel="noopener noreferrer">
                         <FaTelegram className="text-xl hover:text-gray-400 transition cursor-pointer" />
                     </a>
                     <FaFacebook className="text-xl hover:text-gray-400 transition cursor-pointer" />
-                    <FaTwitter className="text-xl hover:text-gray-400 transition cursor-pointer" />
                     <FaLinkedin className="text-xl hover:text-gray-400 transition cursor-pointer" />
+                    <FaYoutube className="text-xl hover:text-gray-400 transition cursor-pointer" />
                 </div>
                 {/* Logo */}
                 <div className="flex items-center space-x-2">
