@@ -20,7 +20,7 @@ export default function ExamCreate({ refresh }) {
     const [open, setOpen] = React.useState(false);
     const [name, setName] = React.useState("");
     const [language, setlanguage] = React.useState("");
-    const [price, setprice] = React.useState("10 000");
+    const [price, setprice] = React.useState("0");
     const [selectedType, setSelectedType] = React.useState("");
     const [info, setInfo] = React.useState("");
     const [file, setFile] = React.useState(null);
