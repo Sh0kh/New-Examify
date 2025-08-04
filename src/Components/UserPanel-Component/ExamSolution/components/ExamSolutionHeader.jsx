@@ -68,7 +68,7 @@ export default function ExamSolutionHeader({
 
                     <button
                         onClick={activeOutModal}
-                        className="bg-white dark:bg-gray-900 text-base shadow-sm px-6 py-2 font-semibold rounded-lg text-gray-700 dark:text-gray-200 transition duration-500 border border-gray-300 dark:border-gray-600 hover:opacity-70"
+                        className="bg-white text-[red] border-[red] dark:bg-gray-900 text-base shadow-sm px-6 py-2 font-semibold rounded-lg  dark:text-[red] transition duration-500 border  dark:border-gray-600 hover:opacity-70"
                     >
                         Leave exam
                     </button>

@@ -16,6 +16,8 @@ export default function NextSectionModal({ time, isOpen, onClose, answers, examD
     const [resultId, setResultId] = useState(null);
     const navigate = useNavigate();
 
+    console.log(time )
+
     useEffect(() => {
         if (examData?.exam_result?.id && !resultId) {
             setResultId(examData.exam_result.id);

@@ -27,7 +27,7 @@ export default function LeavExamModal({ isOpen, onClose }) {
                 </IconButton>
             </DialogHeader>
             <DialogBody className="text-center">
-                <h2 className="text-[20px]">
+                <h2 className="text-[20px] text-[red]">
                     Are you sure you want to exit the exam?
                 </h2>
             </DialogBody>
@@ -36,7 +36,7 @@ export default function LeavExamModal({ isOpen, onClose }) {
                     <Button color="blue" variant="outlined" onClick={onClose} fullWidth>
                         No
                     </Button>
-                    <Button color="blue" onClick={out} fullWidth>
+                    <Button color="red" onClick={out} fullWidth>
                         Yes
                     </Button>
                 </div>

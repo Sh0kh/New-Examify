@@ -59,6 +59,7 @@ export default function PravidExamFinance() {
         price: parseInt(item.payment),
         studyCenter: "ITLive Academy",
     }));
+    // 
 
     const uniqueCenters = [...new Set(payments.map(p => p.studyCenter))];
     const filteredPayments = selectedCenter
