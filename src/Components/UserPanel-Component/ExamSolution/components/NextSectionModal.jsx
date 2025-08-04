@@ -16,8 +16,6 @@ export default function NextSectionModal({ time, isOpen, onClose, answers, examD
     const [resultId, setResultId] = useState(null);
     const navigate = useNavigate();
 
-    console.log(time )
-
     useEffect(() => {
         if (examData?.exam_result?.id && !resultId) {
             setResultId(examData.exam_result.id);
@@ -40,7 +38,8 @@ export default function NextSectionModal({ time, isOpen, onClose, answers, examD
                 parts: answers
             };
             const response = await $api.post(`/user/check-section`, data);
-            if (response?.data?.score || response?.data?.next_section === null) {
+            console.log(response?.data?.score);
+            if (response?.data?.next_section === undefined || response?.data?.score || response?.data?.next_section === null) {
                 navigate('/my-result');
             }
             setDataFromChild(response?.data);
