@@ -85,15 +85,15 @@ function Header() {
                                 className="hover:text-black font-[600]">
                                 Manual
                             </button>
-                            <a className='hover:text-black font-[600]' href="https://itliveacademy.uz/" target="_blank" rel="noopener noreferrer">
-                                IT LIVE Academy
+                            <a className='hover:text-black font-[600]' href="https://t.me/shoxruh_tuxtanazarov" target="_blank" rel="noopener noreferrer">
+                                Support
                             </a>
                         </nav>
                     </div>
                     <div className='flex items-center gap-[5px]'>
                         {token ? (
                             <NavLink to={`/profil`}>
-                                <button className='header__login__btn' >
+                                <button className='header__login__btn'>
                                     <img className='w-[40px] h-[40px] object-cover sm:w-[50px] sm:h-[50px] rounded-[50%] border-[1px] border-[black]' src={profileData?.photo ? CONFIG.API_URL + profileData.photo : PersonFoto}
                                         alt="Foto" />
                                 </button>

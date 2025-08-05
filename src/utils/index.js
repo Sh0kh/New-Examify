@@ -9,7 +9,7 @@ export const $api = axios.create({
     },
 });
 
-// Интерцептор для автоматического добавления токена
+// Добавление access token в заголовки
 $api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
@@ -20,43 +20,39 @@ $api.interceptors.request.use((config) => {
     return Promise.reject(error);
 });
 
-// Интерцептор для обработки ответов
+// Обработка ответа
 $api.interceptors.response.use(
-    (response) => {
-        return response;
-    },
+    (response) => response,
     async (error) => {
         const originalRequest = error.config;
 
-        // Если ошибка 401 и это не запрос на обновление токена
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        if (error.response?.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
 
             try {
-                const refreshToken = localStorage.getItem('token');
-                const userId = localStorage.getItem('user_id');
+                const refreshToken = localStorage.getItem('refresh_token'); // здесь нужен refresh_token!
 
-                if (!refreshToken || !userId) {
-                    throw new Error('No refresh token or user ID available');
+                if (!refreshToken) {
+                    throw new Error('Refresh token yoki user ID topilmadi');
                 }
 
                 // Отправляем запрос на обновление токена
                 const response = await axios.post(`${BASE_URL}/api/user/refresh-token`, {
-                    token: refreshToken,
-                    user_id: userId
+                    refresh_token: refreshToken,
                 });
 
                 const newToken = response.data.token;
+
+                // Сохраняем новый токен
                 localStorage.setItem('token', newToken);
 
-                // Обновляем заголовок Authorization и повторяем запрос
+                // Обновляем заголовок и повторяем запрос
                 originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
                 return $api(originalRequest);
 
             } catch (refreshError) {
-                // Если не удалось обновить токен, очищаем хранилище и перенаправляем на логин
-                localStorage.clear();
-                window.location.href = '/login';
+                // localStorage.clear();
+                // window.location.href = '/login';
                 return Promise.reject(refreshError);
             }
         }

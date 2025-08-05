@@ -78,6 +78,7 @@ function Login() {
                 const response = await $api.post(`/login`, data);
                 showSuccessToast();
                 localStorage.setItem('token', response.data.token);
+                localStorage.setItem('refresh_token', response.data?.user?.refresh_token);
                 localStorage.setItem('user_id', response?.data?.user?.id)
                 navigate('/')
             } catch (error) {
