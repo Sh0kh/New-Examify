@@ -5,17 +5,32 @@ import {
     Tab,
     Card,
 } from "@material-tailwind/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PravidExamFinance from "./components/PravidExamFinance";
 import PaidExamFinance from "./components/PaidExamFinance";
+import { $api } from "../../../utils";
 
 export default function Finance() {
     const [activeTab, setActiveTab] = useState("pravid");
+    const [studyCenterData, setStudyCenterData] = useState([]);
 
     const tabData = [
         { label: "Pravid Exam", value: "pravid" },
         { label: "Paid Exam", value: "paid" },
     ];
+
+    const getStudyCenter = async () => {
+        try {
+            const response = await $api.get(`/admin/study-centers`);
+            setStudyCenterData(response?.data);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    useEffect(() => {
+        getStudyCenter()
+    }, [])
 
     return (
         <div className="p-6 mx-auto">
@@ -40,8 +55,8 @@ export default function Finance() {
                             value={value}
                             onClick={() => setActiveTab(value)}
                             className={`text-sm font-medium transition-all duration-300 ${activeTab === value
-                                    ? "text-white"
-                                    : "text-blue-gray-700"
+                                ? "text-white"
+                                : "text-blue-gray-700"
                                 }`}
                         >
                             {label}
@@ -51,8 +66,8 @@ export default function Finance() {
             </Tabs>
 
             <div className="transition-all duration-300">
-                {activeTab === "pravid" && <PravidExamFinance />}
-                {activeTab === "paid" && <PaidExamFinance />}
+                {activeTab === "pravid" && <PravidExamFinance studyCenterData={studyCenterData} />}
+                {activeTab === "paid" && <PaidExamFinance studyCenterData={studyCenterData} />}
             </div>
         </div>
     );
