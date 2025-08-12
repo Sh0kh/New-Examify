@@ -314,14 +314,13 @@ export default function ExamSolutionBody({ examData, setAnswers }) {
     }
 
     return (
-        <div className={`min-h-screen Exam__test pt-[90px] p-2 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
-            <div className="mb-6">
+        <div className={`min-h-screen relative Exam__test pt-[135px] p-2 ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
+            <div className={`mb-3 fixed top-[72px] py-[10px] w-full ${theme === 'dark' ? 'bg-gray-900 text-gray-100' : 'bg-[#FAFAFA] text-gray-800'}`}>
                 <div className="flex flex-wrap gap-2">
                     {parts.length > 0 && parts.map((part, index) => {
                         const answeredCount = getAnsweredQuestionsCount(part.id);
                         const totalQuestions = part.questions.length;
                         const isActive = activePart === part.id || (index === 0 && activePart === null);
-
                         return (
                             <button
                                 key={part.id}
