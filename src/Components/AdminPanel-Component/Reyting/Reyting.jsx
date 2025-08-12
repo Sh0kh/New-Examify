@@ -1,6 +1,7 @@
 import {
     Card,
     Typography,
+    Button
 } from "@material-tailwind/react";
 import { useEffect, useState } from "react";
 import { $api } from "../../../utils";
@@ -10,7 +11,9 @@ import Loading from "../../UI/Loadings/Loading";
 export default function Reyting() {
     const TABLE_HEAD = ["#", "Ism Familiya", "Telefon", "Imtihon nomi", "Natija", "Boshlanish vaqti", "Action"];
     const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true)
+    const [loading, setLoading] = useState(true);
+    const [pagination, setPagination] = useState({});
+    const [page, setPage] = useState(1);
 
     const formatDateTime = (dateStr) => {
         if (!dateStr) return "-";
@@ -24,26 +27,25 @@ export default function Reyting() {
         });
     };
 
-    const getAllResult = async () => {
-        setLoading(true)
+    const getAllResult = async (pageNum = 1) => {
+        setLoading(true);
         try {
-            const response = await $api.get(`/study-center/get-my-users-rating`);
+            const response = await $api.get(`/study-center/get-my-users-rating?page=${pageNum}`);
             setData(response?.data?.data || []);
+            setPagination(response?.data || {});
         } catch (error) {
             console.log(error);
         } finally {
-            setLoading(false)
+            setLoading(false);
         }
     };
 
     useEffect(() => {
-        getAllResult();
-    }, []);
+        getAllResult(page);
+    }, [page]);
 
     if (loading) {
-        return (
-            <Loading />
-        )
+        return <Loading />;
     }
 
     return (
@@ -70,7 +72,7 @@ export default function Reyting() {
                             {data.length > 0 ? (
                                 data.map((item, index) => (
                                     <tr key={item.id} className="hover:bg-blue-gray-50 transition">
-                                        <td className="p-4">{index + 1}</td>
+                                        <td className="p-4">{(pagination.from || 0) + index}</td>
                                         <td className="p-4">{item?.user?.name} {item?.user?.surname}</td>
                                         <td className="p-4">{item?.user?.phoneNumber}</td>
                                         <td className="p-4">{item?.exam?.name}</td>
@@ -93,7 +95,28 @@ export default function Reyting() {
                         </tbody>
                     </table>
                 </div>
+
+                {/* PAGINATION */}
+                <div className="flex justify-center gap-2 mt-4 flex-wrap">
+                    {pagination.links?.map((link, idx) => (
+                        <Button
+                            key={idx}
+                            size="sm"
+                            variant={link.active ? "filled" : "outlined"}
+                            onClick={() => {
+                                if (link.url) {
+                                    const newPage = new URL(link.url).searchParams.get("page");
+                                    setPage(Number(newPage));
+                                }
+                            }}
+                            disabled={!link.url}
+                        >
+                            {link.label.replace("&laquo; Previous", "«").replace("Next &raquo;", "»")}
+                        </Button>
+                    ))}
+                </div>
             </Card>
         </div>
     );
 }
+    
