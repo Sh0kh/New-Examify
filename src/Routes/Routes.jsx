@@ -35,7 +35,7 @@ import MyResultDetail from "../Components/UserPanel-Component/MyResultDetail/MyR
 import SectionDetail from "../Components/UserPanel-Component/MyResultDetail/SectionDetail";
 import Rating from "../Components/UserPanel-Component/Rating/Rating";
 import ExamifyExams from "../Components/UserPanel-Component/ExamifyExams/ExamifyExams";
-import UserResult from "../Components/AdminPanel-Component/UserResult/userResult";
+import UserResult from "../Components/AdminPanel-Component/UserResult/UserResult";
 import ResultDetail from "../Components/AdminPanel-Component/UserResult/ResultDetail";
 
 

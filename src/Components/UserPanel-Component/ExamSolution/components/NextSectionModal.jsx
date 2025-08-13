@@ -38,7 +38,6 @@ export default function NextSectionModal({ time, isOpen, onClose, answers, examD
                 parts: answers
             };
             const response = await $api.post(`/user/check-section`, data);
-            console.log(response?.data?.score);
             if (response?.data?.next_section === undefined || response?.data?.score || response?.data?.next_section === null) {
                 navigate('/my-result');
             }
