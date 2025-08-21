@@ -12,8 +12,59 @@ export default function FillInBlankQuestion({ question, onAnswer, userAnswer, th
     // Ответы пользователя (оригинальные)
     const answers = Array.isArray(userAnswer) ? userAnswer : new Array(inputCount).fill("");
 
-    // Правильные ответы (из шаблона, оригинальные)
-    const correctAnswers = inputMatches.map(match => match[1]?.trim() || "");
+    // Функция для извлечения только текстового содержимого из HTML
+    const extractTextContent = (htmlString) => {
+        if (!htmlString) return '';
+
+        // Если строка не содержит HTML тегов, возвращаем как есть
+        if (!htmlString.includes('<')) return htmlString;
+
+        try {
+            let cleanText = htmlString;
+
+            // Удаляем все HTML комментарии (включая Word комментарии)
+            cleanText = cleanText.replace(/<!--[\s\S]*?-->/g, '');
+
+            // Удаляем XML объявления, DOCTYPE и другие служебные теги
+            cleanText = cleanText.replace(/<\?xml[\s\S]*?\?>/g, '');
+            cleanText = cleanText.replace(/<!DOCTYPE[\s\S]*?>/g, '');
+            cleanText = cleanText.replace(/<!\[CDATA\[[\s\S]*?\]\]>/g, '');
+
+            // Простое удаление всех HTML тегов регулярным выражением
+            cleanText = cleanText.replace(/<[^>]*>/g, '');
+
+            // Декодируем HTML сущности
+            cleanText = cleanText
+                .replace(/&nbsp;/g, ' ')
+                .replace(/&amp;/g, '&')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&quot;/g, '"')
+                .replace(/&#39;/g, "'")
+                .replace(/&apos;/g, "'");
+
+            // Удаляем лишние пробелы, табы, переносы строк
+            cleanText = cleanText.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+
+            return cleanText;
+        } catch (error) {
+            // Fallback: агрессивная очистка всех тегов
+            console.warn('Error extracting text content:', error);
+            const fallback = htmlString
+                .replace(/<!--[\s\S]*?-->/g, '')  // Удаляем комментарии
+                .replace(/<[^>]*>/g, '')          // Удаляем все теги
+                .replace(/&[^;]+;/g, ' ')         // Удаляем HTML сущности
+                .replace(/\s+/g, ' ')             // Сжимаем пробелы
+                .trim();
+            return fallback;
+        }
+    };
+
+    // Правильные ответы (извлекаем только текст, без HTML тегов)
+    const correctAnswers = inputMatches.map(match => {
+        const rawAnswer = match[1]?.trim() || "";
+        return extractTextContent(rawAnswer);
+    });
 
     // Функция очистки строки от всего, кроме букв и цифр (только для сравнения)
     const cleanString = (str) =>
@@ -45,8 +96,6 @@ export default function FillInBlankQuestion({ question, onAnswer, userAnswer, th
 
                 // Сравнение ТОЛЬКО для отображения (очищенные строки)
                 const isCorrect = cleanString(userInputValue) === cleanString(correctAnswer);
-
-
 
                 return (
                     <input
